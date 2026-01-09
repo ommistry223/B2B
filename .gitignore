@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+node_modules/
+
+# Environment variables - NEVER COMMIT THESE!
+.env
+.env.local
+.env.development
+.env.production
+backend/.env
+backend/.env.local
+
+# Build outputs
+dist
+build
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database
+*.sqlite
+*.db
+
+# Temporary files
+tmp/
+temp/

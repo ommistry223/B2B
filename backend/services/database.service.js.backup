@@ -1,0 +1,147 @@
+import { v4 as uuidv4 } from 'uuid';
+
+/**
+ * In-Memory Database Service
+ * This will be replaced with your chosen database (Supabase, MongoDB, etc.)
+ */
+class DatabaseService {
+  constructor() {
+    this.users = [];
+    this.customers = [];
+    this.invoices = [];
+    this.payments = [];
+    this.initializeSampleData();
+  }
+
+  initializeSampleData() {
+    // Initialize with some sample data if needed
+    console.log('Database initialized with in-memory storage');
+  }
+
+  // USER OPERATIONS
+  createUser(userData) {
+    const user = {
+      id: uuidv4(),
+      ...userData,
+      createdAt: new Date().toISOString()
+    };
+    this.users.push(user);
+    return user;
+  }
+
+  findUserByEmail(email) {
+    return this.users.find(u => u.email === email);
+  }
+
+  findUserById(id) {
+    return this.users.find(u => u.id === id);
+  }
+
+  // CUSTOMER OPERATIONS
+  createCustomer(userId, customerData) {
+    const customer = {
+      id: uuidv4(),
+      userId,
+      ...customerData,
+      outstanding: customerData.outstanding || 0,
+      createdAt: new Date().toISOString()
+    };
+    this.customers.push(customer);
+    return customer;
+  }
+
+  getCustomersByUserId(userId) {
+    return this.customers.filter(c => c.userId === userId);
+  }
+
+  getCustomerById(id, userId) {
+    return this.customers.find(c => c.id === id && c.userId === userId);
+  }
+
+  updateCustomer(id, userId, updates) {
+    const index = this.customers.findIndex(c => c.id === id && c.userId === userId);
+    if (index === -1) return null;
+
+    this.customers[index] = {
+      ...this.customers[index],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    return this.customers[index];
+  }
+
+  deleteCustomer(id, userId) {
+    const index = this.customers.findIndex(c => c.id === id && c.userId === userId);
+    if (index === -1) return false;
+
+    this.customers.splice(index, 1);
+    return true;
+  }
+
+  // INVOICE OPERATIONS
+  createInvoice(userId, invoiceData) {
+    const invoice = {
+      id: uuidv4(),
+      userId,
+      ...invoiceData,
+      createdAt: new Date().toISOString()
+    };
+    this.invoices.push(invoice);
+    return invoice;
+  }
+
+  getInvoicesByUserId(userId) {
+    return this.invoices.filter(i => i.userId === userId);
+  }
+
+  getInvoiceById(id, userId) {
+    return this.invoices.find(i => i.id === id && i.userId === userId);
+  }
+
+  updateInvoice(id, userId, updates) {
+    const index = this.invoices.findIndex(i => i.id === id && i.userId === userId);
+    if (index === -1) return null;
+
+    this.invoices[index] = {
+      ...this.invoices[index],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    return this.invoices[index];
+  }
+
+  deleteInvoice(id, userId) {
+    const index = this.invoices.findIndex(i => i.id === id && i.userId === userId);
+    if (index === -1) return false;
+
+    this.invoices.splice(index, 1);
+    return true;
+  }
+
+  // PAYMENT OPERATIONS
+  createPayment(userId, paymentData) {
+    const payment = {
+      id: uuidv4(),
+      userId,
+      ...paymentData,
+      createdAt: new Date().toISOString()
+    };
+    this.payments.push(payment);
+    return payment;
+  }
+
+  getPaymentsByUserId(userId) {
+    return this.payments.filter(p => p.userId === userId);
+  }
+
+  getPaymentsByInvoiceId(invoiceId, userId) {
+    return this.payments.filter(p => p.invoiceId === invoiceId && p.userId === userId);
+  }
+
+  getPaymentById(id, userId) {
+    return this.payments.find(p => p.id === id && p.userId === userId);
+  }
+}
+
+// Export singleton instance
+export const db = new DatabaseService();
