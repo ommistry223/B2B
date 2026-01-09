@@ -3,10 +3,10 @@
 [build]
   # Install dependencies first, then build
   command = "npm ci && npm run build"
-  
+
   # Directory to publish (Vite outputs to 'dist')
   publish = "dist"
-  
+
   # Node version
   node_version = "18"
 
@@ -14,21 +14,8 @@
   # Production environment
   NODE_ENV = "production"
   NPM_FLAGS = "--legacy-peer-deps"
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
-# Headers for security
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-
-# Cache static assets
-[[headers]]
-  for = "/assets/*"
+# Redirect all routes to index.html for client-side routing
+[[redirects]]
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
