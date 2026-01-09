@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: creditflow-backend
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        fromDatabase:
+          name: creditflow-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: creditflow-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: creditflow-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: creditflow-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: creditflow-db
+          property: password
+
+databases:
+  - name: creditflow-db
+    databaseName: b2b_creditflow
+    user: creditflow_user
+    plan: free
+    region: oregon
