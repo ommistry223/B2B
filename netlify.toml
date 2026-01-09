@@ -4,6 +4,9 @@
   command = "npm install --legacy-peer-deps && npm run build"
   publish = "build"
 
+[build.environment]
+  VITE_API_URL = "https://b2b-production-febe.up.railway.app"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
