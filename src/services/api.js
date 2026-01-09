@@ -1,6 +1,7 @@
 /**
  * API Service for Backend Communication
  * Centralized API calls to the backend server
+ * Updated: 2026-01-10 - Fixed API URL configuration
  */
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
