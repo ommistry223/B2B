@@ -4,8 +4,11 @@
  * Updated: 2026-01-10 - Fixed API URL configuration
  */
 
-// API Base URL Configuration
+// API Base URL - loaded from environment variable
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+if (import.meta.env.DEV) {
+  console.log('🔗 API URL:', API_URL);
+}
 console.log('API URL configured:', API_URL);
 
 // Helper function to get auth token

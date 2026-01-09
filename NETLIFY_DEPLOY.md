@@ -3,6 +3,7 @@
 ## 🚀 Deploy in 5 Minutes
 
 ### Step 1: Push to GitHub (Already Done! ✅)
+
 Your code is at: https://github.com/ommistry223/B2B
 
 ### Step 2: Deploy Frontend to Netlify
@@ -21,6 +22,7 @@ Your code is at: https://github.com/ommistry223/B2B
 ### Step 3: Add Environment Variable
 
 After deployment:
+
 1. Go to **Site settings** → **Environment variables**
 2. Add one variable for now:
    ```
@@ -45,11 +47,13 @@ After deployment:
 ### Step 5: Get Your URLs
 
 **Frontend URL** (from Netlify):
+
 ```
 https://your-site-name.netlify.app
 ```
 
 **Backend URL** (from Railway):
+
 ```
 https://your-app.railway.app
 ```
@@ -90,6 +94,7 @@ CREATE TABLE users (
 ## ✅ Done!
 
 Your app is now live:
+
 - **Frontend**: https://your-site.netlify.app
 - **Backend**: https://your-app.railway.app
 
@@ -103,10 +108,12 @@ Your app is now live:
 ## 💡 Tips
 
 - **Free Limits:**
+
   - Netlify: 100GB bandwidth/month
   - Railway: $5 credit/month
-  
+
 - **Custom Domain:**
+
   - In Netlify: Domain settings → Add custom domain
   - Update DNS with your provider
 
