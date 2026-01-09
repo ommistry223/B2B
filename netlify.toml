@@ -2,9 +2,7 @@
 
 [build]
   # Install dependencies first, then build
-  command = "npm ci && npm run build"
-
-  # Directory to publish (Vite outputs to 'dist')
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist"
 
   # Node version
