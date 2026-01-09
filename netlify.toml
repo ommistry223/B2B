@@ -1,21 +1,19 @@
 # Netlify Configuration for CreditFlow Pro Frontend
 
 [build]
-  # Build command for Vite
-  command = "npm run build"
-
+  # Install dependencies first, then build
+  command = "npm ci && npm run build"
+  
   # Directory to publish (Vite outputs to 'dist')
   publish = "dist"
-
+  
   # Node version
   node_version = "18"
 
 [build.environment]
   # Production environment
   NODE_ENV = "production"
-
-# Redirect all routes to index.html for client-side routing
-[[redirects]]
+  NPM_FLAGS = "--legacy-peer-deps"
   from = "/*"
   to = "/index.html"
   status = 200
