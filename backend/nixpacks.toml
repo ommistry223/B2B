@@ -4,8 +4,5 @@ nixPkgs = ['nodejs_22']
 [phases.install]
 cmds = ['npm install --legacy-peer-deps']
 
-[phases.build]
-cmds = ['echo "No build step needed"']
-
 [start]
 cmd = 'node server.js'
