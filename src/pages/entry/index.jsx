@@ -273,7 +273,7 @@ const Entry = () => {
                 },
               ].map((item, index) => (
                 <div key={index} className="relative text-center">
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary text-white text-2xl font-bold mb-6">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground text-2xl font-bold mb-6">
                     {item.step}
                   </div>
                   <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
@@ -336,7 +336,7 @@ const Entry = () => {
                     "{testimonial.quote}"
                   </p>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-medium">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium">
                       {testimonial.name
                         .split(' ')
                         .map(n => n[0])

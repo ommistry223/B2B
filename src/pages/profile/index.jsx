@@ -228,7 +228,7 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                 {/* Avatar */}
                 <div className="relative">
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-elevation-md">
+                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground text-3xl md:text-4xl font-bold shadow-elevation-md">
                     {profileData.avatar ? (
                       <img
                         src={profileData.avatar}
@@ -244,7 +244,7 @@ const Profile = () => {
                   </div>
                   {isEditing && (
                     <label className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-smooth shadow-elevation-md">
-                      <Icon name="Camera" size={18} color="#FFFFFF" />
+                      <Icon name="Camera" size={18} className="text-primary-foreground" />
                       <input
                         type="file"
                         accept="image/*"

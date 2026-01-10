@@ -71,13 +71,13 @@ const QuickActionToolbar = () => {
                     {action?.label}
                   </span>
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${
+                    className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 text-primary-foreground ${
                       action?.variant === 'default'
                         ? 'bg-gradient-to-br from-primary to-blue-600'
                         : 'bg-gradient-to-br from-purple-500 to-purple-700'
                     }`}
                   >
-                    <Icon name={action?.icon} size={20} color="#FFFFFF" />
+                    <Icon name={action?.icon} size={20} />
                   </div>
                 </button>
               ))}
@@ -90,11 +90,11 @@ const QuickActionToolbar = () => {
           onClick={() => setIsExpanded(!isExpanded)}
           className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl active:scale-95 ${
             isExpanded
-              ? 'bg-error rotate-45'
-              : 'bg-gradient-to-br from-primary to-blue-600'
+              ? 'bg-error text-error-foreground rotate-45'
+              : 'bg-gradient-to-br from-primary to-blue-600 text-primary-foreground'
           }`}
         >
-          <Icon name="Plus" size={28} color="#FFFFFF" />
+          <Icon name="Plus" size={28} />
         </button>
       </div>
     </>

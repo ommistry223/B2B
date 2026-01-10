@@ -388,12 +388,7 @@
   }
 
   .header-nav-item.active {
-    @apply text-primary;
-    background-color: rgba(30, 64, 175, 0.1);
-  }
-
-  .dark .header-nav-item.active {
-    background-color: rgba(59, 130, 246, 0.1);
+    @apply text-primary bg-primary/10;
   }
 
   .header-nav-item.active::after {

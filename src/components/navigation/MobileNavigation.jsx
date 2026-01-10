@@ -66,7 +66,7 @@ const MobileNavigation = ({
             className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <div className="header-logo-icon">
-              <Icon name="TrendingUp" size={24} color="#FFFFFF" />
+              <Icon name="TrendingUp" size={24} className="text-white" />
             </div>
             <span className="header-logo-text">CreditFlow Pro</span>
           </Link>
@@ -82,7 +82,7 @@ const MobileNavigation = ({
         {/* User Profile Section */}
         <div className="px-4 py-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-medium">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium">
               {getInitials()}
             </div>
             <div>
