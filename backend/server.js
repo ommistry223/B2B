@@ -50,6 +50,10 @@ app.use('/api/customers', customerRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 
+// Debug routes - view database contents
+import debugRoutes from './routes/debug.js';
+app.use('/api/debug', debugRoutes(db));
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
