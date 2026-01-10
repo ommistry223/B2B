@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-module.exports = (db) => {
+export default (db) => {
   // View all tables and their row counts
   router.get('/tables', async (req, res) => {
     try {
