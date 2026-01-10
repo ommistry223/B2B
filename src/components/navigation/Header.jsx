@@ -84,7 +84,10 @@ const Header = () => {
     <>
       <header className="header-nav">
         <div className="header-nav-container">
-          <Link to="/dashboard" className="header-logo cursor-pointer hover:opacity-80 transition-opacity">
+          <Link
+            to="/dashboard"
+            className="header-logo cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <div className="header-logo-icon">
               <Icon name="TrendingUp" size={24} color="#FFFFFF" />
             </div>
@@ -182,7 +185,7 @@ const Header = () => {
 
           <button
             onClick={handleMobileMenuToggle}
-            className="mobile-menu-button"
+            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors mobile-menu-btn"
             aria-label="Toggle mobile menu"
           >
             <Icon

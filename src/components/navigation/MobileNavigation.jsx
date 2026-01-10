@@ -60,7 +60,11 @@ const MobileNavigation = ({
     <div className="mobile-nav-overlay">
       <div className="mobile-nav-container">
         <div className="mobile-nav-header">
-          <Link to="/dashboard" onClick={onClose} className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+          <Link
+            to="/dashboard"
+            onClick={onClose}
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <div className="header-logo-icon">
               <Icon name="TrendingUp" size={24} color="#FFFFFF" />
             </div>
