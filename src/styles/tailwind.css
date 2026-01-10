@@ -505,10 +505,21 @@
 
   /* Notification Dropdown */
   .notification-dropdown {
-    @apply absolute right-0 top-full mt-2 bg-popover rounded-lg shadow-elevation-xl border border-border;
+    @apply absolute right-0 top-full mt-2 bg-popover rounded-lg shadow-elevation-xl border border-border overflow-hidden;
     width: 420px;
     max-width: calc(100vw - 2rem);
+    max-height: 85vh;
     z-index: 1200;
+  }
+
+  @media (max-width: 480px) {
+    .notification-dropdown {
+      position: fixed;
+      right: 1rem;
+      left: 1rem;
+      width: auto;
+      max-width: none;
+    }
   }
 
   .notification-success {
@@ -533,6 +544,48 @@
 
   .dark .notification-error {
     background-color: rgba(239, 68, 68, 0.1);
+  }
+
+  /* Dashboard Quick Action Icon Backgrounds */
+  .action-bg-primary {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+
+  .dark .action-bg-primary {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+
+  .action-bg-success {
+    background-color: rgba(16, 185, 129, 0.1);
+  }
+
+  .dark .action-bg-success {
+    background-color: rgba(16, 185, 129, 0.15);
+  }
+
+  .action-bg-secondary {
+    background-color: rgba(139, 92, 246, 0.1);
+  }
+
+  .dark .action-bg-secondary {
+    background-color: rgba(139, 92, 246, 0.15);
+  }
+
+  .action-bg-accent {
+    background-color: rgba(251, 191, 36, 0.1);
+  }
+
+  .dark .action-bg-accent {
+    background-color: rgba(251, 191, 36, 0.15);
+  }
+
+  /* Metric Card Icon Background */
+  .metric-icon-bg {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+
+  .dark .metric-icon-bg {
+    background-color: rgba(59, 130, 246, 0.15);
   }
 
   /* Enhanced Quick Action Toolbar */

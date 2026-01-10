@@ -319,7 +319,7 @@ const NotificationCenter = () => {
         )}
       </Button>
       {isOpen && (
-        <div className="notification-dropdown" style={{ maxHeight: '520px' }}>
+        <div className="notification-dropdown">
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h3 className="text-base font-semibold text-foreground">
               Notifications {unreadCount > 0 && `(${unreadCount})`}

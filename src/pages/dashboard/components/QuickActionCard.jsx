@@ -12,7 +12,7 @@ const QuickActionCard = () => {
       description: 'Generate new credit invoice',
       icon: 'FileText',
       iconColor: 'var(--color-primary)',
-      bgColor: 'bg-primary/10',
+      bgColor: 'action-bg-primary',
       path: '/create-invoice',
     },
     {
@@ -21,7 +21,7 @@ const QuickActionCard = () => {
       description: 'Log customer payment',
       icon: 'DollarSign',
       iconColor: 'var(--color-success)',
-      bgColor: 'bg-success/10',
+      bgColor: 'action-bg-success',
       path: '/payment-recording',
     },
     {
@@ -30,7 +30,7 @@ const QuickActionCard = () => {
       description: 'Register new party',
       icon: 'UserPlus',
       iconColor: 'var(--color-secondary)',
-      bgColor: 'bg-secondary/10',
+      bgColor: 'action-bg-secondary',
       path: '/customer-management',
     },
     {
@@ -39,7 +39,7 @@ const QuickActionCard = () => {
       description: 'Check risk reports',
       icon: 'BarChart3',
       iconColor: 'var(--color-accent)',
-      bgColor: 'bg-accent/10',
+      bgColor: 'action-bg-accent',
       path: '/risk-analytics',
     },
   ]
