@@ -185,13 +185,12 @@ const Header = () => {
 
           <button
             onClick={handleMobileMenuToggle}
-            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors mobile-menu-btn"
+            className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors mobile-menu-btn text-foreground"
             aria-label="Toggle mobile menu"
           >
             <Icon
               name={isMobileMenuOpen ? 'X' : 'Menu'}
               size={24}
-              color="var(--color-foreground)"
             />
           </button>
         </div>

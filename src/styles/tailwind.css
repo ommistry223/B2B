@@ -414,15 +414,27 @@
   }
 
   .mobile-nav-overlay {
-    @apply fixed inset-0 z-[1100] lg:hidden bg-background;
-    opacity: 0.95;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    @apply fixed inset-0 z-[1100] lg:hidden;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     animation: fade-in 0.3s ease-out;
   }
 
   .mobile-nav-container {
-    @apply flex flex-col h-full pt-20 px-6 pb-6 bg-card text-card-foreground;
+    @apply fixed top-0 left-0 h-full pt-20 px-6 pb-6 bg-card text-card-foreground shadow-2xl;
+    width: 85vw;
+    max-width: 320px;
+    animation: slide-in-left 0.3s ease-out;
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
   }
 
   .mobile-nav-header {
@@ -430,7 +442,8 @@
   }
 
   .mobile-nav-menu {
-    @apply flex flex-col gap-1.5;
+    @apply flex flex-col gap-1.5 overflow-y-auto;
+    max-height: calc(100vh - 300px);
   }
 
   .mobile-nav-item {
