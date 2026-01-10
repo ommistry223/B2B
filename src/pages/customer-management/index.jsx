@@ -151,7 +151,8 @@ const CustomerManagement = () => {
       ...c,
       companyName: c.name || c.companyName,
       gstNumber: c.gst || c.gstNumber,
-      outstandingAmount: Number(c.outstanding) || Number(c.outstandingAmount) || 0,
+      outstandingAmount:
+        Number(c.outstanding) || Number(c.outstandingAmount) || 0,
       creditLimit: Number(c.creditLimit) || 0,
       riskLevel: c.riskScore || c.riskLevel || 'low',
     }))
@@ -169,7 +170,9 @@ const CustomerManagement = () => {
 
     if (filters?.riskLevel !== 'all') {
       filtered = filtered?.filter(
-        c => (c?.riskLevel || c?.riskScore)?.toLowerCase() === filters?.riskLevel?.toLowerCase()
+        c =>
+          (c?.riskLevel || c?.riskScore)?.toLowerCase() ===
+          filters?.riskLevel?.toLowerCase()
       )
     }
 
@@ -247,15 +250,15 @@ const CustomerManagement = () => {
       0
     )
     const totalOutstanding = customers?.reduce(
-      (sum, c) => sum + (Number(c?.outstanding) || Number(c?.outstandingAmount) || 0),
+      (sum, c) =>
+        sum + (Number(c?.outstanding) || Number(c?.outstandingAmount) || 0),
       0
     )
     const highRiskCount =
       customers?.filter(c => {
         const risk = (c?.riskLevel || c?.riskScore || '').toLowerCase()
         return risk === 'high'
-      })
-        ?.length || 0
+      })?.length || 0
 
     return { totalCustomers, totalCreditLimit, totalOutstanding, highRiskCount }
   }, [customers])

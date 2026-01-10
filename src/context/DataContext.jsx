@@ -248,8 +248,41 @@ export const DataProvider = ({ children }) => {
   }
 
   const getOverdueInvoices = () => {
-    const today = new Date().toISOString().split('T')[0]
-    return invoices.filter(i => i.status !== 'paid' && i.dueDate < today)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    return invoices.filter(invoice => {
+      const dueDate = new Date(invoice.dueDate)
+      dueDate.setHours(0, 0, 0, 0)
+      
+      // Calculate actual outstanding
+      const invoicePayments = payments.filter(p => p.invoiceId === invoice.id)
+      const totalPaid = invoicePayments.reduce(
+        (sum, p) => sum + (Number(p.amount) || 0),
+        0
+      )
+      const outstanding = Number(invoice.amount) - totalPaid
+      
+      // Overdue if: has outstanding amount AND due date is in the past
+      return outstanding > 0 && dueDate < today
+    }).map(invoice => {
+      const invoicePayments = payments.filter(p => p.invoiceId === invoice.id)
+      const totalPaid = invoicePayments.reduce(
+        (sum, p) => sum + (Number(p.amount) || 0),
+        0
+      )
+      const outstanding = Number(invoice.amount) - totalPaid
+      const dueDate = new Date(invoice.dueDate)
+      dueDate.setHours(0, 0, 0, 0)
+      const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24))
+      
+      return {
+        ...invoice,
+        outstanding,
+        daysOverdue,
+        status: 'overdue'
+      }
+    })
   }
 
   const getTotalPaid = () => {

@@ -67,19 +67,20 @@ const Dashboard = () => {
       const invoicePayments = payments.filter(p => p.invoiceId === invoice.id)
       if (invoicePayments.length > 0) {
         const lastPayment = invoicePayments.sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
+          (a, b) => new Date(b.paymentDate || b.date) - new Date(a.paymentDate || a.date)
         )[0]
 
         const dueDate = new Date(invoice.dueDate)
-        const paidDate = new Date(lastPayment.date)
+        dueDate.setHours(0, 0, 0, 0)
+        const paidDate = new Date(lastPayment.paymentDate || lastPayment.date)
+        paidDate.setHours(0, 0, 0, 0)
         const daysDiff = Math.floor(
           (paidDate - dueDate) / (1000 * 60 * 60 * 24)
         )
 
-        if (daysDiff > 0) {
-          totalDelay += daysDiff
-          countedInvoices++
-        }
+        // Count both positive delays (late) and on-time (0) payments
+        totalDelay += Math.max(0, daysDiff)
+        countedInvoices++
       }
     })
 
@@ -91,14 +92,14 @@ const Dashboard = () => {
       title: 'Total Outstanding',
       value: `₹${(totalOutstanding / 100000).toFixed(2)}L`,
       subtitle: `Across ${
-        invoices.filter(i => i.status !== 'paid').length
+        enrichedInvoices.filter(i => i.status !== 'paid' && (Number(i.outstanding) || 0) > 0).length
       } invoices`,
       icon: 'Wallet',
       trend: totalOutstanding > 500000 ? 'up' : 'down',
       trendValue:
         totalOutstanding > 0
           ? `${(
-              (overdueInvoices.reduce((sum, i) => sum + i.amount, 0) /
+              (overdueInvoices.reduce((sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0), 0) /
                 totalOutstanding) *
               100
             ).toFixed(1)}% overdue`
@@ -114,19 +115,18 @@ const Dashboard = () => {
       title: 'Overdue Invoices',
       value: overdueInvoices.length.toString(),
       subtitle: `₹${(
-        overdueInvoices.reduce((sum, i) => sum + i.amount, 0) / 100000
+        overdueInvoices.reduce((sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0), 0) / 100000
       ).toFixed(2)}L pending`,
       icon: 'AlertCircle',
       trend: 'down',
       trendValue:
         overdueInvoices.length > 0
           ? `${
-              (overdueInvoices.reduce(
-                (sum, i) => sum + (i.daysOverdue || 0),
+              Math.round(overdueInvoices.reduce(
+                (sum, i) => sum + (Number(i.daysOverdue) || 0),
                 0
               ) /
-                overdueInvoices.length) |
-              0
+                overdueInvoices.length)
             } days avg`
           : 'None',
       riskLevel: 'high',
@@ -135,7 +135,7 @@ const Dashboard = () => {
       title: 'Safe Cash Available',
       value: `₹${(
         (totalOutstanding -
-          overdueInvoices.reduce((sum, i) => sum + i.amount, 0)) /
+          overdueInvoices.reduce((sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0), 0)) /
         100000
       ).toFixed(2)}L`,
       subtitle: 'After risk adjustment',
@@ -143,7 +143,7 @@ const Dashboard = () => {
       trend: 'up',
       trendValue: `${(
         (1 -
-          overdueInvoices.reduce((sum, i) => sum + i.amount, 0) /
+          overdueInvoices.reduce((sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0), 0) /
             totalOutstanding) *
           100 || 0
       ).toFixed(1)}% safe`,
