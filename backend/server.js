@@ -52,7 +52,7 @@ app.use('/api/payments', paymentRoutes);
 
 // Debug routes - view database contents
 import debugRoutes from './routes/debug.js';
-app.use('/api/debug', debugRoutes(db));
+app.use('/api/debug', debugRoutes(db.pool));
 
 // Health check
 app.get('/api/health', (req, res) => {

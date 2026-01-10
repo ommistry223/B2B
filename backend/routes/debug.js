@@ -1,28 +1,43 @@
 import express from 'express';
 const router = express.Router();
 
-export default (db) => {
+export default (pool) => {
   // View all tables and their row counts
   router.get('/tables', async (req, res) => {
     try {
       const query = `
         SELECT
-          schemaname,
-          tablename,
-          (xpath('/row/cnt/text()', xml_count))[1]::text::int as row_count
-        FROM (
-          SELECT
-            schemaname,
-            tablename,
-            query_to_xml(format('select count(*) as cnt from %I.%I', schemaname, tablename), false, true, '') as xml_count
-          FROM pg_tables
-          WHERE schemaname = 'public'
-        ) t
-        ORDER BY tablename;
+          table_name,
+          (SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = 'public' AND table_name = t.table_name) as column_count
+        FROM information_schema.tables t
+        WHERE table_schema = 'public'
+        ORDER BY table_name;
       `;
 
-      const result = await db.query(query);
-      res.json({ tables: result.rows });
+      const result = await pool.query(query);
+
+      // Get row counts for each table
+      const tablesWithCounts = await Promise.all(
+        result.rows.map(async (table) => {
+          try {
+            const countResult = await pool.query(`SELECT COUNT(*) as count FROM ${table.table_name}`);
+            return {
+              table_name: table.table_name,
+              column_count: table.column_count,
+              row_count: parseInt(countResult.rows[0].count)
+            };
+          } catch (err) {
+            return {
+              table_name: table.table_name,
+              column_count: table.column_count,
+              row_count: 0,
+              error: err.message
+            };
+          }
+        })
+      );
+
+      res.json({ tables: tablesWithCounts });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -32,10 +47,10 @@ export default (db) => {
   router.get('/data', async (req, res) => {
     try {
       const [users, customers, invoices, payments] = await Promise.all([
-        db.query('SELECT id, email, created_at FROM users ORDER BY id'),
-        db.query('SELECT * FROM customers ORDER BY id'),
-        db.query('SELECT * FROM invoices ORDER BY id'),
-        db.query('SELECT * FROM payments ORDER BY id')
+        pool.query('SELECT id, email, created_at FROM users ORDER BY id'),
+        pool.query('SELECT * FROM customers ORDER BY id'),
+        pool.query('SELECT * FROM invoices ORDER BY id'),
+        pool.query('SELECT * FROM payments ORDER BY id')
       ]);
 
       res.json({
@@ -70,7 +85,7 @@ export default (db) => {
         ORDER BY table_name, ordinal_position;
       `;
 
-      const result = await db.query(query);
+      const result = await pool.query(query);
 
       // Group by table
       const schema = {};
@@ -102,7 +117,7 @@ export default (db) => {
         return res.status(403).json({ error: 'Only SELECT queries allowed' });
       }
 
-      const result = await db.query(sql);
+      const result = await pool.query(sql);
       res.json({ rows: result.rows, rowCount: result.rowCount });
     } catch (error) {
       res.status(500).json({ error: error.message });
