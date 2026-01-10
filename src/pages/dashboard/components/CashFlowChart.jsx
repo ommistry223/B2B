@@ -21,7 +21,20 @@ const CashFlowChart = ({ invoices = [], payments = [] }) => {
     for (let i = 5; i >= 0; i--) {
       const monthIndex = (currentMonth - i + 12) % 12
       const year = currentMonth - i < 0 ? currentYear - 1 : currentYear
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ]
 
       // Calculate actual inflow (payments received)
       const inflow = payments
@@ -35,19 +48,22 @@ const CashFlowChart = ({ invoices = [], payments = [] }) => {
         .reduce((sum, p) => sum + (p.amount || 0), 0)
 
       // Calculate outflow (invoices due - represents expected cash out)
-      const outflow = invoices
-        .filter(inv => {
-          const dueDate = new Date(inv.dueDate)
-          return (
-            dueDate.getMonth() === monthIndex &&
-            dueDate.getFullYear() === year
-          )
-        })
-        .reduce((sum, inv) => sum + (inv.amount || 0), 0) * 0.4 // 40% estimated cost
+      const outflow =
+        invoices
+          .filter(inv => {
+            const dueDate = new Date(inv.dueDate)
+            return (
+              dueDate.getMonth() === monthIndex &&
+              dueDate.getFullYear() === year
+            )
+          })
+          .reduce((sum, inv) => sum + (inv.amount || 0), 0) * 0.4 // 40% estimated cost
 
       // AI Forecast - simple trend-based projection
-      const recentInflow = monthsData.slice(-3).reduce((sum, m) => sum + (m.inflow || 0), 0) / 3
-      const forecast = recentInflow > 0 ? recentInflow * 1.1 : (inflow || outflow * 1.2)
+      const recentInflow =
+        monthsData.slice(-3).reduce((sum, m) => sum + (m.inflow || 0), 0) / 3
+      const forecast =
+        recentInflow > 0 ? recentInflow * 1.1 : inflow || outflow * 1.2
 
       monthsData.push({
         month: monthNames[monthIndex],

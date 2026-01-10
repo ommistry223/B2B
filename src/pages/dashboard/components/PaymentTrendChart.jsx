@@ -21,7 +21,20 @@ const PaymentTrendChart = ({ invoices = [], payments = [] }) => {
     for (let i = 5; i >= 0; i--) {
       const monthIndex = (currentMonth - i + 12) % 12
       const year = currentMonth - i < 0 ? currentYear - 1 : currentYear
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ]
 
       const monthInvoices = invoices.filter(inv => {
         const dueDate = new Date(inv.dueDate)
@@ -31,34 +44,41 @@ const PaymentTrendChart = ({ invoices = [], payments = [] }) => {
       })
 
       const total = monthInvoices.length || 1
-      
+
       // Calculate payment status
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      
+
       let onTimeCount = 0
       let delayedCount = 0
       let overdueCount = 0
-      
+
       monthInvoices.forEach(inv => {
         const dueDate = new Date(inv.dueDate)
         dueDate.setHours(0, 0, 0, 0)
-        
+
         // Get payments for this invoice
         const invoicePayments = payments.filter(p => p.invoiceId === inv.id)
-        const totalPaid = invoicePayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+        const totalPaid = invoicePayments.reduce(
+          (sum, p) => sum + (p.amount || 0),
+          0
+        )
         const outstanding = inv.amount - totalPaid
-        
+
         if (outstanding <= 0) {
           // Paid - check if it was on time
-          const latestPayment = invoicePayments.sort((a, b) => 
-            new Date(b.paymentDate || b.date) - new Date(a.paymentDate || a.date)
+          const latestPayment = invoicePayments.sort(
+            (a, b) =>
+              new Date(b.paymentDate || b.date) -
+              new Date(a.paymentDate || a.date)
           )[0]
-          
+
           if (latestPayment) {
-            const paymentDate = new Date(latestPayment.paymentDate || latestPayment.date)
+            const paymentDate = new Date(
+              latestPayment.paymentDate || latestPayment.date
+            )
             paymentDate.setHours(0, 0, 0, 0)
-            
+
             if (paymentDate <= dueDate) {
               onTimeCount++
             } else {

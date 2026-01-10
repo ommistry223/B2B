@@ -244,7 +244,7 @@ export const DataProvider = ({ children }) => {
   const getTotalOutstanding = () => {
     return invoices
       .filter(i => i.status !== 'paid')
-      .reduce((sum, i) => sum + i.amount, 0)
+      .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
   }
 
   const getOverdueInvoices = () => {
@@ -253,7 +253,7 @@ export const DataProvider = ({ children }) => {
   }
 
   const getTotalPaid = () => {
-    return payments.reduce((sum, p) => sum + p.amount, 0)
+    return payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
   }
 
   const getRecentActivity = (limit = 10) => {

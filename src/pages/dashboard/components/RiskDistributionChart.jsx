@@ -12,20 +12,36 @@ const RiskDistributionChart = ({ customers = [] }) => {
   const data = useMemo(() => {
     // Handle both lowercase and capitalized risk levels
     const lowRisk = customers.filter(c => {
-      const risk = (c.riskLevel || c.riskScore || 'low').toString().toLowerCase()
-      return risk === 'low' || (typeof c.riskScore === 'number' && c.riskScore < 40)
+      const risk = (c.riskLevel || c.riskScore || 'low')
+        .toString()
+        .toLowerCase()
+      return (
+        risk === 'low' || (typeof c.riskScore === 'number' && c.riskScore < 40)
+      )
     }).length
-    
+
     const mediumRisk = customers.filter(c => {
-      const risk = (c.riskLevel || c.riskScore || 'medium').toString().toLowerCase()
-      return risk === 'medium' || (typeof c.riskScore === 'number' && c.riskScore >= 40 && c.riskScore < 60)
+      const risk = (c.riskLevel || c.riskScore || 'medium')
+        .toString()
+        .toLowerCase()
+      return (
+        risk === 'medium' ||
+        (typeof c.riskScore === 'number' &&
+          c.riskScore >= 40 &&
+          c.riskScore < 60)
+      )
     }).length
-    
+
     const highRisk = customers.filter(c => {
-      const risk = (c.riskLevel || c.riskScore || 'high').toString().toLowerCase()
-      return risk === 'high' || (typeof c.riskScore === 'number' && c.riskScore >= 60)
+      const risk = (c.riskLevel || c.riskScore || 'high')
+        .toString()
+        .toLowerCase()
+      return (
+        risk === 'high' ||
+        (typeof c.riskScore === 'number' && c.riskScore >= 60)
+      )
     }).length
-    
+
     const total = customers.length || 1
 
     return [

@@ -99,7 +99,7 @@ const InvoiceManagement = () => {
 
       // Calculate total payments made this month
       const paymentsThisMonth = payments?.filter(payment => {
-        const paymentDate = new Date(payment.paymentDate)
+        const paymentDate = new Date(payment.paymentDate || payment.date)
         return (
           paymentDate.getMonth() === currentMonth &&
           paymentDate.getFullYear() === currentYear
@@ -108,7 +108,7 @@ const InvoiceManagement = () => {
 
       return (
         paymentsThisMonth?.reduce(
-          (sum, payment) => sum + (payment.amount || 0),
+          (sum, payment) => sum + (Number(payment.amount) || 0),
           0
         ) || 0
       )

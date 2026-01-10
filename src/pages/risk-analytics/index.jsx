@@ -200,18 +200,33 @@ const RiskAnalytics = () => {
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth()
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ]
 
     // Generate last 7 months of data
     const monthsData = []
     for (let i = 6; i >= 0; i--) {
       const monthIndex = (currentMonth - i + 12) % 12
       const year = currentMonth - i < 0 ? currentYear - 1 : currentYear
-      
+
       // Get invoices for this month
       const monthInvoices = enrichedInvoices.filter(inv => {
         const dueDate = new Date(inv.dueDate)
-        return dueDate.getMonth() === monthIndex && dueDate.getFullYear() === year
+        return (
+          dueDate.getMonth() === monthIndex && dueDate.getFullYear() === year
+        )
       })
 
       // Calculate average delay
@@ -226,18 +241,28 @@ const RiskAnalytics = () => {
 
         // Get payments for this invoice
         const invoicePayments = payments.filter(p => p.invoiceId === inv.id)
-        const totalPaid = invoicePayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+        const totalPaid = invoicePayments.reduce(
+          (sum, p) => sum + (p.amount || 0),
+          0
+        )
         const outstanding = inv.amount - totalPaid
 
         if (outstanding <= 0 && invoicePayments.length > 0) {
           // Paid - calculate delay
-          const latestPayment = invoicePayments.sort((a, b) => 
-            new Date(b.paymentDate || b.date) - new Date(a.paymentDate || a.date)
+          const latestPayment = invoicePayments.sort(
+            (a, b) =>
+              new Date(b.paymentDate || b.date) -
+              new Date(a.paymentDate || a.date)
           )[0]
-          const paymentDate = new Date(latestPayment.paymentDate || latestPayment.date)
+          const paymentDate = new Date(
+            latestPayment.paymentDate || latestPayment.date
+          )
           paymentDate.setHours(0, 0, 0, 0)
 
-          const delay = Math.max(0, Math.floor((paymentDate - dueDate) / (1000 * 60 * 60 * 24)))
+          const delay = Math.max(
+            0,
+            Math.floor((paymentDate - dueDate) / (1000 * 60 * 60 * 24))
+          )
           delaySum += delay
           delayCount++
         } else if (outstanding > 0 && dueDate < today) {
@@ -249,10 +274,14 @@ const RiskAnalytics = () => {
       })
 
       const avgDelay = delayCount > 0 ? Math.round(delaySum / delayCount) : 0
-      
+
       // Simple prediction: trend analysis
-      const recentAvg = monthsData.slice(-2).reduce((sum, m) => sum + m.avgDelay, 0) / Math.max(1, monthsData.length)
-      const predicted = Math.round(avgDelay > 0 ? avgDelay * 1.05 : recentAvg * 1.1)
+      const recentAvg =
+        monthsData.slice(-2).reduce((sum, m) => sum + m.avgDelay, 0) /
+        Math.max(1, monthsData.length)
+      const predicted = Math.round(
+        avgDelay > 0 ? avgDelay * 1.05 : recentAvg * 1.1
+      )
 
       monthsData.push({
         month: `${monthNames[monthIndex]} ${year}`,

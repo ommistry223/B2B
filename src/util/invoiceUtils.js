@@ -8,13 +8,17 @@ export function calculateInvoiceStatus(invoice, payments = []) {
   const dueDate = new Date(invoice.dueDate)
   dueDate.setHours(0, 0, 0, 0)
 
-  // Calculate total paid from payments
+  // Calculate total paid from payments - ensure numbers
   const invoicePayments = payments.filter(p => p.invoiceId === invoice.id)
-  const totalPaid = invoicePayments.reduce((sum, p) => sum + (p.amount || 0), 0)
-  const outstanding = invoice.amount - totalPaid
+  const totalPaid = invoicePayments.reduce((sum, p) => {
+    const amount = Number(p.amount) || 0
+    return sum + amount
+  }, 0)
+  const invoiceAmount = Number(invoice.amount) || 0
+  const outstanding = Math.max(0, invoiceAmount - totalPaid)
 
   // Determine status
-  if (outstanding <= 0) {
+  if (outstanding <= 0 || totalPaid >= invoiceAmount) {
     return {
       status: 'paid',
       outstanding: 0,
