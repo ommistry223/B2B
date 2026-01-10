@@ -37,10 +37,10 @@ const InvoiceManagement = () => {
     // Calculate actual paid amount from payment history
     const invoicePayments = getPaymentsByInvoice(inv.id)
     const totalPaid = invoicePayments.reduce(
-      (sum, p) => sum + (p.amount || 0),
+      (sum, p) => sum + (Number(p.amount) || 0),
       0
     )
-    const outstanding = inv.amount - totalPaid
+    const outstanding = Number(inv.amount) - totalPaid
 
     // Calculate if overdue based on actual dates and payment status
     const isOverdue = outstanding > 0 && dueDate < today
@@ -88,7 +88,7 @@ const InvoiceManagement = () => {
   const stats = {
     totalInvoices: invoices?.length || 0,
     totalOutstanding: invoices?.reduce(
-      (sum, inv) => sum + (inv?.outstanding || 0),
+      (sum, inv) => sum + (Number(inv?.outstanding) || 0),
       0
     ),
     overdueCount:

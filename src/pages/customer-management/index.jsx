@@ -146,7 +146,15 @@ const CustomerManagement = () => {
   }
 
   const filteredAndSortedCustomers = useMemo(() => {
-    let filtered = [...(customers || [])]
+    // Map customers to consistent format
+    let filtered = (customers || []).map(c => ({
+      ...c,
+      companyName: c.name || c.companyName,
+      gstNumber: c.gst || c.gstNumber,
+      outstandingAmount: Number(c.outstanding) || Number(c.outstandingAmount) || 0,
+      creditLimit: Number(c.creditLimit) || 0,
+      riskLevel: c.riskScore || c.riskLevel || 'low',
+    }))
 
     if (filters?.search) {
       const searchLower = filters?.search?.toLowerCase()
@@ -161,7 +169,7 @@ const CustomerManagement = () => {
 
     if (filters?.riskLevel !== 'all') {
       filtered = filtered?.filter(
-        c => (c?.riskLevel || c?.riskScore) === filters?.riskLevel
+        c => (c?.riskLevel || c?.riskScore)?.toLowerCase() === filters?.riskLevel?.toLowerCase()
       )
     }
 
@@ -181,7 +189,7 @@ const CustomerManagement = () => {
 
     if (filters?.paymentStatus !== 'all') {
       filtered = filtered?.filter(c => {
-        const outstanding = c?.outstanding || c?.outstandingAmount || 0
+        const outstanding = c?.outstandingAmount || 0
         const overdue = c?.overdueAmount || 0
 
         if (filters?.paymentStatus === 'current') {
@@ -235,15 +243,18 @@ const CustomerManagement = () => {
   const stats = useMemo(() => {
     const totalCustomers = customers?.length || 0
     const totalCreditLimit = customers?.reduce(
-      (sum, c) => sum + (c?.creditLimit || 0),
+      (sum, c) => sum + (Number(c?.creditLimit) || 0),
       0
     )
     const totalOutstanding = customers?.reduce(
-      (sum, c) => sum + (c?.outstanding || c?.outstandingAmount || 0),
+      (sum, c) => sum + (Number(c?.outstanding) || Number(c?.outstandingAmount) || 0),
       0
     )
     const highRiskCount =
-      customers?.filter(c => (c?.riskLevel || c?.riskScore) === 'high')
+      customers?.filter(c => {
+        const risk = (c?.riskLevel || c?.riskScore || '').toLowerCase()
+        return risk === 'high'
+      })
         ?.length || 0
 
     return { totalCustomers, totalCreditLimit, totalOutstanding, highRiskCount }

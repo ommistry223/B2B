@@ -242,10 +242,10 @@ const RiskAnalytics = () => {
         // Get payments for this invoice
         const invoicePayments = payments.filter(p => p.invoiceId === inv.id)
         const totalPaid = invoicePayments.reduce(
-          (sum, p) => sum + (p.amount || 0),
+          (sum, p) => sum + (Number(p.amount) || 0),
           0
         )
-        const outstanding = inv.amount - totalPaid
+        const outstanding = Number(inv.amount) - totalPaid
 
         if (outstanding <= 0 && invoicePayments.length > 0) {
           // Paid - calculate delay
