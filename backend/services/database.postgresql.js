@@ -7,14 +7,12 @@ const { Pool } = pkg;
 
 class PostgreSQLDatabase {
   constructor() {
-    const password = process.env.DB_PASSWORD || '';
-
     this.pool = new Pool({
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT) || 5432,
-      database: process.env.DB_NAME || 'b2b_creditflow',
-      user: process.env.DB_USER || 'postgres',
-      password: password,
+      host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.PGPORT || process.env.DB_PORT) || 5432,
+      database: process.env.PGDATABASE || process.env.DB_NAME || 'b2b_creditflow',
+      user: process.env.PGUSER || process.env.DB_USER || 'postgres',
+      password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
     });
 
     this.pool.on('connect', () => {
