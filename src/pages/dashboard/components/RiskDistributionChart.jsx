@@ -10,9 +10,22 @@ import {
 
 const RiskDistributionChart = ({ customers = [] }) => {
   const data = useMemo(() => {
-    const lowRisk = customers.filter(c => c.riskLevel === 'Low').length
-    const mediumRisk = customers.filter(c => c.riskLevel === 'Medium').length
-    const highRisk = customers.filter(c => c.riskLevel === 'High').length
+    // Handle both lowercase and capitalized risk levels
+    const lowRisk = customers.filter(c => {
+      const risk = (c.riskLevel || c.riskScore || 'low').toString().toLowerCase()
+      return risk === 'low' || (typeof c.riskScore === 'number' && c.riskScore < 40)
+    }).length
+    
+    const mediumRisk = customers.filter(c => {
+      const risk = (c.riskLevel || c.riskScore || 'medium').toString().toLowerCase()
+      return risk === 'medium' || (typeof c.riskScore === 'number' && c.riskScore >= 40 && c.riskScore < 60)
+    }).length
+    
+    const highRisk = customers.filter(c => {
+      const risk = (c.riskLevel || c.riskScore || 'high').toString().toLowerCase()
+      return risk === 'high' || (typeof c.riskScore === 'number' && c.riskScore >= 60)
+    }).length
+    
     const total = customers.length || 1
 
     return [
@@ -20,24 +33,27 @@ const RiskDistributionChart = ({ customers = [] }) => {
         name: 'Low Risk',
         value: Math.round((lowRisk / total) * 100),
         count: lowRisk,
+        color: '#10b981', // green
       },
       {
         name: 'Medium Risk',
         value: Math.round((mediumRisk / total) * 100),
         count: mediumRisk,
+        color: '#f59e0b', // orange
       },
       {
         name: 'High Risk',
         value: Math.round((highRisk / total) * 100),
         count: highRisk,
+        color: '#ef4444', // red
       },
     ].filter(item => item.count > 0) // Only show categories with customers
   }, [customers])
 
   const COLORS = {
-    'Low Risk': 'var(--color-success)',
-    'Medium Risk': 'var(--color-warning)',
-    'High Risk': 'var(--color-error)',
+    'Low Risk': '#10b981',
+    'Medium Risk': '#f59e0b',
+    'High Risk': '#ef4444',
   }
 
   const CustomTooltip = ({ active, payload }) => {

@@ -12,14 +12,16 @@ import {
 
 const PaymentTrendChart = ({ invoices = [], payments = [] }) => {
   const data = useMemo(() => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth()
 
-    return months.map((month, index) => {
-      const monthIndex = (currentMonth + index - 5 + 12) % 12
-      const year = monthIndex > currentMonth ? currentYear - 1 : currentYear
+    // Generate last 6 months
+    const monthsData = []
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12
+      const year = currentMonth - i < 0 ? currentYear - 1 : currentYear
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
       const monthInvoices = invoices.filter(inv => {
         const dueDate = new Date(inv.dueDate)
@@ -29,25 +31,60 @@ const PaymentTrendChart = ({ invoices = [], payments = [] }) => {
       })
 
       const total = monthInvoices.length || 1
-      const onTime = monthInvoices.filter(
-        inv => inv.status === 'paid' && inv.daysOverdue === 0
-      ).length
-      const delayed = monthInvoices.filter(
-        inv =>
-          (inv.status === 'paid' && inv.daysOverdue > 0) ||
-          inv.status === 'partial'
-      ).length
-      const overdue = monthInvoices.filter(
-        inv => inv.status === 'overdue'
-      ).length
+      
+      // Calculate payment status
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      let onTimeCount = 0
+      let delayedCount = 0
+      let overdueCount = 0
+      
+      monthInvoices.forEach(inv => {
+        const dueDate = new Date(inv.dueDate)
+        dueDate.setHours(0, 0, 0, 0)
+        
+        // Get payments for this invoice
+        const invoicePayments = payments.filter(p => p.invoiceId === inv.id)
+        const totalPaid = invoicePayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+        const outstanding = inv.amount - totalPaid
+        
+        if (outstanding <= 0) {
+          // Paid - check if it was on time
+          const latestPayment = invoicePayments.sort((a, b) => 
+            new Date(b.paymentDate || b.date) - new Date(a.paymentDate || a.date)
+          )[0]
+          
+          if (latestPayment) {
+            const paymentDate = new Date(latestPayment.paymentDate || latestPayment.date)
+            paymentDate.setHours(0, 0, 0, 0)
+            
+            if (paymentDate <= dueDate) {
+              onTimeCount++
+            } else {
+              delayedCount++
+            }
+          } else {
+            onTimeCount++ // Default to on-time if no payment date
+          }
+        } else if (dueDate < today) {
+          // Overdue
+          overdueCount++
+        } else {
+          // Pending (not yet due) - count as on-time for now
+          onTimeCount++
+        }
+      })
 
-      return {
-        month,
-        onTime: Math.round((onTime / total) * 100),
-        delayed: Math.round((delayed / total) * 100),
-        overdue: Math.round((overdue / total) * 100),
-      }
-    })
+      monthsData.push({
+        month: monthNames[monthIndex],
+        onTime: Math.round((onTimeCount / total) * 100),
+        delayed: Math.round((delayedCount / total) * 100),
+        overdue: Math.round((overdueCount / total) * 100),
+      })
+    }
+
+    return monthsData
   }, [invoices, payments])
 
   const CustomTooltip = ({ active, payload, label }) => {

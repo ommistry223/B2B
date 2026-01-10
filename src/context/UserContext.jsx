@@ -60,7 +60,7 @@ export const UserProvider = ({ children }) => {
       // Clear any existing tokens before registration
       localStorage.clear()
       sessionStorage.clear()
-      
+
       const data = await authAPI.register(userData)
       localStorage.setItem('token', data.token)
       setUser(data.user)

@@ -12,19 +12,21 @@ import {
 
 const CashFlowChart = ({ invoices = [], payments = [] }) => {
   const data = useMemo(() => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth()
 
-    return months.map((month, index) => {
-      const monthIndex = (currentMonth + index - 5 + 12) % 12
-      const year = monthIndex > currentMonth ? currentYear - 1 : currentYear
+    // Generate last 6 months
+    const monthsData = []
+    for (let i = 5; i >= 0; i--) {
+      const monthIndex = (currentMonth - i + 12) % 12
+      const year = currentMonth - i < 0 ? currentYear - 1 : currentYear
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
       // Calculate actual inflow (payments received)
       const inflow = payments
         .filter(p => {
-          const paymentDate = new Date(p.date)
+          const paymentDate = new Date(p.paymentDate || p.date)
           return (
             paymentDate.getMonth() === monthIndex &&
             paymentDate.getFullYear() === year
@@ -32,23 +34,30 @@ const CashFlowChart = ({ invoices = [], payments = [] }) => {
         })
         .reduce((sum, p) => sum + (p.amount || 0), 0)
 
-      // Calculate outflow (invoices created - represents money going out for goods/services)
-      const outflow =
-        invoices
-          .filter(inv => {
-            const invoiceDate = new Date(inv.date)
-            return (
-              invoiceDate.getMonth() === monthIndex &&
-              invoiceDate.getFullYear() === year
-            )
-          })
-          .reduce((sum, inv) => sum + (inv.amount || 0), 0) * 0.65 // Estimate 65% cost
+      // Calculate outflow (invoices due - represents expected cash out)
+      const outflow = invoices
+        .filter(inv => {
+          const dueDate = new Date(inv.dueDate)
+          return (
+            dueDate.getMonth() === monthIndex &&
+            dueDate.getFullYear() === year
+          )
+        })
+        .reduce((sum, inv) => sum + (inv.amount || 0), 0) * 0.4 // 40% estimated cost
 
-      // Forecast based on trends (simple projection)
-      const forecast = inflow > 0 ? inflow * 1.08 : outflow * 1.5
+      // AI Forecast - simple trend-based projection
+      const recentInflow = monthsData.slice(-3).reduce((sum, m) => sum + (m.inflow || 0), 0) / 3
+      const forecast = recentInflow > 0 ? recentInflow * 1.1 : (inflow || outflow * 1.2)
 
-      return { month, inflow, outflow, forecast }
-    })
+      monthsData.push({
+        month: monthNames[monthIndex],
+        inflow: Math.round(inflow),
+        outflow: Math.round(outflow),
+        forecast: Math.round(forecast),
+      })
+    }
+
+    return monthsData
   }, [invoices, payments])
 
   const CustomTooltip = ({ active, payload }) => {
