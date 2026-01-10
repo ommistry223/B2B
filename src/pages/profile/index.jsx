@@ -244,7 +244,11 @@ const Profile = () => {
                   </div>
                   {isEditing && (
                     <label className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-smooth shadow-elevation-md">
-                      <Icon name="Camera" size={18} className="text-primary-foreground" />
+                      <Icon
+                        name="Camera"
+                        size={18}
+                        className="text-primary-foreground"
+                      />
                       <input
                         type="file"
                         accept="image/*"

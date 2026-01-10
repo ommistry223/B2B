@@ -388,7 +388,8 @@
   }
 
   .header-nav-item.active {
-    @apply text-primary bg-primary/10;
+    @apply text-primary;
+    background-color: rgba(59, 130, 246, 0.1);
   }
 
   .header-nav-item.active::after {
@@ -413,7 +414,8 @@
   }
 
   .mobile-nav-overlay {
-    @apply fixed inset-0 z-[1100] lg:hidden bg-background/95;
+    @apply fixed inset-0 z-[1100] lg:hidden bg-background;
+    opacity: 0.95;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     animation: fade-in 0.3s ease-out;
@@ -448,7 +450,8 @@
   }
 
   .mobile-nav-item.active {
-    @apply text-primary bg-primary/10;
+    @apply text-primary;
+    background-color: rgba(59, 130, 246, 0.1);
   }
 
   /* Enhanced Notification Badge */
