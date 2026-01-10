@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/navigation/Header'
-import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Icon from '../../components/AppIcon'
@@ -665,7 +664,6 @@ const Profile = () => {
             </div>
           </div>
         </main>
-        <QuickActionToolbar />
       </div>
 
       <ChangePasswordModal

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { Helmet } from 'react-helmet'
 import Header from '../../components/navigation/Header'
-import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
 import RiskMetricsCard from './components/RiskMetricsCard'
 import RiskDistributionChart from './components/RiskDistributionChart'
 import PaymentDelayTrendChart from './components/PaymentDelayTrendChart'
@@ -418,7 +417,6 @@ const RiskAnalytics = () => {
                     predictions
                   </p>
                 </div>
-                <QuickActionToolbar />
               </div>
 
               <FilterPanel

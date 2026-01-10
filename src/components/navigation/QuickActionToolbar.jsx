@@ -31,7 +31,8 @@ const QuickActionToolbar = () => {
 
   return (
     <>
-      <div className="hidden lg:flex items-center gap-2">
+      {/* Desktop Actions - Inline */}
+      <div className="hidden lg:flex items-center gap-3">
         {quickActions?.map(action => (
           <Button
             key={action?.id}
@@ -40,42 +41,60 @@ const QuickActionToolbar = () => {
             iconPosition="left"
             iconSize={18}
             onClick={() => handleActionClick(action?.path)}
-            className="transition-smooth"
+            className="shadow-sm hover:shadow-md transition-all duration-200"
           >
             {action?.label}
           </Button>
         ))}
       </div>
-      <div className="lg:hidden fixed bottom-6 right-6 z-[100]">
+
+      {/* Mobile Floating Action Button */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-50">
         {isExpanded && (
-          <div className="absolute bottom-16 right-0 flex flex-col gap-3 mb-2">
-            {quickActions?.map(action => (
-              <button
-                key={action?.id}
-                onClick={() => handleActionClick(action?.path)}
-                className="flex items-center gap-3 px-4 py-3 bg-card text-foreground rounded-full shadow-elevation-lg transition-smooth hover:shadow-elevation-xl"
-                style={{ minWidth: '200px' }}
-              >
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    action?.variant === 'default'
-                      ? 'bg-primary'
-                      : 'bg-secondary'
-                  }`}
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm -z-10"
+              onClick={() => setIsExpanded(false)}
+            />
+
+            {/* Action Buttons */}
+            <div className="absolute bottom-16 right-0 flex flex-col gap-2 mb-3 animate-slide-up">
+              {quickActions?.map((action, index) => (
+                <button
+                  key={action?.id}
+                  onClick={() => handleActionClick(action?.path)}
+                  className="flex items-center justify-end gap-3 group animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <Icon name={action?.icon} size={20} color="#FFFFFF" />
-                </div>
-                <span className="text-sm font-medium">{action?.label}</span>
-              </button>
-            ))}
-          </div>
+                  <span className="bg-card text-foreground px-4 py-2 rounded-lg shadow-lg text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {action?.label}
+                  </span>
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 ${
+                      action?.variant === 'default'
+                        ? 'bg-gradient-to-br from-primary to-blue-600'
+                        : 'bg-gradient-to-br from-purple-500 to-purple-700'
+                    }`}
+                  >
+                    <Icon name={action?.icon} size={20} color="#FFFFFF" />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </>
         )}
 
+        {/* Main FAB */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-elevation-lg flex items-center justify-center transition-smooth hover:shadow-elevation-xl active:scale-95"
+          className={`w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:shadow-xl active:scale-95 ${
+            isExpanded
+              ? 'bg-error rotate-45'
+              : 'bg-gradient-to-br from-primary to-blue-600'
+          }`}
         >
-          <Icon name={isExpanded ? 'X' : 'Plus'} size={24} color="#FFFFFF" />
+          <Icon name="Plus" size={28} color="#FFFFFF" />
         </button>
       </div>
     </>
