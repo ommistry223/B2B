@@ -57,6 +57,10 @@ export const UserProvider = ({ children }) => {
 
   const register = async userData => {
     try {
+      // Clear any existing tokens before registration
+      localStorage.clear()
+      sessionStorage.clear()
+      
       const data = await authAPI.register(userData)
       localStorage.setItem('token', data.token)
       setUser(data.user)
@@ -69,9 +73,14 @@ export const UserProvider = ({ children }) => {
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
+    // Clear all localStorage items
+    localStorage.clear()
+    // Clear session storage as well
+    sessionStorage.clear()
     setUser(null)
     setIsAuthenticated(false)
+    // Reload page to clear any cached data
+    window.location.href = '/login'
   }
 
   const updateUser = async updatedData => {
