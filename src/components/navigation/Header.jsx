@@ -84,12 +84,12 @@ const Header = () => {
     <>
       <header className="header-nav">
         <div className="header-nav-container">
-          <div className="header-logo">
+          <Link to="/dashboard" className="header-logo cursor-pointer hover:opacity-80 transition-opacity">
             <div className="header-logo-icon">
               <Icon name="TrendingUp" size={24} color="#FFFFFF" />
             </div>
             <span className="header-logo-text">CreditFlow Pro</span>
-          </div>
+          </Link>
 
           <nav className="header-nav-menu">
             {navigationItems?.map(item => (
