@@ -57,8 +57,8 @@ const MobileNavigation = ({
   if (!isOpen) return null
 
   return (
-    <div className="mobile-nav-overlay">
-      <div className="mobile-nav-container">
+    <div className="mobile-nav-overlay" onClick={onClose}>
+      <div className="mobile-nav-container" onClick={(e) => e.stopPropagation()}>
         <div className="mobile-nav-header">
           <Link
             to="/dashboard"
@@ -80,13 +80,13 @@ const MobileNavigation = ({
         </div>
 
         {/* User Profile Section */}
-        <div className="px-4 py-4 border-b border-border">
+        <div className="px-6 py-4 border-b border-border bg-muted/30">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium shadow-md">
               {getInitials()}
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-sm font-semibold text-foreground">
                 {user?.fullName || 'User'}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -112,7 +112,7 @@ const MobileNavigation = ({
           ))}
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-border">
+        <div className="mt-auto px-4 py-4 border-t border-border bg-muted/30">
           <Link to="/profile" className="mobile-nav-item" onClick={onClose}>
             <Icon name="User" size={20} />
             <span>My Profile</span>
@@ -121,13 +121,13 @@ const MobileNavigation = ({
             <Icon name="Settings" size={20} />
             <span>Settings</span>
           </Link>
-          <button onClick={toggleTheme} className="mobile-nav-item w-full">
+          <button onClick={toggleTheme} className="mobile-nav-item w-full text-left">
             <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={20} />
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
           <button
             onClick={handleLogout}
-            className="mobile-nav-item w-full text-error"
+            className="mobile-nav-item w-full text-left text-error hover:text-error"
           >
             <Icon name="LogOut" size={20} />
             <span>Sign Out</span>
