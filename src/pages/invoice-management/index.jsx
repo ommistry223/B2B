@@ -279,16 +279,17 @@ const InvoiceManagement = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 lg:gap-3">
                 <Button
                   variant="outline"
                   iconName="Download"
                   iconPosition="left"
                   iconSize={18}
                   onClick={handleExport}
-                  className="hidden lg:flex"
+                  className="flex-1 lg:flex-none"
                 >
-                  Export Data
+                  <span className="hidden sm:inline">Export Data</span>
+                  <span className="sm:hidden">Export</span>
                 </Button>
                 <Button
                   variant="default"
@@ -296,9 +297,21 @@ const InvoiceManagement = () => {
                   iconPosition="left"
                   iconSize={18}
                   onClick={() => navigate('/create-invoice')}
-                  className="hidden lg:flex"
+                  className="flex-1 lg:flex-none"
                 >
-                  Create Invoice
+                  <span className="hidden sm:inline">Create Invoice</span>
+                  <span className="sm:hidden">Create</span>
+                </Button>
+                <Button
+                  variant="secondary"
+                  iconName="DollarSign"
+                  iconPosition="left"
+                  iconSize={18}
+                  onClick={() => navigate('/payment-recording')}
+                  className="flex-1 lg:flex-none"
+                >
+                  <span className="hidden sm:inline">Record Payment</span>
+                  <span className="sm:hidden">Payment</span>
                 </Button>
               </div>
             </div>
@@ -349,8 +362,6 @@ const InvoiceManagement = () => {
             </div>
           </div>
         </main>
-
-        <QuickActionToolbar />
 
         <PaymentRecordModal
           invoice={selectedInvoice}

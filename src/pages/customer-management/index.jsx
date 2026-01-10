@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react'
 import Header from '../../components/navigation/Header'
-import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
 import Icon from '../../components/AppIcon'
 import Button from '../../components/ui/Button'
 import CustomerFilters from './components/CustomerFilters'
@@ -277,25 +276,26 @@ const CustomerManagement = () => {
                 Manage credit customers, track payments, and assess risk levels
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 lg:gap-3">
               <Button
                 variant="outline"
                 iconName="Download"
                 iconPosition="left"
                 onClick={handleExportCustomers}
-                className="hidden lg:flex"
+                className="flex-1 lg:flex-none"
               >
-                Export Data
+                <span className="hidden sm:inline">Export Data</span>
+                <span className="sm:hidden">Export</span>
               </Button>
-              <QuickActionToolbar />
               <Button
                 variant="default"
                 iconName="UserPlus"
                 iconPosition="left"
                 onClick={() => setShowAddModal(true)}
-                className="hidden lg:flex"
+                className="flex-1 lg:flex-none"
               >
-                Add Customer
+                <span className="hidden sm:inline">Add Customer</span>
+                <span className="sm:hidden">Add</span>
               </Button>
             </div>
           </div>

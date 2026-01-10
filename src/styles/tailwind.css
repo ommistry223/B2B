@@ -418,19 +418,14 @@
   }
 
   .mobile-nav-overlay {
-    @apply fixed inset-0 z-[1100] lg:hidden;
-    background: rgba(15, 23, 42, 0.95);
+    @apply fixed inset-0 z-[1100] lg:hidden bg-background/95;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     animation: fade-in 0.3s ease-out;
   }
 
-  .dark .mobile-nav-overlay {
-    background: rgba(15, 23, 42, 0.98);
-  }
-
   .mobile-nav-container {
-    @apply flex flex-col h-full pt-20 px-6 pb-6;
+    @apply flex flex-col h-full pt-20 px-6 pb-6 bg-card text-card-foreground;
   }
 
   .mobile-nav-header {
@@ -458,12 +453,7 @@
   }
 
   .mobile-nav-item.active {
-    @apply text-primary;
-    background-color: rgba(30, 64, 175, 0.1);
-  }
-
-  .dark .mobile-nav-item.active {
-    background-color: rgba(59, 130, 246, 0.1);
+    @apply text-primary bg-primary/10;
   }
 
   /* Enhanced Notification Badge */
