@@ -21,11 +21,6 @@
     line-height: 1.75rem !important;
   }
 
-  /* Card Improvements */
-  .bg-card {
-    padding: 0.875rem !important;
-  }
-
   /* Button Improvements */
   button, .btn {
     min-height: 44px !important; /* Touch-friendly size */
@@ -395,14 +390,14 @@
   }
 }
 
-/* Dark Mode Mobile Adjustments */
-@media (prefers-color-scheme: dark) and (max-width: 768px) {
-  .bg-card {
-    background-color: rgba(17, 24, 39, 0.95) !important;
+/* Dark Mode Mobile Adjustments - Use app theme, not system preference */
+@media (max-width: 768px) {
+  .dark .bg-card {
+    background-color: rgba(30, 41, 59, 0.95) !important;
   }
 
-  .border-border {
-    border-color: rgba(55, 65, 81, 0.5) !important;
+  .dark .border-border {
+    border-color: rgba(71, 85, 105, 0.5) !important;
   }
 }
 
