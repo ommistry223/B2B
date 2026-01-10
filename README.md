@@ -1,194 +1,322 @@
-# 🚀 CreditFlow Pro - B2B Invoice Management System
+﻿#  CreditFlow Pro - B2B Invoice Management System
 
-A modern, full-stack B2B invoice and credit management application with AI-powered insights, built with React, Node.js, and PostgreSQL.
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://bto-b.netlify.app)
+[![Backend API](https://img.shields.io/badge/API-live-blue)](https://b2b-production-febe.up.railway.app)
+[![Deploy Status](https://api.netlify.com/api/v1/badges/6961531f-7fd8-8200-0807-9e6f/deploy-status)](https://app.netlify.com/sites/bto-b/deploys)
 
-## ✨ Features
+>  **Live Application**: [https://bto-b.netlify.app](https://bto-b.netlify.app)
 
-- 📊 **Dashboard Analytics** - Real-time overview of invoices, payments, and cash flow
-- 👥 **Customer Management** - Track customer details, credit limits, and payment history
-- 🧾 **Invoice Management** - Create, track, and manage invoices with ease
-- 💰 **Payment Recording** - Record and track payments with automatic status updates
-- 🎯 **Risk Analytics** - AI-powered credit risk assessment (optional OpenAI integration)
-- 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
-- 🌙 **Dark Mode** - Eye-friendly dark theme support
-- 🔐 **Secure Authentication** - JWT-based authentication with password hashing
+A modern, full-stack B2B invoice and credit management application with AI-powered insights, built with React, Node.js, and PostgreSQL. Streamline your business operations with real-time analytics, automated payment tracking, and intelligent risk assessment.
 
-## 🛠️ Tech Stack
+##  Key Features
+
+###  **Dashboard Analytics**
+- Real-time overview of invoices, payments, and cash flow
+- Interactive charts powered by Recharts & D3.js
+- Cash flow forecasting and payment trends visualization
+- Upcoming payments calendar and alerts
+
+###  **Customer Management**
+- Comprehensive customer database with credit limits
+- Payment history tracking and analysis
+- Risk scoring and credit limit warnings
+- Bulk operations for efficient management
+
+###  **Invoice Management**
+- Create professional invoices with line items
+- Track invoice status (pending, paid, overdue)
+- Automatic payment allocation and status updates
+- Invoice search, filtering, and export capabilities
+
+###  **Payment Recording**
+- Multi-invoice payment allocation
+- Multiple payment method support
+- Payment history and reconciliation
+- Automatic outstanding balance updates
+
+###  **Risk Analytics**
+- AI-powered credit risk assessment
+- Customer risk distribution visualization
+- Payment behavior analysis
+- Proactive risk alerts and insights
+
+###  **Security & Authentication**
+- JWT-based secure authentication
+- Password encryption with bcrypt
+- Protected API routes and middleware
+- Session management and token refresh
+
+###  **User Experience**
+-  Fully responsive design - works on desktop, tablet, and mobile
+-  Dark mode support for comfortable viewing
+-  Lightning-fast performance with Vite
+-  Intuitive navigation and user interface
+
+##  Tech Stack
 
 **Frontend:**
-
-- React 18 - Modern UI library
-- React Router v6 - Client-side routing
-- TailwindCSS - Utility-first styling
-- Vite - Lightning-fast build tool
-- Redux Toolkit - State management
-- Recharts & D3.js - Data visualization
+-  **React 18** - Modern UI library with hooks
+-  **Vite 5** - Next-generation frontend tooling
+-  **TailwindCSS** - Utility-first CSS framework
+-  **React Router v6** - Client-side routing
+-  **Recharts & D3.js** - Advanced data visualization
+-  **Axios** - HTTP client for API calls
 
 **Backend:**
+-  **Node.js & Express.js** - RESTful API server
+-  **PostgreSQL** - Production-grade relational database
+-  **JWT** - Secure token-based authentication
+-  **bcryptjs** - Password hashing and encryption
+-  **Express Validator** - Request validation
 
-- Node.js & Express.js - RESTful API server
-- PostgreSQL - Robust relational database
-- JWT - Secure authentication
-- bcryptjs - Password hashing
+**Deployment & Infrastructure:**
+-  **Netlify** - Frontend hosting with CDN
+-  **Railway** - Backend hosting and database
+-  **GitHub Actions** - CI/CD pipeline (optional)
 
-## 📋 Prerequisites
+##  Live Demo
 
-- Node.js (v18 or higher)
-- PostgreSQL (v12 or higher)
-- npm or yarn
+** Application**: [https://bto-b.netlify.app](https://bto-b.netlify.app)
 
-## � Quick Start
+** API Backend**: [https://b2b-production-febe.up.railway.app](https://b2b-production-febe.up.railway.app)
 
-### 1. Clone & Install
+**Test the application features:**
+1. Register a new account
+2. Create customers with credit limits
+3. Generate invoices
+4. Record payments
+5. View analytics and insights
+
+##  Prerequisites
+
+Before you begin, ensure you have the following installed:
+- **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
+- **PostgreSQL** (v12 or higher) - [Download](https://www.postgresql.org/download/)
+- **npm** or **yarn** - Comes with Node.js
+- **Git** - [Download](https://git-scm.com/)
+
+##  Quick Start
+
+### 1 Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/creditflow-pro.git
-cd creditflow-pro
+git clone https://github.com/yourusername/B2B.git
+cd B2B
+```
 
+### 2 Install Dependencies
+
+```bash
 # Install frontend dependencies
-npm install
+npm install --legacy-peer-deps
 
 # Install backend dependencies
 cd backend
-npm install
+npm install --legacy-peer-deps
 cd ..
 ```
 
-### 2. Setup PostgreSQL Database
+### 3 Setup PostgreSQL Database
 
-Create database and run schema (see `DATABASE_SETUP_GUIDE.md`):
-
+**Create Database:**
 ```sql
 CREATE DATABASE b2b_creditflow;
 ```
 
-### 3. Configure Environment Variables
-
-**⚠️ IMPORTANT: Never commit .env files!**
-
-**Frontend (.env):**
-
+**Run Database Setup Script:**
 ```bash
-cp .env.example .env
-# Edit and add your values
+cd backend
+node setup-database.js
 ```
 
-**Backend (backend/.env):**
+This will create all necessary tables:
+- `users` - User accounts
+- `customers` - Customer information
+- `invoices` - Invoice records
+- `payments` - Payment transactions
 
+### 4 Configure Environment Variables
+
+**Frontend Root Directory (.env):**
 ```bash
-cp backend/.env.example backend/.env
-# Add your DB_PASSWORD and JWT_SECRET
+VITE_API_URL=http://localhost:5000/api
 ```
 
-### 4. Start the Application
-
+**Backend Directory (backend/.env):**
 ```bash
-# Terminal 1 - Start Backend
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# Database Configuration (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=b2b_creditflow
+DB_USER=postgres
+DB_PASSWORD=your_password_here
+
+# JWT Configuration
+JWT_SECRET=your_super_secret_jwt_key_here
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:4028
+
+# Optional: OpenAI API Key (for AI features)
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+### 5 Start the Application
+
+**Terminal 1 - Start Backend Server:**
+```bash
 cd backend
 node server.js
-
-# Terminal 2 - Start Frontend
-npm start
 ```
+Backend will run on: `http://localhost:5000`
 
-Access at: **http://localhost:4028**
+**Terminal 2 - Start Frontend:**
+```bash
+npm run dev
+```
+Frontend will run on: `http://localhost:4028`
 
-## 🔒 Security
+### 6 Access the Application
 
-⚠️ **CRITICAL**: Your API keys are protected!
+Open your browser and navigate to: `http://localhost:4028`
 
-- ✅ `.env` files are in `.gitignore`
-- ✅ No hardcoded secrets in code
-- ✅ Use `.env.example` as template
+**Default Route**: Registration page or Login
 
-**Before pushing to GitHub:**
-
-1. Verify `.env` is not tracked: `git status`
-2. Check for exposed secrets: `git log -p | grep -i "password\|secret\|key"`
-3. Use strong passwords in production
-
-## 📁 Project Structure
+##  Project Structure
 
 ```
 B2B/
-├── backend/                # Node.js API server
-│   ├── controllers/        # Route handlers
-│   ├── services/          # Database & business logic
-│   ├── middleware/        # Auth & error handling
-│   ├── routes/           # API routes
-│   └── .env.example      # Backend config template
-├── src/
-│   ├── pages/            # Route components
-│   ├── components/       # Reusable UI components
-│   ├── context/         # React Context (state)
-│   ├── services/        # API calls
-│   └── util/            # Helper functions
-├── public/              # Static assets
-├── .env.example         # Frontend config template
-└── README.md           # This file
+ backend/                    # Node.js API server
+    controllers/           # Route handlers & business logic
+    services/              # Database operations
+    middleware/            # Auth & error handling
+    routes/                # API endpoints
+    server.js              # Express server entry point
+    setup-database.js      # Database initialization
+    package.json           # Backend dependencies
+ src/                       # Frontend source code
+    pages/                 # Page components
+    components/            # Reusable UI components
+    context/               # React Context providers
+    services/              # API communication
+    util/                  # Helper functions
+    styles/                # Global styles
+    App.jsx                # Main app component
+    Routes.jsx             # Route configuration
+    index.jsx              # React entry point
+ public/                    # Static assets
+ .env                       # Frontend environment variables
+ package.json               # Frontend dependencies
+ tailwind.config.js         # Tailwind configuration
+ vite.config.mjs            # Vite configuration
+ README.md                  # This file
 ```
 
-│ ├── components/ # Reusable UI components
-│ ├── pages/ # Page components
-│ ├── styles/ # Global styles and Tailwind configuration
-│ ├── App.jsx # Main application component
-│ ├── Routes.jsx # Application routes
-│ └── index.jsx # Application entry point
-├── .env # Environment variables
-├── index.html # HTML template
-├── package.json # Project dependencies and scripts
-├── tailwind.config.js # Tailwind CSS configuration
-└── vite.config.js # Vite configuration
+##  API Endpoints
 
-````
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/profile` - Get user profile
 
-## 🧩 Adding Routes
+### Customers
+- `GET /api/customers` - Get all customers
+- `POST /api/customers` - Create customer
+- `PUT /api/customers/:id` - Update customer
+- `DELETE /api/customers/:id` - Delete customer
 
-To add new routes to the application, update the `Routes.jsx` file:
+### Invoices
+- `GET /api/invoices` - Get all invoices
+- `POST /api/invoices` - Create invoice
+- `PUT /api/invoices/:id` - Update invoice
+- `DELETE /api/invoices/:id` - Delete invoice
 
-```jsx
-import { useRoutes } from 'react-router-dom'
-import HomePage from 'pages/HomePage'
-import AboutPage from 'pages/AboutPage'
+### Payments
+- `GET /api/payments` - Get all payments
+- `POST /api/payments` - Record payment
 
-const ProjectRoutes = () => {
-  let element = useRoutes([
-    { path: '/', element: <HomePage /> },
-    { path: '/about', element: <AboutPage /> },
-    // Add more routes as needed
-  ])
+### Analytics
+- `GET /api/analytics/dashboard` - Dashboard statistics
+- `GET /api/analytics/risk` - Risk analysis data
 
-  return element
-}
-````
+##  Security Best Practices
 
-## 🎨 Styling
+ **CRITICAL:** Never commit `.env` files to version control!
 
-This project uses Tailwind CSS for styling. The configuration includes:
+##  Deployment Guide
 
-- Forms plugin for form styling
-- Typography plugin for text styling
-- Aspect ratio plugin for responsive elements
-- Container queries for component-specific responsive design
-- Fluid typography for responsive text
-- Animation utilities
+###  Netlify (Frontend)
+- Build command: `npm install --legacy-peer-deps && npm run build`
+- Publish directory: `build`
+- Environment Variables: `VITE_API_URL=https://your-backend.railway.app/api`
 
-## 📱 Responsive Design
+###  Railway (Backend + Database)
+- Root Directory: `/backend`
+- Start Command: `node server.js`
+- Add PostgreSQL database service
+- Run: `node setup-railway.js` to initialize tables
 
-The app is built with responsive design using Tailwind CSS breakpoints.
+##  Available Scripts
 
-## 📦 Deployment
-
-Build the application for production:
-
+### Frontend
 ```bash
-npm run build
+npm run dev          # Start development server (port 4028)
+npm run build        # Build for production
 ```
 
-## 🙏 Acknowledgments
+### Backend
+```bash
+node server.js              # Start API server (port 5000)
+node setup-database.js      # Initialize local database
+node setup-railway.js       # Setup Railway production database
+```
 
-- Built with [Rocket.new](https://rocket.new)
-- Powered by React and Vite
-- Styled with Tailwind CSS
+##  Troubleshooting
 
-Built with ❤️ on Rocket.new
+**Port Already in Use:**
+```bash
+npx kill-port 5000    # Backend
+npx kill-port 4028    # Frontend
+```
+
+**Database Connection Error:**
+- Check PostgreSQL is running
+- Verify credentials in `.env`
+
+**CORS Error:**
+- Verify `FRONTEND_URL` in backend `.env`
+- Ensure correct API URL in frontend
+
+##  Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/AmazingFeature`
+3. Commit changes: `git commit -m ''Add AmazingFeature''`
+4. Push to branch: `git push origin feature/AmazingFeature`
+5. Open Pull Request
+
+##  License
+
+MIT License - see LICENSE file for details.
+
+##  Acknowledgments
+
+- Built with [React](https://react.dev) and [Vite](https://vitejs.dev)
+- Styled with [Tailwind CSS](https://tailwindcss.com)
+- Deployed on [Netlify](https://netlify.com) and [Railway](https://railway.app)
+
+---
+
+<div align="center">
+
+###  Star this repository if you find it helpful!
+
+**Live Demo**: [https://bto-b.netlify.app](https://bto-b.netlify.app)
+
+Made with 
+
+</div>
