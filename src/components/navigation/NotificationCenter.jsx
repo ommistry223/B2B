@@ -290,13 +290,13 @@ const NotificationCenter = () => {
   const getNotificationBgColor = type => {
     switch (type) {
       case 'payment':
-        return 'bg-success/5 hover:bg-success/10'
+        return 'notification-success hover:bg-muted'
       case 'risk':
-        return 'bg-warning/5 hover:bg-warning/10'
+        return 'notification-warning hover:bg-muted'
       case 'overdue':
-        return 'bg-error/5 hover:bg-error/10'
+        return 'notification-error hover:bg-muted'
       case 'due-soon':
-        return 'bg-warning/5 hover:bg-warning/10'
+        return 'notification-warning hover:bg-muted'
       default:
         return 'hover:bg-muted'
     }
@@ -319,10 +319,7 @@ const NotificationCenter = () => {
         )}
       </Button>
       {isOpen && (
-        <div
-          className="absolute right-0 top-full mt-2 w-96 bg-popover rounded-lg shadow-elevation-xl border border-border z-[1050]"
-          style={{ maxHeight: '480px' }}
-        >
+        <div className="notification-dropdown" style={{ maxHeight: '520px' }}>
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h3 className="text-base font-semibold text-foreground">
               Notifications {unreadCount > 0 && `(${unreadCount})`}

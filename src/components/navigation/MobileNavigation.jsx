@@ -58,7 +58,7 @@ const MobileNavigation = ({
 
   return (
     <div className="mobile-nav-overlay" onClick={onClose}>
-      <div className="mobile-nav-container" onClick={(e) => e.stopPropagation()}>
+      <div className="mobile-nav-container" onClick={e => e.stopPropagation()}>
         <div className="mobile-nav-header">
           <Link
             to="/dashboard"
@@ -80,7 +80,7 @@ const MobileNavigation = ({
         </div>
 
         {/* User Profile Section */}
-        <div className="px-6 py-4 border-b border-border bg-muted/30">
+        <div className="mobile-nav-profile">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium shadow-md">
               {getInitials()}
@@ -112,7 +112,7 @@ const MobileNavigation = ({
           ))}
         </nav>
 
-        <div className="mt-auto px-4 py-4 border-t border-border bg-muted/30">
+        <div className="mobile-nav-footer">
           <Link to="/profile" className="mobile-nav-item" onClick={onClose}>
             <Icon name="User" size={20} />
             <span>My Profile</span>
@@ -121,7 +121,10 @@ const MobileNavigation = ({
             <Icon name="Settings" size={20} />
             <span>Settings</span>
           </Link>
-          <button onClick={toggleTheme} className="mobile-nav-item w-full text-left">
+          <button
+            onClick={toggleTheme}
+            className="mobile-nav-item w-full text-left"
+          >
             <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={20} />
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
