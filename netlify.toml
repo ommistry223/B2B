@@ -8,6 +8,7 @@
 [build.environment]
   VITE_API_URL = "https://b2b-production-febe.up.railway.app"
   NODE_VERSION = "18"
+  NODE_ENV = "production"
 
 [[redirects]]
   from = "/*"
