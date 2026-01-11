@@ -12,7 +12,7 @@ import ChangePasswordModal from '../../components/modals/ChangePasswordModal'
 
 const Settings = () => {
   const navigate = useNavigate()
-  const { logout } = useUser()
+  const { user, logout } = useUser()
   const [activeTab, setActiveTab] = useState('general')
   const [isSaving, setIsSaving] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
@@ -21,12 +21,12 @@ const Settings = () => {
   const [toastMessage, setToastMessage] = useState('')
 
   const [generalSettings, setGeneralSettings] = useState({
-    companyName: 'Acme Corporation',
-    gstNumber: '27AABCU9603R1ZM',
-    address: '123 Business Street, Mumbai, MH 400001',
-    phone: '+91 98765 43210',
-    email: 'info@acmecorp.com',
-    website: 'www.acmecorp.com',
+    companyName: user?.companyName || user?.name || '',
+    gstNumber: '',
+    address: '',
+    phone: user?.phone || '',
+    email: user?.email || '',
+    website: '',
     currency: 'INR',
     timezone: 'Asia/Kolkata',
     dateFormat: 'DD/MM/YYYY',
@@ -199,6 +199,7 @@ const Settings = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <Input
                             label="Company Name"
+                            placeholder="Enter your company name"
                             value={generalSettings.companyName}
                             onChange={e =>
                               setGeneralSettings({
@@ -209,6 +210,7 @@ const Settings = () => {
                           />
                           <Input
                             label="GST Number"
+                            placeholder="e.g., 27AABCU9603R1ZM"
                             value={generalSettings.gstNumber}
                             onChange={e =>
                               setGeneralSettings({
@@ -220,6 +222,7 @@ const Settings = () => {
                         </div>
                         <Input
                           label="Address"
+                          placeholder="Enter your business address"
                           value={generalSettings.address}
                           onChange={e =>
                             setGeneralSettings({
@@ -231,6 +234,7 @@ const Settings = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <Input
                             label="Phone"
+                            placeholder="+91 98765 43210"
                             value={generalSettings.phone}
                             onChange={e =>
                               setGeneralSettings({
@@ -242,6 +246,7 @@ const Settings = () => {
                           <Input
                             label="Email"
                             type="email"
+                            placeholder="business@company.com"
                             value={generalSettings.email}
                             onChange={e =>
                               setGeneralSettings({
@@ -253,6 +258,7 @@ const Settings = () => {
                         </div>
                         <Input
                           label="Website"
+                          placeholder="www.yourcompany.com"
                           value={generalSettings.website}
                           onChange={e =>
                             setGeneralSettings({
