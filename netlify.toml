@@ -2,13 +2,12 @@
 # Optimized for maximum performance and caching
 
 [build]
-  command = "rm -rf node_modules && npm install && npm run build"
+  command = "npm install --include=optional --force && npm run build"
   publish = "build"
 
 [build.environment]
   VITE_API_URL = "https://b2b-production-febe.up.railway.app"
-  NODE_VERSION = "18"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/*"
