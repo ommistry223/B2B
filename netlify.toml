@@ -2,7 +2,7 @@
 # Optimized for maximum performance and caching
 
 [build]
-  command = "npm install --include=optional --force && npm run build"
+  command = "rm -rf package-lock.json node_modules && npm install --legacy-peer-deps && npm run build"
   publish = "build"
 
 [build.environment]
