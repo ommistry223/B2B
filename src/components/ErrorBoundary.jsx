@@ -4,17 +4,40 @@ import Icon from './AppIcon'
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { hasError: false }
+    this.state = {
+      hasError: false,
+      errorMessage: null,
+      errorStack: null,
+    }
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true }
+    return {
+      hasError: true,
+      errorMessage: error?.message || 'Unknown error occurred',
+    }
   }
 
   componentDidCatch(error, errorInfo) {
     error.__ErrorBoundary = true
+
+    // Store error details in state for potential debugging
+    this.setState({
+      errorStack: errorInfo?.componentStack,
+    })
+
+    // Only log in development mode to reduce console noise
+    if (import.meta.env.DEV) {
+      console.error('Error caught by ErrorBoundary:', error, errorInfo)
+    }
+
+    // Call custom error handler if available
     window.__COMPONENT_ERROR__?.(error, errorInfo)
-    // console.log("Error caught by ErrorBoundary:", error, errorInfo);
+  }
+
+  handleReload = () => {
+    this.setState({ hasError: false, errorMessage: null, errorStack: null })
+    window.location.href = '/'
   }
 
   render() {
@@ -29,6 +52,7 @@ class ErrorBoundary extends React.Component {
                 height="42px"
                 viewBox="0 0 32 33"
                 fill="none"
+                aria-hidden="true"
               >
                 <path
                   d="M16 28.5C22.6274 28.5 28 23.1274 28 16.5C28 9.87258 22.6274 4.5 16 4.5C9.37258 4.5 4 9.87258 4 16.5C4 23.1274 9.37258 28.5 16 28.5Z"
@@ -57,17 +81,21 @@ class ErrorBoundary extends React.Component {
               <h1 className="text-2xl font-medium text-neutral-800">
                 Something went wrong
               </h1>
-              <p className="text-neutral-600 text-base w w-8/12 mx-auto">
+              <p className="text-neutral-600 text-base w-8/12 mx-auto">
                 We encountered an unexpected error while processing your
                 request.
+                {import.meta.env.DEV && this.state.errorMessage && (
+                  <span className="block mt-2 text-sm text-red-600">
+                    {this.state.errorMessage}
+                  </span>
+                )}
               </p>
             </div>
             <div className="flex justify-center items-center mt-6">
               <button
-                onClick={() => {
-                  window.location.href = '/'
-                }}
+                onClick={this.handleReload}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200 shadow-sm"
+                aria-label="Return to home page"
               >
                 <Icon name="ArrowLeft" size={18} />
                 Back

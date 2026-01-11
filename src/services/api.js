@@ -1,31 +1,48 @@
 /**
  * API Service for Backend Communication
  * Centralized API calls to the backend server
- * Updated: 2026-01-10 - Fixed API URL configuration
+ * Updated: 2026-01-11 - Enhanced with better error handling and performance optimizations
  */
 
 // API Base URL - loaded from environment variable
-const API_URL = 'https://b2b-production-febe.up.railway.app/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://b2b-production-febe.up.railway.app/api';
+
 if (import.meta.env.DEV) {
   console.log('🔗 API URL:', API_URL);
 }
-console.log('API URL configured:', API_URL);
+
+// Request timeout in milliseconds
+const REQUEST_TIMEOUT = 30000;
 
 // Helper function to get auth token
 const getAuthToken = () => {
-  return localStorage.getItem('token');
+  try {
+    return localStorage.getItem('token');
+  } catch (error) {
+    console.error('Error accessing localStorage:', error);
+    return null;
+  }
 };
 
 // Helper function to handle API responses
 const handleResponse = async (response) => {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+    const error = await response.json().catch(() => ({
+      message: `HTTP error! status: ${response.status}`
+    }));
     throw new Error(error.message || `HTTP error! status: ${response.status}`);
   }
   return response.json();
 };
 
-// Helper function to make authenticated requests
+// Helper function to create abort controller with timeout
+const createAbortController = (timeoutMs = REQUEST_TIMEOUT) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  return { controller, timeoutId };
+};
+
+// Helper function to make authenticated requests with timeout and error handling
 const fetchWithAuth = async (url, options = {}) => {
   const token = getAuthToken();
   const headers = {
@@ -37,32 +54,71 @@ const fetchWithAuth = async (url, options = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  const { controller, timeoutId } = createAbortController();
 
-  return handleResponse(response);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers,
+      signal: controller.signal,
+      mode: 'cors',
+      credentials: 'include'
+    });
+
+    clearTimeout(timeoutId);
+    return handleResponse(response);
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout. Please check your connection and try again.');
+    }
+
+    // Log only in development
+    if (import.meta.env.DEV) {
+      console.error('API Request failed:', error);
+    }
+
+    throw error;
+  }
 };
 
 // ========== AUTH APIs ==========
 export const authAPI = {
   register: async (userData) => {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
-    return handleResponse(response);
+    const { controller, timeoutId } = createAbortController();
+    try {
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
+        signal: controller.signal,
+        mode: 'cors'
+      });
+      clearTimeout(timeoutId);
+      return handleResponse(response);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
   },
 
   login: async (email, password) => {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    return handleResponse(response);
+    const { controller, timeoutId } = createAbortController();
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal,
+        mode: 'cors'
+      });
+      clearTimeout(timeoutId);
+      return handleResponse(response);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
   },
 
   getProfile: async () => {

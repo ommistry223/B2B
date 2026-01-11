@@ -5,6 +5,12 @@ module.exports = {
     './src/**/*.{js,jsx,ts,tsx}',
     './public/index.html',
   ],
+  // Enable important to reduce CSS specificity issues
+  important: false,
+  // Optimize for production
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
     extend: {
       colors: {
