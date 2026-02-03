@@ -124,8 +124,8 @@ const Register = () => {
       <Helmet>
         <title>Create Account - CreditFlow Pro</title>
       </Helmet>
-      <div className="min-h-screen bg-background flex items-center justify-center p-4 py-12">
-        <div className="w-full max-w-2xl">
+      <div className="page-shell flex items-center justify-center p-4 py-12">
+        <div className="page-content w-full max-w-2xl">
           {/* Logo and Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-secondary mb-4">

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { customerAPI, invoiceAPI, paymentAPI } from '../services/api'
+import { customerAPI, invoiceAPI, paymentAPI, importAPI } from '../services/api'
 import { useUser } from './UserContext'
 
 const DataContext = createContext()
@@ -117,18 +117,48 @@ export const DataProvider = ({ children }) => {
     setIsLoading(true)
     try {
       const [customersData, invoicesData, paymentsData] = await Promise.all([
-        customerAPI.getAll(),
-        invoiceAPI.getAll(),
-        paymentAPI.getAll(),
+        customerAPI.getAll().catch(err => {
+          console.error('Error loading customers:', err)
+          return { customers: [] }
+        }),
+        invoiceAPI.getAll().catch(err => {
+          console.error('Error loading invoices:', err)
+          return { invoices: [] }
+        }),
+        paymentAPI.getAll().catch(err => {
+          console.error('Error loading payments:', err)
+          return { payments: [] }
+        }),
       ])
+
+      console.log('Loaded data:', {
+        customers: customersData.customers?.length || 0,
+        invoices: invoicesData.invoices?.length || 0,
+        payments: paymentsData.payments?.length || 0,
+      })
 
       setCustomers(customersData.customers || [])
       setInvoices(invoicesData.invoices || [])
       setPayments(paymentsData.payments || [])
     } catch (error) {
       console.error('Error loading data:', error)
+      // Set empty arrays on error
+      setCustomers([])
+      setInvoices([])
+      setPayments([])
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const importTally = async (file, importType = 'both') => {
+    try {
+      const data = await importAPI.tally(file, importType)
+      await loadAllData()
+      return { success: true, data }
+    } catch (error) {
+      console.error('Error importing Tally XML:', error)
+      return { success: false, error: error.message }
     }
   }
 
@@ -150,6 +180,7 @@ export const DataProvider = ({ children }) => {
       setCustomers(
         customers.map(c => (c.id === customerId ? data.customer : c))
       )
+      await loadAllData()
       return { success: true, customer: data.customer }
     } catch (error) {
       console.error('Error updating customer:', error)
@@ -190,6 +221,8 @@ export const DataProvider = ({ children }) => {
     try {
       const data = await invoiceAPI.update(invoiceId, invoiceData)
       setInvoices(invoices.map(i => (i.id === invoiceId ? data.invoice : i)))
+      // Reload all data to refresh customer outstanding amounts
+      await loadAllData()
       return { success: true, invoice: data.invoice }
     } catch (error) {
       console.error('Error updating invoice:', error)
@@ -352,6 +385,7 @@ export const DataProvider = ({ children }) => {
     addPayment,
     getPaymentsByInvoice,
     getPaymentsByCustomer,
+    importTally,
 
     // Analytics
     getTotalOutstanding,

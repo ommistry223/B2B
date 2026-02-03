@@ -51,13 +51,8 @@ export const createInvoice = async (req, res, next) => {
       paidAmount: 0
     });
 
-    // Update customer outstanding
-    const customer = await db.getCustomerById(customerId, req.user.userId);
-    if (customer) {
-      await db.updateCustomer(customerId, req.user.userId, {
-        outstanding: (customer.outstanding || 0) + parseFloat(amount)
-      });
-    }
+    // Recalculate customer outstanding for accuracy
+    await db.recalculateCustomerOutstanding(customerId, req.user.userId);
 
     res.status(201).json({
       message: 'Invoice created successfully',
@@ -70,12 +65,64 @@ export const createInvoice = async (req, res, next) => {
 
 export const updateInvoice = async (req, res, next) => {
   try {
-    const updates = req.body;
-    const invoice = await db.updateInvoice(req.params.id, req.user.userId, updates);
+    const allowedFields = [
+      'invoiceNumber',
+      'customerId',
+      'customerName',
+      'amount',
+      'dueDate',
+      'items',
+      'notes',
+      'status',
+      'paidAmount'
+    ];
 
-    if (!invoice) {
+    const updates = Object.keys(req.body || {}).reduce((acc, key) => {
+      if (allowedFields.includes(key) && req.body[key] !== undefined) {
+        acc[key] = req.body[key];
+      }
+      return acc;
+    }, {});
+
+    if (Object.keys(updates).length === 0) {
+      throw new ApiError('No valid fields to update', 400);
+    }
+
+    // Get the old invoice to calculate outstanding change
+    const oldInvoice = await db.getInvoiceById(req.params.id, req.user.userId);
+    if (!oldInvoice) {
       throw new ApiError('Invoice not found', 404);
     }
+
+    // If customerId changes, ensure customer exists and backfill name when missing
+    const nextCustomerId = updates.customerId || oldInvoice.customerId;
+    if (updates.customerId) {
+      const nextCustomer = await db.getCustomerById(
+        updates.customerId,
+        req.user.userId
+      );
+      if (!nextCustomer) {
+        throw new ApiError('Customer not found', 404);
+      }
+      if (!updates.customerName) {
+        updates.customerName = nextCustomer.name;
+      }
+    }
+
+    const invoice = await db.updateInvoice(
+      req.params.id,
+      req.user.userId,
+      updates
+    );
+
+    // Recalculate outstanding for affected customers
+    if (nextCustomerId !== oldInvoice.customerId) {
+      await db.recalculateCustomerOutstanding(
+        oldInvoice.customerId,
+        req.user.userId
+      );
+    }
+    await db.recalculateCustomerOutstanding(nextCustomerId, req.user.userId);
 
     res.json({
       message: 'Invoice updated successfully',
@@ -93,18 +140,16 @@ export const deleteInvoice = async (req, res, next) => {
       throw new ApiError('Invoice not found', 404);
     }
 
-    // Update customer outstanding
-    const customer = await db.getCustomerById(invoice.customerId, req.user.userId);
-    if (customer) {
-      await db.updateCustomer(invoice.customerId, req.user.userId, {
-        outstanding: Math.max(0, (customer.outstanding || 0) - parseFloat(invoice.amount))
-      });
-    }
-
     const deleted = await db.deleteInvoice(req.params.id, req.user.userId);
     if (!deleted) {
       throw new ApiError('Invoice not found', 404);
     }
+
+    // Recalculate customer outstanding after deletion
+    await db.recalculateCustomerOutstanding(
+      invoice.customerId,
+      req.user.userId
+    );
 
     res.json({ message: 'Invoice deleted successfully' });
   } catch (error) {

@@ -401,18 +401,18 @@ const RiskAnalytics = () => {
           content="Comprehensive credit risk assessment with AI-powered payment delay predictions and customer risk profiling for B2B businesses"
         />
       </Helmet>
-      <div className="min-h-screen bg-background">
+      <div className="page-shell">
         <Header />
 
-        <main className="pt-20 pb-8 px-4 md:px-6 lg:px-8">
+        <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
           <div className="max-w-[1440px] mx-auto">
             <div className="mb-6 md:mb-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+                  <h1 className="page-title mb-2">
                     Risk Analytics
                   </h1>
-                  <p className="text-sm md:text-base text-muted-foreground">
+                  <p className="page-subtitle">
                     AI-powered credit risk assessment and payment delay
                     predictions
                   </p>

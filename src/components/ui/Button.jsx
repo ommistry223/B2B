@@ -5,27 +5,27 @@ import { cn } from '../../util/cn'
 import Icon from '../AppIcon'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] relative overflow-hidden',
   {
     variants: {
       variant: {
         default:
-          'bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md',
+          'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
         destructive:
-          'bg-gradient-to-r from-destructive to-red-700 text-destructive-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md',
+          'bg-gradient-to-r from-destructive to-red-600 text-destructive-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
         outline:
-          'border-2 border-input hover:bg-accent hover:text-accent-foreground hover:border-primary hover:-translate-y-0.5',
+          'border border-input bg-card text-foreground hover:bg-muted hover:border-primary/60 hover:-translate-y-0.5',
         secondary:
-          'bg-gradient-to-r from-secondary to-violet-700 text-secondary-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md',
+          'bg-gradient-to-r from-secondary to-primary text-secondary-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
         ghost:
-          'hover:bg-accent hover:text-accent-foreground hover:-translate-y-0.5',
+          'text-foreground hover:bg-muted hover:-translate-y-0.5',
         link: 'text-primary underline-offset-4 hover:underline hover:text-primary/80',
         success:
-          'bg-gradient-to-r from-success to-emerald-700 text-success-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md',
+          'bg-gradient-to-r from-success to-emerald-600 text-success-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
         warning:
-          'bg-gradient-to-r from-warning to-amber-700 text-warning-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md',
+          'bg-gradient-to-r from-warning to-amber-600 text-warning-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
         danger:
-          'bg-gradient-to-r from-error to-red-700 text-error-foreground hover:shadow-lg hover:-translate-y-0.5 shadow-md',
+          'bg-gradient-to-r from-error to-red-600 text-error-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
       },
       size: {
         default: 'h-10 px-5 py-2',

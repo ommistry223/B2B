@@ -181,16 +181,16 @@ const Dashboard = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-shell">
       <Header />
-      <main className="pt-20 md:pt-24 px-4 md:px-6 lg:px-8 pb-8 md:pb-12 max-w-[1440px] mx-auto">
+      <main className="page-content pt-20 md:pt-24 px-4 md:px-6 lg:px-8 pb-8 md:pb-12 max-w-[1440px] mx-auto">
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4 md:mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              <h1 className="page-title mb-2">
                 Dashboard Overview
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground">
+              <p className="page-subtitle">
                 Real-time credit risk management and cash flow insights
               </p>
             </div>

@@ -140,16 +140,16 @@ const Settings = () => {
       <Helmet>
         <title>Settings - CreditFlow Pro</title>
       </Helmet>
-      <div className="min-h-screen bg-background">
+      <div className="page-shell">
         <Header />
-        <main className="pt-20 pb-8 px-4 md:px-6 lg:px-8">
+        <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-6 md:mb-8">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              <h1 className="page-title mb-2">
                 Settings
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground">
+              <p className="page-subtitle">
                 Manage your account preferences and application settings
               </p>
             </div>

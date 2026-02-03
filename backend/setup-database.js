@@ -5,13 +5,27 @@ dotenv.config();
 
 const { Pool } = pkg;
 
-const pool = new Pool({
-  host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.PGPORT || process.env.DB_PORT) || 5432,
-  database: process.env.PGDATABASE || process.env.DB_NAME || 'b2b_creditflow',
-  user: process.env.PGUSER || process.env.DB_USER || 'postgres',
-  password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
-});
+const connectionString =
+  process.env.DATABASE_URL ||
+  process.env.DATABASE_PRIVATE_URL ||
+  process.env.NEON_DATABASE_URL ||
+  process.env.PG_CONNECTION_STRING;
+
+const pool = new Pool(
+  connectionString
+    ? {
+        connectionString,
+        ssl: { rejectUnauthorized: false },
+      }
+    : {
+        host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
+        port: parseInt(process.env.PGPORT || process.env.DB_PORT) || 5432,
+        database: process.env.PGDATABASE || process.env.DB_NAME || 'b2b_creditflow',
+        user: process.env.PGUSER || process.env.DB_USER || 'postgres',
+        password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
+        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      }
+);
 
 const setupSQL = `
 -- Enable UUID extension

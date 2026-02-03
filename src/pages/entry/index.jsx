@@ -93,9 +93,19 @@ const Entry = () => {
       <Helmet>
         <title>CreditFlow Pro - Smart B2B Credit Management</title>
       </Helmet>
-      <div className="min-h-screen bg-background">
+      <div className="page-shell overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+          <div
+            className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: '1s' }}
+          ></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
+        </div>
+
         {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border shadow-lg">
           <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16 md:h-20">
               <div className="flex items-center gap-3">
@@ -139,31 +149,34 @@ const Entry = () => {
         </nav>
 
         {/* Hero Section */}
-        <section className="pt-32 pb-20 md:pt-40 md:pb-32 px-4 md:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 md:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-                <Icon name="Sparkles" size={16} />
-                AI-Powered Credit Management
+              <div className="inline-block mb-6 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm animate-fade-in">
+                <span className="text-sm font-medium text-primary flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                  New: AI-Powered Risk Prediction 2.0
+                </span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
                 Transform Your B2B Credit Management with{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-secondary">
                   Smart Analytics
                 </span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
+              <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground mb-10 leading-relaxed max-w-3xl mx-auto">
                 Predict payment delays, automate reminders, and optimize cash
                 flow with India's most advanced credit management platform for
                 businesses.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
                 <Button
                   variant="default"
                   size="xl"
                   onClick={() => navigate('/register')}
                   iconName="Rocket"
                   iconPosition="left"
+                  className="shadow-2xl shadow-primary/50 hover:shadow-primary/70 hover:scale-105 transition-all duration-300 bg-gradient-to-r from-primary to-blue-600"
                 >
                   Start Free Trial
                 </Button>
@@ -172,13 +185,25 @@ const Entry = () => {
                   size="xl"
                   iconName="Play"
                   iconPosition="left"
+                  className="hover:bg-primary/10 hover:border-primary hover:scale-105 transition-all duration-300"
                 >
                   Watch Demo
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground mt-6">
-                No credit card required • 14-day free trial • Cancel anytime
-              </p>
+              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Icon name="Check" size={16} className="text-green-500" />
+                  <span>No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Icon name="Check" size={16} className="text-green-500" />
+                  <span>14-day free trial</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Icon name="Check" size={16} className="text-green-500" />
+                  <span>Cancel anytime</span>
+                </div>
+              </div>
             </div>
 
             {/* Stats */}
@@ -186,12 +211,12 @@ const Entry = () => {
               {stats.map((stat, index) => (
                 <div
                   key={index}
-                  className="text-center p-6 rounded-lg bg-card border border-border"
+                  className="text-center p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
                 >
-                  <div className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+                  <div className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary mb-2 group-hover:scale-110 transition-transform duration-300">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground font-medium">
                     {stat.label}
                   </div>
                 </div>
@@ -201,9 +226,15 @@ const Entry = () => {
         </section>
 
         {/* Features Section */}
-        <section className="py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-muted/30">
+        <section className="relative py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-background via-muted/20 to-background">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-block mb-4 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                <span className="flex items-center gap-2">
+                  <Icon name="Zap" size={16} />
+                  Powerful Features
+                </span>
+              </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
                 Everything You Need to Manage Credit
               </h2>
@@ -217,19 +248,34 @@ const Entry = () => {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-card rounded-xl p-6 md:p-8 border border-border hover:shadow-elevation-lg transition-smooth group"
+                  className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group overflow-hidden"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
+                  {/* Hover gradient effect */}
                   <div
-                    className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-smooth`}
-                  >
-                    <Icon name={feature.icon} size={28} color="#FFFFFF" />
+                    className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500"
+                    style={{
+                      background: `linear-gradient(135deg, var(--color-primary), var(--color-secondary))`,
+                    }}
+                  ></div>
+
+                  <div className="relative z-10">
+                    <div
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}
+                    >
+                      <Icon name={feature.icon} size={32} color="#FFFFFF" />
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {feature.description}
+                    </p>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {feature.description}
-                  </p>
+
+                  {/* Decorative corner elements */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-secondary/5 to-transparent rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
               ))}
             </div>
@@ -304,9 +350,15 @@ const Entry = () => {
         </section>
 
         {/* Testimonials */}
-        <section className="py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-muted/30">
+        <section className="py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-background via-muted/20 to-background">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-block mb-4 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                <span className="flex items-center gap-2">
+                  <Icon name="Users" size={16} />
+                  Customer Success Stories
+                </span>
+              </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
                 Trusted by Leading Businesses
               </h2>
@@ -319,36 +371,43 @@ const Entry = () => {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={index}
-                  className="bg-card rounded-xl p-6 md:p-8 border border-border"
+                  className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group overflow-hidden"
                 >
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Icon
-                        key={i}
-                        name="Star"
-                        size={20}
-                        color="var(--color-warning)"
-                        className="fill-current"
-                      />
-                    ))}
+                  {/* Quote icon background */}
+                  <div className="absolute top-0 right-0 text-primary/5 text-9xl font-serif leading-none pointer-events-none">
+                    "
                   </div>
-                  <p className="text-foreground mb-6 leading-relaxed">
-                    "{testimonial.quote}"
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-medium">
-                      {testimonial.name
-                        .split(' ')
-                        .map(n => n[0])
-                        .join('')}
+
+                  <div className="relative z-10">
+                    <div className="flex gap-1 mb-6">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Icon
+                          key={i}
+                          name="Star"
+                          size={20}
+                          color="var(--color-warning)"
+                          className="fill-current"
+                        />
+                      ))}
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {testimonial.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {testimonial.company}
-                      </p>
+                    <p className="text-foreground mb-8 leading-relaxed text-lg">
+                      "{testimonial.quote}"
+                    </p>
+                    <div className="flex items-center gap-4 pt-6 border-t border-border/50">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg">
+                        {testimonial.name
+                          .split(' ')
+                          .map(n => n[0])
+                          .join('')}
+                      </div>
+                      <div>
+                        <p className="font-bold text-foreground text-lg">
+                          {testimonial.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground font-medium">
+                          {testimonial.company}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -358,15 +417,28 @@ const Entry = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-20 md:py-32 px-4 md:px-6 lg:px-8">
+        <section className="relative py-20 md:py-32 px-4 md:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto">
-            <div className="bg-gradient-to-br from-primary to-secondary rounded-2xl p-8 md:p-12 lg:p-16 text-center text-white relative overflow-hidden">
-              <div className="absolute inset-0 bg-grid-white/10"></div>
+            <div className="relative bg-gradient-to-br from-primary via-blue-600 to-secondary rounded-3xl p-8 md:p-12 lg:p-20 text-center text-white overflow-hidden shadow-2xl">
+              {/* Animated background patterns */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent"></div>
+                <div className="absolute top-10 right-10 w-32 h-32 border-4 border-white/20 rounded-full"></div>
+                <div className="absolute bottom-10 left-10 w-48 h-48 border-4 border-white/20 rounded-full"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+              </div>
+
               <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+                  <span className="text-sm font-medium flex items-center gap-2">
+                    <Icon name="Sparkles" size={16} />
+                    Limited Time Offer
+                  </span>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 leading-tight">
                   Ready to Transform Your Credit Management?
                 </h2>
-                <p className="text-lg md:text-xl mb-8 opacity-90">
+                <p className="text-lg md:text-xl lg:text-2xl mb-10 opacity-95 max-w-3xl mx-auto leading-relaxed">
                   Join 5,000+ businesses already using CreditFlow Pro to reduce
                   bad debt and improve cash flow.
                 </p>
@@ -377,18 +449,32 @@ const Entry = () => {
                     onClick={() => navigate('/register')}
                     iconName="Rocket"
                     iconPosition="left"
-                    className="bg-white text-primary hover:bg-white/90"
+                    className="bg-white text-primary hover:bg-white/90 shadow-2xl hover:shadow-white/20 hover:scale-105 transition-all duration-300"
                   >
                     Start Free Trial
                   </Button>
                   <Button
                     variant="outline"
                     size="xl"
-                    className="border-white text-white hover:bg-white/10"
+                    className="border-2 border-white text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
                     onClick={() => navigate('/login')}
                   >
                     Sign In
                   </Button>
+                </div>
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm">
+                  <div className="flex items-center gap-2 opacity-90">
+                    <Icon name="Check" size={16} />
+                    <span>5,000+ Happy Customers</span>
+                  </div>
+                  <div className="flex items-center gap-2 opacity-90">
+                    <Icon name="Check" size={16} />
+                    <span>₹450Cr+ Credit Managed</span>
+                  </div>
+                  <div className="flex items-center gap-2 opacity-90">
+                    <Icon name="Check" size={16} />
+                    <span>87% Collection Rate</span>
+                  </div>
                 </div>
               </div>
             </div>

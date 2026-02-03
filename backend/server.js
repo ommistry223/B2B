@@ -5,6 +5,7 @@ import authRoutes from './routes/auth.routes.js';
 import customerRoutes from './routes/customer.routes.js';
 import invoiceRoutes from './routes/invoice.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import importRoutes from './routes/import.routes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { db } from './services/database.postgresql.js';
 
@@ -64,6 +65,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/import', importRoutes);
 
 // Debug routes - view database contents
 import debugRoutes from './routes/debug.js';

@@ -30,7 +30,11 @@ const handleResponse = async (response) => {
     const error = await response.json().catch(() => ({
       message: `HTTP error! status: ${response.status}`
     }));
-    throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    const errorMessage =
+      error?.message ||
+      error?.error?.message ||
+      `HTTP error! status: ${response.status}`;
+    throw new Error(errorMessage);
   }
   return response.json();
 };
@@ -79,6 +83,41 @@ const fetchWithAuth = async (url, options = {}) => {
       console.error('API Request failed:', error);
     }
 
+    throw error;
+  }
+};
+
+// Helper function to upload form data with auth
+const uploadWithAuth = async (url, formData) => {
+  const token = getAuthToken();
+  const headers = {};
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const { controller, timeoutId } = createAbortController(REQUEST_TIMEOUT * 2);
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+      signal: controller.signal,
+      mode: 'cors',
+      credentials: 'include'
+    });
+
+    clearTimeout(timeoutId);
+    return handleResponse(response);
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Upload timeout. Please try again with a smaller file.');
+    }
+    if (import.meta.env.DEV) {
+      console.error('Upload failed:', error);
+    }
     throw error;
   }
 };
@@ -224,6 +263,16 @@ export const paymentAPI = {
   },
 };
 
+// ========== IMPORT APIs ==========
+export const importAPI = {
+  tally: async (file, importType = 'both') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('importType', importType);
+    return uploadWithAuth(`${API_URL}/import/tally`, formData);
+  },
+};
+
 // ========== HEALTH CHECK ==========
 export const healthCheck = async () => {
   const response = await fetch(`${API_URL}/health`);
@@ -235,5 +284,6 @@ export default {
   customers: customerAPI,
   invoices: invoiceAPI,
   payments: paymentAPI,
+  import: importAPI,
   healthCheck,
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet'
 import Header from '../../components/navigation/Header'
@@ -20,12 +20,16 @@ const InvoiceManagement = () => {
     getOverdueInvoices,
     getPaymentsByInvoice,
     addPayment,
+    importTally,
   } = useData()
   const [isMobileView, setIsMobileView] = useState(window.innerWidth < 1024)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [isImporting, setIsImporting] = useState(false)
+  const [importMessage, setImportMessage] = useState('')
+  const fileInputRef = useRef(null)
 
   // Map invoices to include calculated fields
   const invoices = allInvoices.map(inv => {
@@ -255,6 +259,33 @@ const InvoiceManagement = () => {
     setTimeout(() => setShowSuccessToast(false), 3000)
   }
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleImportFile = async event => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsImporting(true)
+    setImportMessage('')
+
+    const result = await importTally(file, 'both')
+
+    if (result.success) {
+      const summary = result.data?.summary
+      setImportMessage(
+        `Imported ${summary?.customers?.created || 0} customers, ` +
+          `${summary?.invoices?.created || 0} invoices.`
+      )
+    } else {
+      setImportMessage(result.error || 'Failed to import Tally XML.')
+    }
+
+    setIsImporting(false)
+    event.target.value = ''
+  }
+
   return (
     <>
       <Helmet>
@@ -264,22 +295,41 @@ const InvoiceManagement = () => {
           content="Manage and track all your business invoices with comprehensive status monitoring and payment recording"
         />
       </Helmet>
-      <div className="min-h-screen bg-background">
+      <div className="page-shell">
         <Header />
 
-        <main className="pt-20 pb-24 lg:pb-8">
+        <main className="page-content pt-20 pb-24 lg:pb-8">
           <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 md:mb-8">
               <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                <h1 className="page-title">
                   Invoice Management
                 </h1>
-                <p className="text-sm md:text-base text-muted-foreground mt-2">
+                <p className="page-subtitle mt-2">
                   Track and manage all your business invoices in one place
                 </p>
               </div>
-
               <div className="flex items-center gap-2 lg:gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xml,application/xml,text/xml"
+                  onChange={handleImportFile}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  iconName="Upload"
+                  iconPosition="left"
+                  iconSize={18}
+                  onClick={handleImportClick}
+                  loading={isImporting}
+                  disabled={isImporting}
+                  className="flex-1 lg:flex-none"
+                >
+                  <span className="hidden sm:inline">Import Tally XML</span>
+                  <span className="sm:hidden">Import</span>
+                </Button>
                 <Button
                   variant="outline"
                   iconName="Download"
@@ -315,6 +365,12 @@ const InvoiceManagement = () => {
                 </Button>
               </div>
             </div>
+
+            {importMessage && (
+              <div className="rounded-xl border border-border bg-card/60 px-4 py-3 text-sm text-foreground mb-4">
+                {importMessage}
+              </div>
+            )}
 
             <div className="space-y-6 md:space-y-8">
               <InvoiceStats stats={stats} />
@@ -360,6 +416,7 @@ const InvoiceManagement = () => {
                 />
               )}
             </div>
+
           </div>
         </main>
 

@@ -32,6 +32,32 @@ const RiskDistributionChart = ({ data }) => {
     return null
   }
 
+  const renderCustomLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+  }) => {
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+    const x = cx + radius * Math.cos((-midAngle * Math.PI) / 180)
+    const y = cy + radius * Math.sin((-midAngle * Math.PI) / 180)
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central"
+        className="text-xs md:text-sm font-bold"
+      >
+        {`${(percent * 100)?.toFixed(0)}%`}
+      </text>
+    )
+  }
+
   return (
     <div className="bg-card rounded-lg p-4 md:p-6 shadow-elevation-sm border border-border">
       <h3 className="text-lg font-semibold text-foreground mb-4">
@@ -48,8 +74,9 @@ const RiskDistributionChart = ({ data }) => {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percentage }) => `${name}: ${percentage}%`}
-              outerRadius={80}
+              label={renderCustomLabel}
+              outerRadius={90}
+              innerRadius={0}
               fill="#8884d8"
               dataKey="value"
             >

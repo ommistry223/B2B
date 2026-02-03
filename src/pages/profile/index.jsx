@@ -219,9 +219,9 @@ const Profile = () => {
       <Helmet>
         <title>Profile - CreditFlow Pro</title>
       </Helmet>
-      <div className="min-h-screen bg-background">
+      <div className="page-shell">
         <Header />
-        <main className="pt-20 pb-8 px-4 md:px-6 lg:px-8">
+        <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             {/* Profile Header */}
             <div className="bg-card rounded-lg p-6 md:p-8 shadow-elevation-sm border border-border mb-6">

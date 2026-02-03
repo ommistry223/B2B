@@ -7,13 +7,31 @@ const { Pool } = pkg;
 
 class PostgreSQLDatabase {
   constructor() {
-    this.pool = new Pool({
-      host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.PGPORT || process.env.DB_PORT) || 5432,
-      database: process.env.PGDATABASE || process.env.DB_NAME || 'b2b_creditflow',
-      user: process.env.PGUSER || process.env.DB_USER || 'postgres',
-      password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
-    });
+    const connectionString =
+      process.env.DATABASE_URL ||
+      process.env.DATABASE_PRIVATE_URL ||
+      process.env.NEON_DATABASE_URL ||
+      process.env.PG_CONNECTION_STRING;
+
+    this.pool = new Pool(
+      connectionString
+        ? {
+            connectionString,
+            ssl: { rejectUnauthorized: false },
+          }
+        : {
+            host: process.env.PGHOST || process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.PGPORT || process.env.DB_PORT) || 5432,
+            database:
+              process.env.PGDATABASE || process.env.DB_NAME || 'b2b_creditflow',
+            user: process.env.PGUSER || process.env.DB_USER || 'postgres',
+            password: process.env.PGPASSWORD || process.env.DB_PASSWORD || '',
+            ssl:
+              process.env.DB_SSL === 'true'
+                ? { rejectUnauthorized: false }
+                : false,
+          }
+    );
 
     this.pool.on('connect', () => {
       console.log('✅ Connected to PostgreSQL database');
@@ -70,6 +88,37 @@ class PostgreSQLDatabase {
     return this.mapUserFromDB(result.rows[0]);
   }
 
+  async updateUser(id, updates) {
+    const fields = [];
+    const values = [];
+    let valueIndex = 1;
+
+    Object.keys(updates).forEach(key => {
+      if (updates[key] !== undefined) {
+        const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        fields.push(`${dbKey} = $${valueIndex}`);
+        values.push(updates[key]);
+        valueIndex++;
+      }
+    });
+
+    if (fields.length === 0) {
+      return this.findUserById(id);
+    }
+
+    values.push(id);
+
+    const query = `
+      UPDATE users
+      SET ${fields.join(', ')}
+      WHERE id = $${valueIndex}
+      RETURNING *
+    `;
+
+    const result = await this.pool.query(query, values);
+    return this.mapUserFromDB(result.rows[0]);
+  }
+
   // Helper function to map customer from DB
   mapCustomerFromDB(row) {
     if (!row) return null;
@@ -93,6 +142,14 @@ class PostgreSQLDatabase {
   // Helper function to map invoice from DB
   mapInvoiceFromDB(row) {
     if (!row) return null;
+    let parsedItems = row.items;
+    if (typeof parsedItems === 'string') {
+      try {
+        parsedItems = JSON.parse(parsedItems);
+      } catch {
+        parsedItems = row.items;
+      }
+    }
     return {
       id: row.id,
       userId: row.user_id,
@@ -103,7 +160,7 @@ class PostgreSQLDatabase {
       paidAmount: parseFloat(row.paid_amount || 0),
       dueDate: row.due_date,
       status: row.status,
-      items: row.items,
+      items: parsedItems,
       notes: row.notes,
       createdAt: row.created_at,
       updatedAt: row.updated_at
@@ -164,6 +221,13 @@ class PostgreSQLDatabase {
     return this.mapCustomerFromDB(result.rows[0]);
   }
 
+  async getCustomerByName(userId, name) {
+    const query =
+      'SELECT * FROM customers WHERE user_id = $1 AND LOWER(name) = LOWER($2) LIMIT 1';
+    const result = await this.pool.query(query, [userId, name]);
+    return this.mapCustomerFromDB(result.rows[0]);
+  }
+
   async updateCustomer(id, userId, updates) {
     const fields = [];
     const values = [];
@@ -178,6 +242,10 @@ class PostgreSQLDatabase {
         valueIndex++;
       }
     });
+
+    if (fields.length === 0) {
+      return this.getCustomerById(id, userId);
+    }
 
     values.push(id);
     values.push(userId);
@@ -234,6 +302,13 @@ class PostgreSQLDatabase {
     return this.mapInvoiceFromDB(result.rows[0]);
   }
 
+  async getInvoiceByNumber(userId, invoiceNumber) {
+    const query =
+      'SELECT * FROM invoices WHERE user_id = $1 AND invoice_number = $2 LIMIT 1';
+    const result = await this.pool.query(query, [userId, invoiceNumber]);
+    return this.mapInvoiceFromDB(result.rows[0]);
+  }
+
   async updateInvoice(id, userId, updates) {
     const fields = [];
     const values = [];
@@ -245,7 +320,15 @@ class PostgreSQLDatabase {
         const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
         if (key === 'items') {
           fields.push(`${dbKey} = $${valueIndex}`);
-          values.push(JSON.stringify(updates[key]));
+          if (typeof updates[key] === 'string') {
+            try {
+              values.push(JSON.stringify(JSON.parse(updates[key])));
+            } catch {
+              values.push(JSON.stringify(updates[key]));
+            }
+          } else {
+            values.push(JSON.stringify(updates[key]));
+          }
         } else {
           fields.push(`${dbKey} = $${valueIndex}`);
           values.push(updates[key]);
@@ -253,6 +336,10 @@ class PostgreSQLDatabase {
         valueIndex++;
       }
     });
+
+    if (fields.length === 0) {
+      return this.getInvoiceById(id, userId);
+    }
 
     values.push(id);
     values.push(userId);
@@ -272,6 +359,26 @@ class PostgreSQLDatabase {
     const query = 'DELETE FROM invoices WHERE id = $1 AND user_id = $2';
     const result = await this.pool.query(query, [id, userId]);
     return result.rowCount > 0;
+  }
+
+  async recalculateCustomerOutstanding(customerId, userId) {
+    const query = `
+      SELECT COALESCE(
+        SUM(GREATEST(COALESCE(amount, 0) - COALESCE(paid_amount, 0), 0)),
+        0
+      ) AS outstanding
+      FROM invoices
+      WHERE customer_id = $1 AND user_id = $2
+    `;
+    const result = await this.pool.query(query, [customerId, userId]);
+    const outstanding = parseFloat(result.rows[0]?.outstanding || 0);
+
+    await this.pool.query(
+      'UPDATE customers SET outstanding = $1 WHERE id = $2 AND user_id = $3',
+      [outstanding, customerId, userId]
+    );
+
+    return outstanding;
   }
 
   // PAYMENT OPERATIONS

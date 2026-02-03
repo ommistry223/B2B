@@ -9,7 +9,7 @@ const CustomerTableRow = ({
   onSelect,
   onEdit,
   onViewDetails,
-  onAdjustCredit,
+  onRecordPayment,
 }) => {
   const formatCurrency = amount => {
     return new Intl.NumberFormat('en-IN', {
@@ -127,7 +127,7 @@ const CustomerTableRow = ({
             size="icon"
             iconName="DollarSign"
             iconSize={16}
-            onClick={() => onAdjustCredit(customer)}
+            onClick={() => onRecordPayment(customer)}
             className="h-8 w-8"
           />
         </div>

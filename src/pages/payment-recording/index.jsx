@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useMemo } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../../components/navigation/Header'
 import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
 import InvoiceSelector from './components/InvoiceSelector'
@@ -12,11 +12,14 @@ import { useData } from '../../context/DataContext'
 
 const PaymentRecording = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { invoices, payments, getPaymentsByInvoice } = useData()
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [paymentData, setPaymentData] = useState(null)
   const [showMultiAllocation, setShowMultiAllocation] = useState(false)
+
+  const customerFilter = location.state?.customerName
 
   // Convert invoices to match expected format
   const mockInvoices = invoices.map(inv => {
@@ -55,6 +58,16 @@ const PaymentRecording = () => {
       })),
     }
   })
+
+  const filteredInvoices = useMemo(() => {
+    if (!customerFilter) return mockInvoices
+    const lower = customerFilter.toLowerCase()
+    return mockInvoices.filter(inv =>
+      inv?.customerName?.toLowerCase()?.includes(lower)
+    )
+  }, [mockInvoices, customerFilter])
+
+  const displayInvoices = customerFilter ? filteredInvoices : mockInvoices
 
   const handleInvoiceSelect = invoice => {
     setSelectedInvoice(invoice)
@@ -96,9 +109,9 @@ const PaymentRecording = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-shell">
       <Header />
-      <main className="pt-20 pb-8 px-4 md:px-6 lg:px-8">
+      <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 md:mb-8">
             <div className="flex items-center gap-3 mb-4">
@@ -113,10 +126,10 @@ const PaymentRecording = () => {
                 />
               </button>
               <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                <h1 className="page-title">
                   Record Payment
                 </h1>
-                <p className="text-sm md:text-base text-muted-foreground mt-1">
+                <p className="page-subtitle mt-1">
                   Record customer payments and update invoice status
                 </p>
               </div>
@@ -126,14 +139,14 @@ const PaymentRecording = () => {
               <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg border border-border">
                 <Icon name="FileText" size={18} color="var(--color-primary)" />
                 <span className="text-sm font-medium text-foreground">
-                  {mockInvoices?.length} Outstanding Invoices
+                  {displayInvoices?.length} Outstanding Invoices
                 </span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg border border-border">
                 <Icon name="DollarSign" size={18} color="var(--color-error)" />
                 <span className="text-sm font-medium text-foreground data-text">
                   ₹
-                  {mockInvoices
+                  {displayInvoices
                     ?.reduce((sum, inv) => sum + inv?.outstandingAmount, 0)
                     ?.toLocaleString('en-IN')}{' '}
                   Total Outstanding
@@ -146,13 +159,13 @@ const PaymentRecording = () => {
             <div className="lg:col-span-2 space-y-6">
               {!selectedInvoice ? (
                 <InvoiceSelector
-                  invoices={mockInvoices}
+                  invoices={displayInvoices}
                   selectedInvoice={selectedInvoice}
                   onSelect={handleInvoiceSelect}
                 />
               ) : showMultiAllocation ? (
                 <MultiInvoiceAllocation
-                  customerInvoices={mockInvoices?.filter(
+                  customerInvoices={displayInvoices?.filter(
                     inv => inv?.customerName === selectedInvoice?.customerName
                   )}
                   totalPayment={50000}

@@ -67,9 +67,9 @@ module.exports = {
         xl: 'var(--radius-xl)', // 20px
       },
       fontFamily: {
-        sans: ['Source Sans 3', 'sans-serif'],
-        heading: ['Manrope', 'sans-serif'],
-        caption: ['Inter', 'sans-serif'],
+        sans: ['Sora', 'sans-serif'],
+        heading: ['Space Grotesk', 'sans-serif'],
+        caption: ['Sora', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       fontSize: {
@@ -106,10 +106,10 @@ module.exports = {
         '250': '250ms',
       },
       boxShadow: {
-        'elevation-sm': '0 1px 3px rgba(15, 23, 42, 0.08)',
-        'elevation-md': '0 4px 6px rgba(15, 23, 42, 0.1)',
-        'elevation-lg': '0 10px 15px rgba(15, 23, 42, 0.12)',
-        'elevation-xl': '0 20px 40px -4px rgba(15, 23, 42, 0.16)',
+        'elevation-sm': '0 2px 8px rgba(15, 23, 42, 0.06)',
+        'elevation-md': '0 6px 18px rgba(15, 23, 42, 0.1)',
+        'elevation-lg': '0 12px 30px rgba(15, 23, 42, 0.14)',
+        'elevation-xl': '0 24px 60px rgba(15, 23, 42, 0.18)',
       },
     },
   },

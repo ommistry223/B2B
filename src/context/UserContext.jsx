@@ -19,63 +19,102 @@ export const UserProvider = ({ children }) => {
   // Load user data on mount
   useEffect(() => {
     const token = localStorage.getItem('token')
+    const cachedUser = (() => {
+      try {
+        const stored = localStorage.getItem('user')
+        return stored ? JSON.parse(stored) : null
+      } catch {
+        return null
+      }
+    })()
+
+    if (cachedUser) {
+      setUser(cachedUser)
+    }
 
     if (token) {
+      setIsAuthenticated(true)
+      console.log('🔐 Token found, loading user profile...')
       // Verify token and get user profile
       authAPI
         .getProfile()
         .then(data => {
+          console.log('✅ User profile loaded:', data.user?.email)
           setUser(data.user)
+          localStorage.setItem('user', JSON.stringify(data.user))
           setIsAuthenticated(true)
         })
         .catch(error => {
-          console.error('Error loading user profile:', error)
-          localStorage.removeItem('token')
-          setUser(null)
-          setIsAuthenticated(false)
+          console.error('❌ Error loading user profile:', error)
+          const message = (error?.message || '').toLowerCase()
+          const shouldLogout =
+            message.includes('invalid token') ||
+            message.includes('token expired') ||
+            message.includes('no token') ||
+            message.includes('401')
+
+          if (shouldLogout) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            setUser(null)
+            setIsAuthenticated(false)
+          } else {
+            // Keep cached user if available; token might still be valid
+            setIsAuthenticated(true)
+          }
         })
         .finally(() => {
           setIsLoading(false)
         })
     } else {
+      console.log('ℹ️ No token found, user not authenticated')
       setIsLoading(false)
     }
   }, [])
 
   const login = async (email, password) => {
     try {
+      console.log('🔐 Attempting login for:', email)
       const data = await authAPI.login(email, password)
       localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      console.log('✅ Login successful, token saved')
+      console.log('👤 User:', data.user?.email, '| ID:', data.user?.id)
       setUser(data.user)
       setIsAuthenticated(true)
       return { success: true }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('❌ Login error:', error)
       return { success: false, error: error.message }
     }
   }
 
   const register = async userData => {
     try {
-      // Clear any existing tokens before registration
-      localStorage.clear()
+      console.log('📝 Attempting registration for:', userData.email)
+      // Clear auth cache before registration
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
       sessionStorage.clear()
 
       const data = await authAPI.register(userData)
       localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      console.log('✅ Registration successful')
+      console.log('👤 New user:', data.user?.email, '| ID:', data.user?.id)
       setUser(data.user)
       setIsAuthenticated(true)
       return { success: true }
     } catch (error) {
-      console.error('Registration error:', error)
+      console.error('❌ Registration error:', error)
       return { success: false, error: error.message }
     }
   }
 
   const logout = () => {
-    // Clear all localStorage items
-    localStorage.clear()
-    // Clear session storage as well
+    // Clear auth storage only
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
     sessionStorage.clear()
     setUser(null)
     setIsAuthenticated(false)
@@ -87,6 +126,7 @@ export const UserProvider = ({ children }) => {
     try {
       const data = await authAPI.updateProfile(updatedData)
       setUser(data.user)
+      localStorage.setItem('user', JSON.stringify(data.user))
       return { success: true }
     } catch (error) {
       console.error('Update profile error:', error)

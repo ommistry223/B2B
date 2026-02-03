@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Icon from '../../../components/AppIcon'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 import Select from '../../../components/ui/Select'
 
-const AddCustomerModal = ({ onClose, onSave }) => {
+const AddCustomerModal = ({ onClose, onSave, initialData = null, mode = 'add' }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     companyName: '',
@@ -21,6 +21,31 @@ const AddCustomerModal = ({ onClose, onSave }) => {
   })
 
   const [errors, setErrors] = useState({})
+  const isEdit = mode === 'edit'
+
+  useEffect(() => {
+    if (!initialData) return
+
+    setFormData({
+      companyName: initialData?.companyName || initialData?.name || '',
+      contactPerson: initialData?.contactPerson || '',
+      email: initialData?.email || '',
+      phone: initialData?.phone || '',
+      gstNumber: initialData?.gstNumber || initialData?.gst || '',
+      creditLimit:
+        initialData?.creditLimit !== undefined
+          ? String(initialData?.creditLimit)
+          : '',
+      paymentTerms:
+        initialData?.paymentTerms !== undefined
+          ? String(initialData?.paymentTerms)
+          : '30',
+      address: initialData?.address || '',
+      city: initialData?.city || '',
+      state: initialData?.state || '',
+      pincode: initialData?.pincode || '',
+    })
+  }, [initialData])
 
   const paymentTermsOptions = [
     { value: '15', label: '15 Days' },
@@ -52,36 +77,45 @@ const AddCustomerModal = ({ onClose, onSave }) => {
       newErrors.companyName = 'Company name is required'
     }
 
-    if (!formData?.contactPerson?.trim()) {
+    if (!isEdit && !formData?.contactPerson?.trim()) {
       newErrors.contactPerson = 'Contact person is required'
     }
 
-    if (!formData?.email?.trim()) {
+    if (formData?.email?.trim()) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
+        newErrors.email = 'Invalid email format'
+      }
+    } else if (!isEdit) {
       newErrors.email = 'Email is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(formData?.email)) {
-      newErrors.email = 'Invalid email format'
     }
 
-    if (!formData?.phone?.trim()) {
+    if (formData?.phone?.trim()) {
+      if (!/^[0-9]{10}$/?.test(formData?.phone?.replace(/\s/g, ''))) {
+        newErrors.phone = 'Invalid phone number'
+      }
+    } else if (!isEdit) {
       newErrors.phone = 'Phone number is required'
-    } else if (!/^[0-9]{10}$/?.test(formData?.phone?.replace(/\s/g, ''))) {
-      newErrors.phone = 'Invalid phone number'
     }
 
-    if (!formData?.gstNumber?.trim()) {
+    if (formData?.gstNumber?.trim()) {
+      if (
+        !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/?.test(
+          formData?.gstNumber
+        )
+      ) {
+        newErrors.gstNumber = 'Invalid GST number format'
+      }
+    } else if (!isEdit) {
       newErrors.gstNumber = 'GST number is required'
-    } else if (
-      !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/?.test(
-        formData?.gstNumber
-      )
-    ) {
-      newErrors.gstNumber = 'Invalid GST number format'
     }
 
-    if (!formData?.creditLimit) {
+    if (!formData?.creditLimit && !isEdit) {
       newErrors.creditLimit = 'Credit limit is required'
-    } else if (parseFloat(formData?.creditLimit) <= 0) {
-      newErrors.creditLimit = 'Credit limit must be greater than 0'
+    } else if (
+      formData?.creditLimit &&
+      parseFloat(formData?.creditLimit) < 0
+    ) {
+      newErrors.creditLimit = 'Credit limit must be 0 or greater'
     }
 
     setErrors(newErrors)
@@ -111,7 +145,7 @@ const AddCustomerModal = ({ onClose, onSave }) => {
               <Icon name="UserPlus" size={20} color="var(--color-primary)" />
             </div>
             <h2 className="text-xl font-semibold text-foreground">
-              Add New Customer
+              {isEdit ? 'Edit Customer' : 'Add New Customer'}
             </h2>
           </div>
           <Button
@@ -275,7 +309,7 @@ const AddCustomerModal = ({ onClose, onSave }) => {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Adding...' : 'Add Customer'}
+            {isSubmitting ? 'Saving...' : isEdit ? 'Update Customer' : 'Add Customer'}
           </Button>
         </div>
       </div>

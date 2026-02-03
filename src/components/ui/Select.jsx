@@ -120,7 +120,7 @@ const Select = React.forwardRef(
           <label
             htmlFor={selectId}
             className={cn(
-              'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block',
+              'text-sm font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block',
               error ? 'text-destructive' : 'text-foreground'
             )}
           >
@@ -134,7 +134,7 @@ const Select = React.forwardRef(
             id={selectId}
             type="button"
             className={cn(
-              'flex h-10 w-full items-center justify-between rounded-md border border-input bg-white text-black px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+              'flex h-11 w-full items-center justify-between rounded-xl border border-input bg-card text-foreground px-4 py-2 text-sm font-medium shadow-elevation-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300 hover:border-muted-foreground/40 hover:shadow-elevation-md',
               error && 'border-destructive focus:ring-destructive',
               !hasValue && 'text-muted-foreground'
             )}
@@ -206,7 +206,7 @@ const Select = React.forwardRef(
 
           {/* Dropdown */}
           {isOpen && (
-            <div className="absolute z-50 w-full mt-1 bg-white text-black border border-border rounded-md shadow-md">
+            <div className="absolute z-50 w-full mt-2 bg-popover text-foreground border border-border rounded-xl shadow-elevation-lg backdrop-blur-xl">
               {searchable && (
                 <div className="p-2 border-b">
                   <div className="relative">
@@ -231,7 +231,7 @@ const Select = React.forwardRef(
                     <div
                       key={option?.value}
                       className={cn(
-                        'relative flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground',
+                        'relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm outline-none transition-smooth hover:bg-accent hover:text-accent-foreground',
                         isSelected(option?.value) &&
                           'bg-primary text-primary-foreground',
                         option?.disabled && 'pointer-events-none opacity-50'

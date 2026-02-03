@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Header from '../../components/navigation/Header'
 import Icon from '../../components/AppIcon'
 import Button from '../../components/ui/Button'
@@ -11,7 +12,8 @@ import BulkActionsBar from './components/BulkActionsBar'
 import { useData } from '../../context/DataContext'
 
 const CustomerManagement = () => {
-  const { customers, addCustomer } = useData()
+  const navigate = useNavigate()
+  const { customers, addCustomer, updateCustomer, importTally } = useData()
 
   const [filters, setFilters] = useState({
     search: '',
@@ -29,6 +31,11 @@ const CustomerManagement = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingCustomer, setEditingCustomer] = useState(null)
+  const [isImporting, setIsImporting] = useState(false)
+  const [importMessage, setImportMessage] = useState('')
+  const fileInputRef = useRef(null)
 
   const handleFilterChange = (field, value) => {
     setFilters(prev => ({ ...prev, [field]: value }))
@@ -142,6 +149,75 @@ const CustomerManagement = () => {
     a.click()
     document.body.removeChild(a)
     window.URL.revokeObjectURL(url)
+  }
+
+  const handleRecordPayment = customer => {
+    navigate('/payment-recording', {
+      state: {
+        customerId: customer?.id,
+        customerName: customer?.companyName || customer?.name,
+      },
+    })
+  }
+
+  const handleEditCustomer = customer => {
+    setEditingCustomer(customer)
+    setShowEditModal(true)
+  }
+
+  const handleUpdateCustomer = async formData => {
+    if (!editingCustomer) return
+
+    const customerData = {
+      name: formData.companyName,
+      email: formData.email,
+      phone: formData.phone,
+      gst: formData.gstNumber,
+      address: `${formData.address || ''} ${formData.city || ''} ${
+        formData.state || ''
+      } ${formData.pincode || ''}`.trim(),
+      creditLimit: formData.creditLimit ? parseFloat(formData.creditLimit) : 0,
+      paymentTerms: formData.paymentTerms
+        ? parseInt(formData.paymentTerms)
+        : 30,
+    }
+
+    const result = await updateCustomer(editingCustomer.id, customerData)
+
+    if (result.success) {
+      setShowEditModal(false)
+      setEditingCustomer(null)
+    } else {
+      console.error('Failed to update customer:', result.error)
+      alert('Failed to update customer: ' + result.error)
+    }
+  }
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleImportFile = async event => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setIsImporting(true)
+    setImportMessage('')
+
+    const result = await importTally(file, 'both')
+
+    if (result.success) {
+      const summary = result.data?.summary
+      setImportMessage(
+        `Imported ${summary?.customers?.created || 0} customers, ` +
+          `${summary?.invoices?.created || 0} invoices.`
+      )
+    } else {
+      setImportMessage(result.error || 'Failed to import Tally XML.')
+    }
+
+    setIsImporting(false)
+    event.target.value = ''
   }
 
   const filteredAndSortedCustomers = useMemo(() => {
@@ -263,20 +339,39 @@ const CustomerManagement = () => {
   }, [customers])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-shell">
       <Header />
-      <main className="pt-20 pb-8 px-4 md:px-6 lg:px-8">
+      <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
         <div className="max-w-[1440px] mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 md:mb-8">
             <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+              <h1 className="page-title">
                 Customer Management
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground mt-1">
+              <p className="page-subtitle mt-1">
                 Manage credit customers, track payments, and assess risk levels
               </p>
             </div>
             <div className="flex items-center gap-2 lg:gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xml,application/xml,text/xml"
+                onChange={handleImportFile}
+                className="hidden"
+              />
+              <Button
+                variant="outline"
+                iconName="Upload"
+                iconPosition="left"
+                onClick={handleImportClick}
+                loading={isImporting}
+                disabled={isImporting}
+                className="flex-1 lg:flex-none"
+              >
+                <span className="hidden sm:inline">Import Tally XML</span>
+                <span className="sm:hidden">Import</span>
+              </Button>
               <Button
                 variant="outline"
                 iconName="Download"
@@ -299,6 +394,12 @@ const CustomerManagement = () => {
               </Button>
             </div>
           </div>
+
+          {importMessage && (
+            <div className="mb-4 rounded-xl border border-border bg-card/60 px-4 py-3 text-sm text-foreground">
+              {importMessage}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8">
             <div className="bg-card rounded-lg border border-border p-4 md:p-6">
@@ -369,19 +470,17 @@ const CustomerManagement = () => {
           />
 
           <div className="hidden lg:block">
-            <CustomerTable
-              customers={filteredAndSortedCustomers}
-              selectedCustomers={selectedCustomers}
-              onSelectCustomer={handleSelectCustomer}
-              onSelectAll={handleSelectAll}
-              onEdit={customer => console.log('Edit:', customer)}
-              onViewDetails={handleViewDetails}
-              onAdjustCredit={customer =>
-                console.log('Adjust credit:', customer)
-              }
-              onSort={handleSort}
-              sortConfig={sortConfig}
-            />
+          <CustomerTable
+            customers={filteredAndSortedCustomers}
+            selectedCustomers={selectedCustomers}
+            onSelectCustomer={handleSelectCustomer}
+            onSelectAll={handleSelectAll}
+            onEdit={handleEditCustomer}
+            onViewDetails={handleViewDetails}
+            onRecordPayment={handleRecordPayment}
+            onSort={handleSort}
+            sortConfig={sortConfig}
+          />
           </div>
 
           <div className="lg:hidden grid grid-cols-1 gap-4">
@@ -392,6 +491,8 @@ const CustomerManagement = () => {
                 isSelected={selectedCustomers?.includes(customer?.id)}
                 onSelect={handleSelectCustomer}
                 onViewDetails={handleViewDetails}
+                onEdit={handleEditCustomer}
+                onRecordPayment={handleRecordPayment}
               />
             ))}
           </div>
@@ -435,12 +536,27 @@ const CustomerManagement = () => {
             setShowDetailModal(false)
             setSelectedCustomer(null)
           }}
+          onEdit={() => {
+            setShowDetailModal(false)
+            handleEditCustomer(selectedCustomer)
+          }}
         />
       )}
       {showAddModal && (
         <AddCustomerModal
           onClose={() => setShowAddModal(false)}
           onSave={handleAddCustomer}
+        />
+      )}
+      {showEditModal && editingCustomer && (
+        <AddCustomerModal
+          mode="edit"
+          initialData={editingCustomer}
+          onClose={() => {
+            setShowEditModal(false)
+            setEditingCustomer(null)
+          }}
+          onSave={handleUpdateCustomer}
         />
       )}
       <button

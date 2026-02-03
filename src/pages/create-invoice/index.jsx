@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../../components/navigation/Header'
 import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
 import Button from '../../components/ui/Button'
@@ -16,9 +16,14 @@ import { useData } from '../../context/DataContext'
 
 const CreateInvoice = () => {
   const navigate = useNavigate()
-  const { customers, addInvoice, invoices } = useData()
+  const location = useLocation()
+  const { customers, addInvoice, invoices, updateInvoice } = useData()
   const [isSaving, setIsSaving] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+
+  // Check if we're editing an existing invoice
+  const editInvoice = location.state?.editInvoice
+  const isEditMode = !!editInvoice
 
   const [formData, setFormData] = useState({
     selectedCustomer: null,
@@ -43,9 +48,97 @@ const CreateInvoice = () => {
 
   const [errors, setErrors] = useState({})
 
+  const normalizeDateValue = value => {
+    if (!value) return ''
+    if (value instanceof Date) {
+      return value.toISOString().split('T')[0]
+    }
+    const raw = String(value).trim()
+    if (!raw) return ''
+    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+      return raw.slice(0, 10)
+    }
+    if (/^\d{2}-\d{2}-\d{4}$/.test(raw)) {
+      const [day, month, year] = raw.split('-')
+      return `${year}-${month}-${day}`
+    }
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) {
+      const [day, month, year] = raw.split('/')
+      return `${year}-${month}-${day}`
+    }
+    if (/^\d{8}$/.test(raw)) {
+      return `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`
+    }
+    const parsed = new Date(raw)
+    if (Number.isNaN(parsed.getTime())) return ''
+    return parsed.toISOString().split('T')[0]
+  }
+
+  // Initialize form data with edit invoice if in edit mode
+  useEffect(() => {
+    if (isEditMode && editInvoice) {
+      console.log('📝 Edit mode - Invoice data:', editInvoice)
+      console.log(
+        '📝 Invoice ID:',
+        editInvoice.id,
+        'Type:',
+        typeof editInvoice.id
+      )
+      const customer = customers.find(c => c.id === editInvoice.customerId)
+      const normalizedInvoiceDate = normalizeDateValue(
+        editInvoice.invoiceDate || editInvoice.createdAt?.split('T')[0]
+      )
+      const normalizedDueDate =
+        normalizeDateValue(editInvoice.dueDate) || normalizedInvoiceDate
+
+      setFormData({
+        selectedCustomer: customer || null,
+        invoiceNumber: editInvoice.invoiceNumber,
+        invoiceDate: normalizedInvoiceDate,
+        dueDate: normalizedDueDate,
+        paymentTerms: 'custom',
+        gstRate: 18,
+        items: editInvoice.items || [
+          { id: 1, description: '', quantity: 0, rate: 0 },
+        ],
+        isRecurring: false,
+        recurringFrequency: 'monthly',
+        reminderChannels: {
+          whatsapp: true,
+          sms: false,
+          email: true,
+        },
+        reminderTiming: ['before_3', 'on_due', 'after_1'],
+        notes: editInvoice.notes || '',
+      })
+    } else if (!isEditMode) {
+      // Reset form when not in edit mode
+      setFormData({
+        selectedCustomer: null,
+        invoiceNumber: `INV-2026-${String(
+          Math.floor(Math.random() * 10000)
+        ).padStart(4, '0')}`,
+        invoiceDate: new Date().toISOString().split('T')[0],
+        dueDate: '',
+        paymentTerms: '30',
+        gstRate: 18,
+        items: [{ id: 1, description: '', quantity: 0, rate: 0 }],
+        isRecurring: false,
+        recurringFrequency: 'monthly',
+        reminderChannels: {
+          whatsapp: true,
+          sms: false,
+          email: true,
+        },
+        reminderTiming: ['before_3', 'on_due', 'after_1'],
+        notes: '',
+      })
+    }
+  }, [isEditMode, editInvoice?.id, customers])
+
   // Generate unique invoice number based on existing invoices
   useEffect(() => {
-    if (invoices && invoices.length > 0) {
+    if (!isEditMode && invoices && invoices.length > 0) {
       const latestInvoiceNum = Math.max(
         ...invoices.map(inv => {
           const match = inv.invoiceNumber.match(/INV-2026-(\d+)/)
@@ -145,10 +238,11 @@ const CreateInvoice = () => {
     return Object.keys(newErrors)?.length === 0
   }
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!validateForm()) return
 
     setIsSaving(true)
+    setErrors(prev => ({ ...prev, submit: '' }))
 
     // Create invoice object
     const invoiceData = {
@@ -157,9 +251,6 @@ const CreateInvoice = () => {
       customerName: formData.selectedCustomer.name,
       amount: calculateInvoiceTotal(),
       dueDate: formData.dueDate,
-      invoiceDate: formData.invoiceDate,
-      paymentTerms: formData.paymentTerms,
-      gstRate: formData.gstRate,
       items: formData.items.filter(
         item => item.description && item.quantity > 0
       ),
@@ -167,7 +258,25 @@ const CreateInvoice = () => {
       status: 'pending',
     }
 
-    addInvoice(invoiceData)
+    let result
+    if (isEditMode) {
+      const invoiceId =
+        typeof editInvoice.id === 'object' ? editInvoice.id?.id : editInvoice.id
+      console.log('🔄 Updating invoice:', invoiceId, 'with data:', invoiceData)
+      result = await updateInvoice(invoiceId, invoiceData)
+    } else {
+      console.log('➕ Creating new invoice:', invoiceData)
+      result = await addInvoice(invoiceData)
+    }
+
+    if (!result?.success) {
+      setErrors(prev => ({
+        ...prev,
+        submit: result?.error || 'Failed to save invoice. Please try again.',
+      }))
+      setIsSaving(false)
+      return
+    }
 
     setTimeout(() => {
       setIsSaving(false)
@@ -178,10 +287,11 @@ const CreateInvoice = () => {
     }, 1500)
   }
 
-  const handleSaveAndSend = () => {
+  const handleSaveAndSend = async () => {
     if (!validateForm()) return
 
     setIsSaving(true)
+    setErrors(prev => ({ ...prev, submit: '' }))
 
     // Create invoice object
     const invoiceData = {
@@ -190,9 +300,6 @@ const CreateInvoice = () => {
       customerName: formData.selectedCustomer.name,
       amount: calculateInvoiceTotal(),
       dueDate: formData.dueDate,
-      invoiceDate: formData.invoiceDate,
-      paymentTerms: formData.paymentTerms,
-      gstRate: formData.gstRate,
       items: formData.items.filter(
         item => item.description && item.quantity > 0
       ),
@@ -200,7 +307,25 @@ const CreateInvoice = () => {
       status: 'sent',
     }
 
-    addInvoice(invoiceData)
+    let result
+    if (isEditMode) {
+      const invoiceId =
+        typeof editInvoice.id === 'object' ? editInvoice.id?.id : editInvoice.id
+      console.log('🔄 Updating invoice:', invoiceId, 'with data:', invoiceData)
+      result = await updateInvoice(invoiceId, invoiceData)
+    } else {
+      console.log('➕ Creating new invoice:', invoiceData)
+      result = await addInvoice(invoiceData)
+    }
+
+    if (!result?.success) {
+      setErrors(prev => ({
+        ...prev,
+        submit: result?.error || 'Failed to save invoice. Please try again.',
+      }))
+      setIsSaving(false)
+      return
+    }
 
     setTimeout(() => {
       setIsSaving(false)
@@ -212,9 +337,9 @@ const CreateInvoice = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-shell">
       <Header />
-      <main className="pt-20 pb-8 px-4 md:px-6 lg:px-8">
+      <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 md:mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -227,13 +352,14 @@ const CreateInvoice = () => {
                     iconSize={20}
                     onClick={() => navigate('/invoice-management')}
                   />
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-                    Create Invoice
+                  <h1 className="page-title">
+                    {isEditMode ? 'Edit Invoice' : 'Create Invoice'}
                   </h1>
                 </div>
-                <p className="text-sm md:text-base text-muted-foreground ml-12 md:ml-14">
-                  Generate new invoice with GST compliance and automated credit
-                  validation
+                <p className="page-subtitle ml-12 md:ml-14">
+                  {isEditMode
+                    ? 'Update invoice details and save changes'
+                    : 'Generate new invoice with GST compliance and automated credit validation'}
                 </p>
               </div>
               <div className="flex items-center gap-2 ml-12 md:ml-0">
@@ -246,7 +372,7 @@ const CreateInvoice = () => {
                   loading={isSaving}
                   disabled={isSaving}
                 >
-                  Save Draft
+                  {isEditMode ? 'Update' : 'Save Draft'}
                 </Button>
                 <Button
                   variant="default"
@@ -257,11 +383,17 @@ const CreateInvoice = () => {
                   loading={isSaving}
                   disabled={isSaving}
                 >
-                  Save & Send
+                  {isEditMode ? 'Update & Send' : 'Save & Send'}
                 </Button>
               </div>
             </div>
           </div>
+
+          {errors?.submit && (
+            <div className="mb-4 rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
+              {errors?.submit}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
             <div className="lg:col-span-2 space-y-6">

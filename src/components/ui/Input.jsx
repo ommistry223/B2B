@@ -20,7 +20,7 @@ const Input = React.forwardRef(
 
     // Base input classes with enhanced styling
     const baseInputClasses =
-      'flex h-11 w-full rounded-xl border-2 border-input bg-background px-4 py-2.5 text-sm font-medium ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300 hover:border-muted-foreground/30'
+      'flex h-11 w-full rounded-xl border border-input bg-card px-4 py-2.5 text-sm font-medium text-foreground shadow-elevation-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-300 hover:border-muted-foreground/40 hover:shadow-elevation-md'
 
     // Checkbox-specific styles
     if (type === 'checkbox') {

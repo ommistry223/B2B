@@ -8,6 +8,8 @@ const CustomerMobileCard = ({
   isSelected,
   onSelect,
   onViewDetails,
+  onEdit,
+  onRecordPayment,
 }) => {
   const formatCurrency = amount => {
     return new Intl.NumberFormat('en-IN', {
@@ -101,15 +103,39 @@ const CustomerMobileCard = ({
         )}
       </div>
       <div className="mt-4 pt-4 border-t border-border">
-        <Button
-          variant="outline"
-          fullWidth
-          iconName="Eye"
-          iconPosition="left"
-          onClick={() => onViewDetails(customer)}
-        >
-          View Details
-        </Button>
+        <div className="grid grid-cols-1 gap-2">
+          <Button
+            variant="outline"
+            fullWidth
+            iconName="Eye"
+            iconPosition="left"
+            onClick={() => onViewDetails(customer)}
+          >
+            View Details
+          </Button>
+          {onEdit && (
+            <Button
+              variant="ghost"
+              fullWidth
+              iconName="Edit"
+              iconPosition="left"
+              onClick={() => onEdit(customer)}
+            >
+              Edit Customer
+            </Button>
+          )}
+          {onRecordPayment && (
+            <Button
+              variant="ghost"
+              fullWidth
+              iconName="DollarSign"
+              iconPosition="left"
+              onClick={() => onRecordPayment(customer)}
+            >
+              Record Payment
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   )

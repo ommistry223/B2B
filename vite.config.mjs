@@ -76,8 +76,5 @@ export default defineConfig({
       'lucide-react'
     ],
     exclude: ['@dhiwise/component-tagger']
-  },
-  define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://b2b-production-febe.up.railway.app')
   }
 });

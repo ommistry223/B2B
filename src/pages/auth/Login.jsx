@@ -83,8 +83,8 @@ const Login = () => {
       <Helmet>
         <title>Login - CreditFlow Pro</title>
       </Helmet>
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
+      <div className="page-shell flex items-center justify-center p-4">
+        <div className="page-content w-full max-w-md">
           {/* Logo and Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-secondary mb-4">

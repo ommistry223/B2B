@@ -114,13 +114,13 @@ export const updateProfile = async (req, res, next) => {
       throw new ApiError('User not found', 404);
     }
 
-    // Update user fields
-    if (fullName) user.fullName = fullName;
-    if (businessName) user.businessName = businessName;
-    if (phone) user.phone = phone;
-    user.updatedAt = new Date().toISOString();
+    const updatedUser = await db.updateUser(req.user.userId, {
+      fullName,
+      businessName,
+      phone
+    });
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, ...userWithoutPassword } = updatedUser;
     res.json({
       message: 'Profile updated successfully',
       user: userWithoutPassword
@@ -151,8 +151,7 @@ export const changePassword = async (req, res, next) => {
 
     // Hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    user.updatedAt = new Date().toISOString();
+    await db.updateUser(req.user.userId, { password: hashedPassword });
 
     res.json({ message: 'Password changed successfully' });
   } catch (error) {

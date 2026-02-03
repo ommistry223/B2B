@@ -71,13 +71,8 @@ export const createPayment = async (req, res, next) => {
       status: newStatus
     });
 
-    // Update customer outstanding
-    const customer = await db.getCustomerById(invoice.customerId, req.user.userId);
-    if (customer) {
-      await db.updateCustomer(invoice.customerId, req.user.userId, {
-        outstanding: Math.max(0, (customer.outstanding || 0) - parseFloat(amount))
-      });
-    }
+    // Recalculate customer outstanding for accuracy
+    await db.recalculateCustomerOutstanding(invoice.customerId, req.user.userId);
 
     res.status(201).json({
       message: 'Payment recorded successfully',

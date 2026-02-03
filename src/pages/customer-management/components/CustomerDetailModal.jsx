@@ -14,7 +14,7 @@ import {
   Line,
 } from 'recharts'
 
-const CustomerDetailModal = ({ customer, onClose }) => {
+const CustomerDetailModal = ({ customer, onClose, onEdit }) => {
   const [activeTab, setActiveTab] = useState('overview')
 
   const formatCurrency = amount => {
@@ -557,7 +557,13 @@ const CustomerDetailModal = ({ customer, onClose }) => {
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          <Button variant="default" iconName="Edit" iconPosition="left">
+          <Button
+            variant="default"
+            iconName="Edit"
+            iconPosition="left"
+            onClick={onEdit}
+            disabled={!onEdit}
+          >
             Edit Customer
           </Button>
         </div>

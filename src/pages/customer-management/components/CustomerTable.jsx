@@ -9,7 +9,7 @@ const CustomerTable = ({
   onSelectAll,
   onEdit,
   onViewDetails,
-  onAdjustCredit,
+  onRecordPayment,
   onSort,
   sortConfig,
 }) => {
@@ -146,7 +146,7 @@ const CustomerTable = ({
                   onSelect={onSelectCustomer}
                   onEdit={onEdit}
                   onViewDetails={onViewDetails}
-                  onAdjustCredit={onAdjustCredit}
+                  onRecordPayment={onRecordPayment}
                 />
               ))
             )}
