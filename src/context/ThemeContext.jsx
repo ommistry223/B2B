@@ -13,8 +13,13 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     // Get theme from localStorage or default to 'light'
-    const savedTheme = localStorage.getItem('theme')
-    return savedTheme || 'light'
+    try {
+      if (typeof window === 'undefined') return 'light'
+      const savedTheme = window.localStorage.getItem('theme')
+      return savedTheme || 'light'
+    } catch (error) {
+      return 'light'
+    }
   })
 
   useEffect(() => {
@@ -24,7 +29,11 @@ export const ThemeProvider = ({ children }) => {
     root.classList.add(theme)
 
     // Save to localStorage
-    localStorage.setItem('theme', theme)
+    try {
+      window.localStorage.setItem('theme', theme)
+    } catch (error) {
+      // Ignore storage errors in restricted environments
+    }
   }, [theme])
 
   const toggleTheme = () => {
