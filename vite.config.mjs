@@ -24,13 +24,6 @@ export default defineConfig({
     // Optimize chunk splitting
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Split vendor libraries
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'chart-vendor': ['recharts', 'd3'],
-          'ui-vendor': ['framer-motion', 'lucide-react'],
-          'form-vendor': ['react-hook-form']
-        },
         // Optimize chunk file names
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
