@@ -68,6 +68,9 @@ window.addEventListener('unhandledrejection', event => {
 
 try {
   root.render(<App />)
+  if (typeof window !== 'undefined') {
+    window.__APP_READY__ = true
+  }
 } catch (error) {
   renderErrorOverlay(error, 'startup')
 }

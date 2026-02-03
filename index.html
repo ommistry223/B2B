@@ -22,6 +22,67 @@
 
   <!-- Preload critical assets -->
   <link rel="modulepreload" href="/src/index.jsx" />
+
+  <script>
+    window.__APP_READY__ = false;
+    window.__APP_ERROR__ = null;
+
+    window.addEventListener('error', function (event) {
+      window.__APP_ERROR__ = event && (event.message || (event.error && event.error.message)) || 'Unknown script error';
+    });
+
+    window.addEventListener('unhandledrejection', function (event) {
+      var reason = event && event.reason;
+      window.__APP_ERROR__ = (reason && (reason.message || reason.toString())) || 'Unhandled promise rejection';
+    });
+
+    window.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var root = document.getElementById('root');
+        var hasContent = root && root.childNodes && root.childNodes.length > 0;
+        if (!window.__APP_READY__ && !hasContent) {
+          var overlay = document.createElement('div');
+          overlay.style.minHeight = '100vh';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          overlay.style.padding = '24px';
+          overlay.style.background = '#f8fafc';
+          overlay.style.color = '#0f172a';
+          overlay.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto, sans-serif';
+
+          var box = document.createElement('div');
+          box.style.maxWidth = '720px';
+          box.style.width = '100%';
+
+          var title = document.createElement('h1');
+          title.textContent = 'App failed to load';
+          title.style.fontSize = '24px';
+          title.style.fontWeight = '700';
+          title.style.marginBottom = '8px';
+
+          var message = document.createElement('p');
+          message.style.marginBottom = '12px';
+          message.textContent = window.__APP_ERROR__
+            ? 'Error: ' + window.__APP_ERROR__
+            : 'The JavaScript bundle did not load. Please check the browser console/network.';
+
+          var hint = document.createElement('p');
+          hint.style.fontSize = '14px';
+          hint.style.color = '#475569';
+          hint.textContent = 'If you can, send this message to support.';
+
+          box.appendChild(title);
+          box.appendChild(message);
+          box.appendChild(hint);
+          overlay.appendChild(box);
+
+          document.body.innerHTML = '';
+          document.body.appendChild(overlay);
+        }
+      }, 3000);
+    });
+  </script>
 </head>
 
 <body>
