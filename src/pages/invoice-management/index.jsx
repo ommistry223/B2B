@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import Header from '../../components/navigation/Header'
 import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
 import Icon from '../../components/AppIcon'
@@ -302,9 +302,7 @@ const InvoiceManagement = () => {
           <div className="max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6 md:mb-8">
               <div>
-                <h1 className="page-title">
-                  Invoice Management
-                </h1>
+                <h1 className="page-title">Invoice Management</h1>
                 <p className="page-subtitle mt-2">
                   Track and manage all your business invoices in one place
                 </p>
@@ -416,7 +414,6 @@ const InvoiceManagement = () => {
                 />
               )}
             </div>
-
           </div>
         </main>
 

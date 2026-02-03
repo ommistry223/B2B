@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import Header from '../../components/navigation/Header'
 import RiskMetricsCard from './components/RiskMetricsCard'
 import RiskDistributionChart from './components/RiskDistributionChart'
@@ -82,8 +82,8 @@ const RiskAnalytics = () => {
           overdueInvoices.length > 0
             ? `Currently has ${overdueInvoices.length} overdue invoice(s). Average delay of ${avgDelay} days.`
             : paidInvoices.length > 0
-            ? 'Good payment history. Consistently pays on time.'
-            : 'New customer with limited payment history.',
+              ? 'Good payment history. Consistently pays on time.'
+              : 'New customer with limited payment history.',
         predictionConfidence: Math.min(95, 60 + customerInvoices.length * 2),
         avgDelay,
         onTimeRate,
@@ -409,9 +409,7 @@ const RiskAnalytics = () => {
             <div className="mb-6 md:mb-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
                 <div>
-                  <h1 className="page-title mb-2">
-                    Risk Analytics
-                  </h1>
+                  <h1 className="page-title mb-2">Risk Analytics</h1>
                   <p className="page-subtitle">
                     AI-powered credit risk assessment and payment delay
                     predictions

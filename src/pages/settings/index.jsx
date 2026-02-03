@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import { useNavigate } from 'react-router-dom'
 import Header from '../../components/navigation/Header'
 import Button from '../../components/ui/Button'
@@ -146,9 +146,7 @@ const Settings = () => {
           <div className="max-w-7xl mx-auto">
             {/* Header */}
             <div className="mb-6 md:mb-8">
-              <h1 className="page-title mb-2">
-                Settings
-              </h1>
+              <h1 className="page-title mb-2">Settings</h1>
               <p className="page-subtitle">
                 Manage your account preferences and application settings
               </p>

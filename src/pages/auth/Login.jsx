@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import { Checkbox } from '../../components/ui/Checkbox'
