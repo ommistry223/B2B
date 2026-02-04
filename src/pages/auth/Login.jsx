@@ -74,8 +74,8 @@ const Login = () => {
     const apiBase =
       import.meta.env.VITE_API_URL ||
       'https://b2b-production-febe.up.railway.app/api'
-    const redirectPath = '/auth/google/callback'
-    const authUrl = `${apiBase}/auth/google?redirect=${encodeURIComponent(redirectPath)}`
+    const redirectUrl = `${window.location.origin}/auth/google/callback`
+    const authUrl = `${apiBase}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`
     window.location.href = authUrl
   }
 

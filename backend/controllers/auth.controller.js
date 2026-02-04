@@ -6,11 +6,30 @@ import { ApiError } from '../middleware/errorHandler.js';
 
 const getBackendBaseUrl = (req) => {
   if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
-  return `${req.protocol}://${req.get('host')}`;
+  const forwardedProto = req.get('x-forwarded-proto');
+  const forwardedHost = req.get('x-forwarded-host');
+  const protocol = forwardedProto ? forwardedProto.split(',')[0].trim() : req.protocol;
+  const host = forwardedHost ? forwardedHost.split(',')[0].trim() : req.get('host');
+  return `${protocol}://${host}`;
 };
 
 const getFrontendBaseUrl = () =>
   process.env.FRONTEND_URL || 'http://localhost:5173';
+
+const isAbsoluteUrl = (value) => /^https?:\/\//i.test(String(value || ''));
+
+const isAllowedRedirect = (urlString) => {
+  try {
+    const url = new URL(urlString);
+    const allowedBase = process.env.FRONTEND_URL;
+    if (allowedBase) {
+      return new URL(allowedBase).host === url.host;
+    }
+    return url.host.endsWith('.netlify.app') || url.host === 'localhost:5173';
+  } catch {
+    return false;
+  }
+};
 
 export const register = async (req, res, next) => {
   try {
@@ -280,10 +299,13 @@ export const googleAuthCallback = async (req, res, next) => {
     );
 
     const frontendBase = getFrontendBaseUrl();
-    const redirectPath = state
+    const decodedState = state
       ? Buffer.from(String(state), 'base64').toString('utf8')
-      : '/auth/google/callback';
-    const redirectUrl = new URL(redirectPath, frontendBase);
+      : '';
+    const redirectTarget = decodedState || '/auth/google/callback';
+    const redirectUrl = isAbsoluteUrl(redirectTarget) && isAllowedRedirect(redirectTarget)
+      ? new URL(redirectTarget)
+      : new URL(redirectTarget, frontendBase);
     redirectUrl.searchParams.set('token', token);
 
     res.redirect(redirectUrl.toString());

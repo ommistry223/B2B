@@ -14,6 +14,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy headers (Railway/Render/Netlify)
+app.set('trust proxy', 1);
+
 // Enhanced CORS configuration
 const corsOptions = {
   origin: function(origin, callback) {
