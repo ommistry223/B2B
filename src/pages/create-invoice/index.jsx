@@ -148,6 +148,9 @@ const CreateInvoice = () => {
   }
 
   // Initialize form data with edit invoice if in edit mode
+  // Only runs once on mount or when edit invoice changes
+  const [isFormInitialized, setIsFormInitialized] = useState(false)
+
   useEffect(() => {
     if (isEditMode && editInvoice) {
       console.log('📝 Edit mode - Invoice data:', editInvoice)
@@ -184,8 +187,9 @@ const CreateInvoice = () => {
         reminderTiming: ['before_3', 'on_due', 'after_1'],
         notes: editInvoice.notes || '',
       })
-    } else if (!isEditMode) {
-      // Reset form when not in edit mode
+      setIsFormInitialized(true)
+    } else if (!isEditMode && !isFormInitialized) {
+      // Only reset form once when component mounts in create mode
       setFormData({
         selectedCustomer: null,
         invoiceNumber: `INV-2026-${String(
@@ -206,8 +210,9 @@ const CreateInvoice = () => {
         reminderTiming: ['before_3', 'on_due', 'after_1'],
         notes: '',
       })
+      setIsFormInitialized(true)
     }
-  }, [isEditMode, editInvoice?.id, customers])
+  }, [isEditMode, editInvoice?.id])
 
   // Generate unique invoice number based on existing invoices
   useEffect(() => {
