@@ -1,9 +1,31 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import Button from '../../../components/ui/Button'
 import Icon from '../../../components/AppIcon'
 
-const OcrModal = ({ ocrUrl, onClose }) => {
+const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
   const activeUrl = useMemo(() => ocrUrl || 'http://localhost:7860', [ocrUrl])
+
+  // Listen for messages from the OCR iframe
+  useEffect(() => {
+    const handleMessage = (event) => {
+      // Verify the message is from our OCR server
+      if (event.origin !== 'http://localhost:7860' && !ocrUrl?.includes(event.origin)) {
+        return
+      }
+
+      if (event.data?.type === 'OCR_EXTRACT_DATA' && event.data?.data) {
+        console.log('📄 Received OCR data:', event.data.data)
+        if (onExtractData) {
+          onExtractData(event.data.data)
+        }
+        // Auto-close modal after successful extraction
+        setTimeout(() => onClose(), 500)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [ocrUrl, onExtractData, onClose])
 
   return (
     <div

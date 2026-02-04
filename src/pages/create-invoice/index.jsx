@@ -23,6 +23,47 @@ const CreateInvoice = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showOcrModal, setShowOcrModal] = useState(false)
 
+  // Handle OCR data extraction
+  const handleOcrDataExtracted = (ocrData) => {
+    console.log('📊 Processing OCR data:', ocrData)
+    
+    // Update form data with extracted information
+    setFormData(prev => {
+      const updates = { ...prev }
+      
+      // Map OCR data to form fields
+      if (ocrData.invoice_number) {
+        updates.invoiceNumber = ocrData.invoice_number
+      }
+      if (ocrData.date) {
+        updates.invoiceDate = normalizeDateValue(ocrData.date)
+      }
+      if (ocrData.due_date) {
+        updates.dueDate = normalizeDateValue(ocrData.due_date)
+      }
+      if (ocrData.total) {
+        // Parse total and update first item
+        const totalAmount = parseFloat(String(ocrData.total).replace(/[^0-9.]/g, ''))
+        if (!isNaN(totalAmount) && updates.items.length > 0) {
+          updates.items[0] = {
+            ...updates.items[0],
+            description: ocrData.description || 'Scanned Invoice Item',
+            quantity: 1,
+            rate: totalAmount / 1.18 // Assuming 18% GST
+          }
+        }
+      }
+      if (ocrData.notes) {
+        updates.notes = ocrData.notes
+      }
+      
+      return updates
+    })
+    
+    // Show success notification
+    console.log('✅ Invoice data populated from OCR')
+  }
+
   // Check if we're editing an existing invoice
   const editInvoice = location.state?.editInvoice
   const isEditMode = !!editInvoice
@@ -630,6 +671,7 @@ const CreateInvoice = () => {
         <OcrModal
           ocrUrl={import.meta.env.VITE_OCR_URL}
           onClose={() => setShowOcrModal(false)}
+          onExtractData={handleOcrDataExtracted}
         />
       )}
       {showSuccessModal && (
