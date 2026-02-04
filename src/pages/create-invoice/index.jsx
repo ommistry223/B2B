@@ -12,6 +12,7 @@ import LineItemTable from './components/LineItemTable'
 import InvoiceSummary from './components/InvoiceSummary'
 import PaymentTermsSection from './components/PaymentTermsSection'
 import ReminderSettings from './components/ReminderSettings'
+import OcrModal from './components/OcrModal'
 import { useData } from '../../context/DataContext'
 
 const CreateInvoice = () => {
@@ -20,6 +21,7 @@ const CreateInvoice = () => {
   const { customers, addInvoice, invoices, updateInvoice } = useData()
   const [isSaving, setIsSaving] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showOcrModal, setShowOcrModal] = useState(false)
 
   // Check if we're editing an existing invoice
   const editInvoice = location.state?.editInvoice
@@ -336,6 +338,10 @@ const CreateInvoice = () => {
     }, 1500)
   }
 
+  const handleOpenOcr = () => {
+    setShowOcrModal(true)
+  }
+
   return (
     <div className="page-shell">
       <Header />
@@ -363,6 +369,15 @@ const CreateInvoice = () => {
                 </p>
               </div>
               <div className="flex items-center gap-2 ml-12 md:ml-0">
+                <Button
+                  variant="outline"
+                  iconName="Scan"
+                  iconPosition="left"
+                  iconSize={18}
+                  onClick={handleOpenOcr}
+                >
+                  Scan Invoice
+                </Button>
                 <Button
                   variant="outline"
                   iconName="Save"
@@ -611,6 +626,12 @@ const CreateInvoice = () => {
         </div>
       </main>
       <QuickActionToolbar />
+      {showOcrModal && (
+        <OcrModal
+          ocrUrl={import.meta.env.VITE_OCR_URL}
+          onClose={() => setShowOcrModal(false)}
+        />
+      )}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="bg-card rounded-lg shadow-elevation-xl p-6 md:p-8 max-w-md w-full mx-4 animate-in fade-in zoom-in duration-300">
