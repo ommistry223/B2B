@@ -1,7 +1,16 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { db } from '../services/database.postgresql.js';
 import { ApiError } from '../middleware/errorHandler.js';
+
+const getBackendBaseUrl = (req) => {
+  if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
+  return `${req.protocol}://${req.get('host')}`;
+};
+
+const getFrontendBaseUrl = () =>
+  process.env.FRONTEND_URL || 'http://localhost:5173';
 
 export const register = async (req, res, next) => {
   try {
@@ -154,6 +163,130 @@ export const changePassword = async (req, res, next) => {
     await db.updateUser(req.user.userId, { password: hashedPassword });
 
     res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleAuthRedirect = async (req, res, next) => {
+  try {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      throw new ApiError('Google OAuth is not configured', 500);
+    }
+
+    const redirectUri = `${getBackendBaseUrl(req)}/api/auth/google/callback`;
+    const requestedRedirect = req.query.redirect || '';
+    const state = requestedRedirect
+      ? Buffer.from(requestedRedirect, 'utf8').toString('base64')
+      : '';
+
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'openid email profile',
+      access_type: 'offline',
+      prompt: 'consent',
+    });
+
+    if (state) {
+      params.append('state', state);
+    }
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    res.redirect(authUrl);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleAuthCallback = async (req, res, next) => {
+  try {
+    const { code, state } = req.query;
+
+    if (!code) {
+      throw new ApiError('Authorization code is missing', 400);
+    }
+
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      throw new ApiError('Google OAuth is not configured', 500);
+    }
+
+    const redirectUri = `${getBackendBaseUrl(req)}/api/auth/google/callback`;
+
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code: String(code),
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const tokenError = await tokenResponse.text();
+      throw new ApiError(`Google token exchange failed: ${tokenError}`, 401);
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    if (!accessToken) {
+      throw new ApiError('Google access token missing', 401);
+    }
+
+    const profileResponse = await fetch(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      }
+    );
+
+    if (!profileResponse.ok) {
+      const profileError = await profileResponse.text();
+      throw new ApiError(`Google profile fetch failed: ${profileError}`, 401);
+    }
+
+    const profile = await profileResponse.json();
+
+    if (!profile?.email) {
+      throw new ApiError('Google profile email missing', 400);
+    }
+
+    let user = await db.findUserByEmail(profile.email);
+
+    if (!user) {
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      user = await db.createUser({
+        email: profile.email,
+        password: hashedPassword,
+        fullName: profile.name || null,
+        businessName: null,
+        phone: null,
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const frontendBase = getFrontendBaseUrl();
+    const redirectPath = state
+      ? Buffer.from(String(state), 'base64').toString('utf8')
+      : '/auth/google/callback';
+    const redirectUrl = new URL(redirectPath, frontendBase);
+    redirectUrl.searchParams.set('token', token);
+
+    res.redirect(redirectUrl.toString());
   } catch (error) {
     next(error);
   }

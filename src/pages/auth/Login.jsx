@@ -71,7 +71,12 @@ const Login = () => {
   }
 
   const handleGoogleLogin = () => {
-    console.log('Google login initiated')
+    const apiBase =
+      import.meta.env.VITE_API_URL ||
+      'https://b2b-production-febe.up.railway.app/api'
+    const redirectPath = '/auth/google/callback'
+    const authUrl = `${apiBase}/auth/google?redirect=${encodeURIComponent(redirectPath)}`
+    window.location.href = authUrl
   }
 
   const handleMicrosoftLogin = () => {

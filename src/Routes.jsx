@@ -21,6 +21,7 @@ const PaymentRecording = lazy(() => import('./pages/payment-recording'))
 const RiskAnalytics = lazy(() => import('./pages/risk-analytics'))
 const Login = lazy(() => import('./pages/auth/Login'))
 const Register = lazy(() => import('./pages/auth/Register'))
+const GoogleCallback = lazy(() => import('./pages/auth/GoogleCallback'))
 const Settings = lazy(() => import('./pages/settings'))
 const Profile = lazy(() => import('./pages/profile'))
 
@@ -37,6 +38,7 @@ const Routes = () => {
             {/* Authentication Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
             {/* Main Application Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
