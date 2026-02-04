@@ -27,20 +27,28 @@ const CreateInvoice = () => {
   // Handle OCR data extraction
   const handleOcrDataExtracted = ocrData => {
     console.log('📊 Processing OCR data:', ocrData)
+    console.log('📋 Current form data before update:', formData)
 
     // Update form data with extracted information
     setFormData(prev => {
       const updates = { ...prev }
+      let fieldsUpdated = []
 
       // Map OCR data to form fields
       if (ocrData.invoice_number) {
         updates.invoiceNumber = ocrData.invoice_number
+        fieldsUpdated.push('invoice_number')
+        console.log('✓ Invoice Number:', ocrData.invoice_number)
       }
       if (ocrData.date) {
         updates.invoiceDate = normalizeDateValue(ocrData.date)
+        fieldsUpdated.push('date')
+        console.log('✓ Invoice Date:', updates.invoiceDate)
       }
       if (ocrData.due_date) {
         updates.dueDate = normalizeDateValue(ocrData.due_date)
+        fieldsUpdated.push('due_date')
+        console.log('✓ Due Date:', updates.dueDate)
       }
       if (ocrData.total) {
         // Parse total and update first item
@@ -48,18 +56,35 @@ const CreateInvoice = () => {
           String(ocrData.total).replace(/[^0-9.]/g, '')
         )
         if (!isNaN(totalAmount) && updates.items.length > 0) {
+          const description =
+            ocrData.description || ocrData.vendor || 'Scanned Invoice Item'
           updates.items[0] = {
             ...updates.items[0],
-            description: ocrData.description || 'Scanned Invoice Item',
+            description: description,
             quantity: 1,
             rate: totalAmount / 1.18, // Assuming 18% GST
           }
+          fieldsUpdated.push('total')
+          console.log(
+            '✓ Total Amount:',
+            totalAmount,
+            '(Base Rate:',
+            updates.items[0].rate.toFixed(2),
+            ')'
+          )
+          console.log('✓ Description:', description)
         }
       }
-      if (ocrData.notes) {
-        updates.notes = ocrData.notes
+      // Handle both 'notes' and 'note' fields
+      const notesValue = ocrData.notes || ocrData.note
+      if (notesValue) {
+        updates.notes = notesValue
+        fieldsUpdated.push('notes')
+        console.log('✓ Notes:', notesValue)
       }
 
+      console.log('📝 Fields updated:', fieldsUpdated.join(', '))
+      console.log('📋 Updated form data:', updates)
       return updates
     })
 
