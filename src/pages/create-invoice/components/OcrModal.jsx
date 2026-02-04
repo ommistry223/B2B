@@ -1,15 +1,19 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import Button from '../../../components/ui/Button'
 import Icon from '../../../components/AppIcon'
 
 const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
   const activeUrl = useMemo(() => ocrUrl || 'http://localhost:7860', [ocrUrl])
+  const [successMessage, setSuccessMessage] = useState(null)
 
   // Listen for messages from the OCR iframe
   useEffect(() => {
-    const handleMessage = (event) => {
+    const handleMessage = event => {
       // Verify the message is from our OCR server
-      if (event.origin !== 'http://localhost:7860' && !ocrUrl?.includes(event.origin)) {
+      if (
+        event.origin !== 'http://localhost:7860' &&
+        !ocrUrl?.includes(event.origin)
+      ) {
         return
       }
 
@@ -18,14 +22,16 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
         if (onExtractData) {
           onExtractData(event.data.data)
         }
-        // Auto-close modal after successful extraction
-        setTimeout(() => onClose(), 500)
+        // Show success message
+        setSuccessMessage('✅ Invoice data extracted and populated in form!')
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccessMessage(null), 3000)
       }
     }
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [ocrUrl, onExtractData, onClose])
+  }, [ocrUrl, onExtractData])
 
   return (
     <div
@@ -58,6 +64,15 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
             onClick={onClose}
           />
         </div>
+
+        {successMessage && (
+          <div className="mx-6 mt-4 px-4 py-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+            <Icon name="CheckCircle" size={20} color="#16a34a" />
+            <span className="text-sm font-medium text-green-800">
+              {successMessage}
+            </span>
+          </div>
+        )}
 
         <div className="flex-1 bg-muted/30 p-3 md:p-4">
           <div className="w-full h-[70vh] rounded-lg overflow-hidden border border-border bg-background">

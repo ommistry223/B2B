@@ -22,15 +22,16 @@ const CreateInvoice = () => {
   const [isSaving, setIsSaving] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showOcrModal, setShowOcrModal] = useState(false)
+  const [ocrSuccessMessage, setOcrSuccessMessage] = useState('')
 
   // Handle OCR data extraction
-  const handleOcrDataExtracted = (ocrData) => {
+  const handleOcrDataExtracted = ocrData => {
     console.log('📊 Processing OCR data:', ocrData)
-    
+
     // Update form data with extracted information
     setFormData(prev => {
       const updates = { ...prev }
-      
+
       // Map OCR data to form fields
       if (ocrData.invoice_number) {
         updates.invoiceNumber = ocrData.invoice_number
@@ -43,24 +44,28 @@ const CreateInvoice = () => {
       }
       if (ocrData.total) {
         // Parse total and update first item
-        const totalAmount = parseFloat(String(ocrData.total).replace(/[^0-9.]/g, ''))
+        const totalAmount = parseFloat(
+          String(ocrData.total).replace(/[^0-9.]/g, '')
+        )
         if (!isNaN(totalAmount) && updates.items.length > 0) {
           updates.items[0] = {
             ...updates.items[0],
             description: ocrData.description || 'Scanned Invoice Item',
             quantity: 1,
-            rate: totalAmount / 1.18 // Assuming 18% GST
+            rate: totalAmount / 1.18, // Assuming 18% GST
           }
         }
       }
       if (ocrData.notes) {
         updates.notes = ocrData.notes
       }
-      
+
       return updates
     })
-    
+
     // Show success notification
+    setOcrSuccessMessage('✅ Invoice data extracted successfully!')
+    setTimeout(() => setOcrSuccessMessage(''), 5000)
     console.log('✅ Invoice data populated from OCR')
   }
 
@@ -388,6 +393,14 @@ const CreateInvoice = () => {
       <Header />
       <main className="page-content pt-20 pb-8 px-4 md:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {ocrSuccessMessage && (
+            <div className="mb-4 px-4 py-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3 animate-fade-in">
+              <Icon name="CheckCircle" size={20} color="#16a34a" />
+              <span className="text-sm font-medium text-green-800">
+                {ocrSuccessMessage}
+              </span>
+            </div>
+          )}
           <div className="mb-6 md:mb-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
