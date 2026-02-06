@@ -1,0 +1,7 @@
+gradio
+vllm[triton]
+Pillow
+pytesseract
+requests
+aiohttp
+PyMuPDF
