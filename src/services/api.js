@@ -5,7 +5,7 @@
  */
 
 // API Base URL - loaded from environment variable
-const API_URL = import.meta.env.VITE_API_URL || 'https://b2b-production-febe.up.railway.app/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 if (import.meta.env.DEV) {
   console.log('🔗 API URL:', API_URL);

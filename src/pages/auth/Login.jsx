@@ -71,9 +71,7 @@ const Login = () => {
   }
 
   const handleGoogleLogin = () => {
-    const apiBase =
-      import.meta.env.VITE_API_URL ||
-      'https://b2b-production-febe.up.railway.app/api'
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
     const redirectUrl = `${window.location.origin}/auth/google/callback`
     const authUrl = `${apiBase}/auth/google?redirect=${encodeURIComponent(redirectUrl)}`
     window.location.href = authUrl

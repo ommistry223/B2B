@@ -1,6 +1,7 @@
 # Fix Google OAuth Error - Complete Guide
 
 ## Current Error
+
 **Error 400: redirect_uri_mismatch** - This happens because your backend isn't deployed yet.
 
 ## ✅ Complete Fix (Follow These Steps)
@@ -20,7 +21,6 @@
 
 3. **Configure the Service**
    Fill in these details:
-   
    - **Name:** `b2b-backend` (or any name you like)
    - **Region:** `Oregon (US West)` (or closest to you)
    - **Branch:** `main`
@@ -96,13 +96,13 @@
      ```
      https://b2b-backend.onrender.com/api/auth/google/callback
      ```
-   
+
 4. **Also Add Your Netlify Frontend**
    - In **"Authorized JavaScript origins"** ADD:
      ```
      https://bto-b.netlify.app
      ```
-   
+
 5. **Save**
    - Click **"Save"** button at the bottom
 
@@ -116,22 +116,23 @@
 
 2. **Add Google OAuth Variables**
    Click **"Add Environment Variable"** twice to add:
-   
+
    ```
    Key: GOOGLE_CLIENT_ID
    Value: your-client-id.apps.googleusercontent.com
-   
+
    Key: GOOGLE_CLIENT_SECRET
    Value: your-client-secret
    ```
-   
+
    > Get these from: https://console.cloud.google.com/apis/credentials
 
 3. **Add Frontend URL**
+
    ```
    Key: FRONTEND_URL
    Value: https://bto-b.netlify.app
-   
+
    Key: FRONTEND_URLS
    Value: https://bto-b.netlify.app
    ```
@@ -183,6 +184,7 @@
 ## 🔧 Troubleshooting
 
 ### Still getting "redirect_uri_mismatch"?
+
 - **Check:** The redirect URI in Google Console EXACTLY matches:
   ```
   https://your-exact-render-url.onrender.com/api/auth/google/callback
@@ -190,15 +192,18 @@
 - No trailing slashes, correct protocol (https), correct path (/api/auth/google/callback)
 
 ### Backend not responding?
+
 - **Check Render Logs:** In Render dashboard, click "Logs" tab
 - Look for errors related to DATABASE_URL or missing environment variables
 
 ### Google shows "This app isn't verified"?
+
 - This is normal for apps in testing mode
 - Click "Advanced" → "Go to [App Name] (unsafe)"
 - OR: Add your email as a test user in Google Console
 
 ### Backend taking 30+ seconds to respond?
+
 - This is normal for Render free tier (it sleeps after 15 min)
 - First request wakes it up (~30 seconds)
 - Subsequent requests are fast
