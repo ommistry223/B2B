@@ -33,8 +33,19 @@ const CreateInvoice = () => {
     setFormData(prev => {
       const updates = { ...prev }
       let fieldsUpdated = []
+      let itemsApplied = false
 
       // Map OCR data to form fields
+      const parsedGstRate = parseFloat(ocrData.gst_rate)
+      if (Number.isFinite(parsedGstRate)) {
+        updates.gstRate = parsedGstRate
+        fieldsUpdated.push('gst_rate')
+        console.log('✓ GST Rate:', parsedGstRate)
+      } else if (ocrData.has_gst === false) {
+        updates.gstRate = 0
+        fieldsUpdated.push('gst_rate')
+        console.log('✓ GST Rate: 0 (no GST detected)')
+      }
       if (ocrData.invoice_number) {
         updates.invoiceNumber = ocrData.invoice_number
         fieldsUpdated.push('invoice_number')
@@ -50,12 +61,129 @@ const CreateInvoice = () => {
         fieldsUpdated.push('due_date')
         console.log('✓ Due Date:', updates.dueDate)
       }
+      if (Array.isArray(ocrData.items) && ocrData.items.length > 0) {
+        const mappedItems = ocrData.items.map((item, index) => {
+          const gstRateValue = Number.isFinite(updates.gstRate)
+            ? updates.gstRate
+            : parseFloat(prev.gstRate) || 0
+          const gstMultiplier = 1 + gstRateValue / 100
+          let quantity = parseFloat(item.quantity)
+          const amount = parseFloat(item.amount)
+          const gstAmount = parseFloat(item.gst)
+          let rate = parseFloat(item.rate)
+
+          if (!Number.isFinite(quantity)) quantity = null
+          if (!Number.isFinite(rate)) rate = null
+
+          const snapQuantity = value => {
+            if (!Number.isFinite(value)) return value
+            const candidates = [0.25, 0.5, 1, 2, 3, 4, 5, 10, 15, 20]
+            let best = value
+            let bestDiff = Infinity
+            for (const candidate of candidates) {
+              const diff = Math.abs(candidate - value)
+              if (diff < bestDiff) {
+                bestDiff = diff
+                best = candidate
+              }
+            }
+            if (bestDiff <= 0.2) return best
+            return value
+          }
+
+          const isNiceValue = value => {
+            if (!Number.isFinite(value)) return false
+            const nearestInt = Math.round(value)
+            if (Math.abs(value - nearestInt) <= 0.05) return true
+            const nearestHalf = Math.round(value * 2) / 2
+            if (Math.abs(value - nearestHalf) <= 0.05) return true
+            const nearestFive = Math.round(value / 5) * 5
+            if (Math.abs(value - nearestFive) <= 0.1) return true
+            return false
+          }
+
+          if (Number.isFinite(gstAmount) && gstRateValue > 0) {
+            const netFromGst = gstAmount / (gstRateValue / 100)
+            if (!quantity || !Number.isFinite(quantity) || quantity <= 0) {
+              quantity = 1
+            }
+            if (quantity) {
+              const rateFromGst = netFromGst / quantity
+              if (Number.isFinite(rateFromGst) && rateFromGst > 0) {
+                rate = rateFromGst
+              }
+            }
+          }
+
+          if (Number.isFinite(amount)) {
+            const netAmount = amount / gstMultiplier
+            if ((!quantity || quantity > 50) && rate) {
+              const inferredQty = netAmount / rate
+              if (Number.isFinite(inferredQty) && inferredQty > 0 && inferredQty <= 50) {
+                quantity = inferredQty
+              }
+            }
+            if ((!rate || rate > 100000) && quantity) {
+              const inferredRate = netAmount / quantity
+              if (Number.isFinite(inferredRate) && inferredRate > 0) {
+                rate = inferredRate
+              }
+            }
+            if (quantity && rate) {
+              const expected = quantity * rate * gstMultiplier
+              const mismatch = Math.abs(expected - amount) / (amount || 1)
+              if (mismatch > 0.08) {
+                const inferredRate = netAmount / quantity
+                const inferredQty = rate ? netAmount / rate : null
+                const qtyIsInteger = Number.isInteger(quantity)
+                const inferredQtyNice = Number.isFinite(inferredQty) && inferredQty > 0 && inferredQty <= 50
+                  ? snapQuantity(inferredQty)
+                  : null
+
+                const inferredRateNice = isNiceValue(inferredRate)
+                const inferredQtyLooksNice = isNiceValue(inferredQtyNice)
+
+                if (inferredQtyNice && (!inferredRateNice || (!qtyIsInteger && quantity > 1))) {
+                  quantity = inferredQtyNice
+                } else if (inferredRateNice && Number.isFinite(inferredRate)) {
+                  rate = inferredRate
+                } else if (inferredQtyLooksNice) {
+                  quantity = inferredQtyNice
+                } else if (Number.isFinite(inferredRate)) {
+                  rate = inferredRate
+                }
+              }
+            }
+          }
+
+          if (!quantity) quantity = 1
+          if (!rate && Number.isFinite(amount)) {
+            rate = amount / quantity
+          }
+
+          quantity = snapQuantity(quantity)
+          rate = Number.isFinite(rate) ? Math.round(rate * 100) / 100 : 0
+          quantity = Number.isFinite(quantity) ? Math.round(quantity * 100) / 100 : 1
+
+          return {
+            id: Date.now() + index,
+            description:
+              item.description || item.item || `Item ${index + 1}`,
+            quantity: quantity,
+            rate: rate,
+          }
+        })
+        updates.items = mappedItems
+        itemsApplied = true
+        fieldsUpdated.push('items')
+        console.log('✓ Line items extracted:', mappedItems.length)
+      }
       if (ocrData.total) {
         // Parse total and update first item
         const totalAmount = parseFloat(
           String(ocrData.total).replace(/[^0-9.]/g, '')
         )
-        if (!isNaN(totalAmount) && updates.items.length > 0) {
+        if (!itemsApplied && !isNaN(totalAmount) && updates.items.length > 0) {
           const description =
             ocrData.description || ocrData.vendor || 'Scanned Invoice Item'
           updates.items[0] = {
@@ -73,6 +201,38 @@ const CreateInvoice = () => {
             ')'
           )
           console.log('✓ Description:', description)
+        }
+      }
+
+      // Reconcile totals if OCR total is provided and items are present
+      const targetTotal = parseFloat(
+        String(ocrData.total || '').replace(/[^0-9.]/g, '')
+      )
+      if (
+        itemsApplied &&
+        Number.isFinite(targetTotal) &&
+        updates.items.length > 0
+      ) {
+        const gstRateValue = Number.isFinite(updates.gstRate)
+          ? updates.gstRate
+          : parseFloat(prev.gstRate) || 0
+        const gstMultiplier = 1 + gstRateValue / 100
+        const currentTotal = updates.items.reduce((sum, item) => {
+          const qty = parseFloat(item.quantity) || 0
+          const rate = parseFloat(item.rate) || 0
+          return sum + qty * rate * gstMultiplier
+        }, 0)
+        if (currentTotal > 0) {
+          const diffRatio = Math.abs(currentTotal - targetTotal) / targetTotal
+          if (diffRatio > 0.03) {
+            const scale = targetTotal / currentTotal
+            updates.items = updates.items.map(item => ({
+              ...item,
+              rate: Math.round((item.rate * scale + Number.EPSILON) * 100) / 100,
+            }))
+            fieldsUpdated.push('total_reconciled')
+            console.log('✓ Rates scaled to match total:', scale.toFixed(4))
+          }
         }
       }
       // Handle both 'notes' and 'note' fields

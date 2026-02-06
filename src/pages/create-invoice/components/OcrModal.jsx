@@ -5,6 +5,7 @@ import Icon from '../../../components/AppIcon'
 const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
   const activeUrl = useMemo(() => ocrUrl || 'http://localhost:7860', [ocrUrl])
   const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   // Listen for messages from the OCR iframe
   useEffect(() => {
@@ -18,10 +19,35 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
       }
 
       if (event.data?.type === 'OCR_EXTRACT_DATA' && event.data?.data) {
-        console.log('📄 Received OCR data:', event.data.data)
-        if (onExtractData) {
-          onExtractData(event.data.data)
+        const extractedData = event.data.data
+        const meta = event.data.meta || {}
+
+        const hasUsefulData = Object.values(extractedData || {}).some(value => {
+          if (value === null || value === undefined) return false
+          const text = String(value).trim()
+          return text && text !== '0' && text !== '0.0'
+        })
+
+        if (meta.status && meta.status === 'error') {
+          setErrorMessage(meta.message || 'OCR failed to extract text.')
+          setTimeout(() => setErrorMessage(null), 4000)
+          return
         }
+
+        if (!hasUsefulData) {
+          setErrorMessage(
+            meta.message ||
+              'No invoice fields detected. Try a clearer scan or a PDF with selectable text.'
+          )
+          setTimeout(() => setErrorMessage(null), 4000)
+          return
+        }
+
+        console.log('📄 Received OCR data:', extractedData)
+        if (onExtractData) {
+          onExtractData(extractedData)
+        }
+        setErrorMessage(null)
         // Show success message
         setSuccessMessage('✅ Invoice data extracted and populated in form!')
         // Clear success message after 3 seconds
@@ -64,6 +90,15 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
             onClick={onClose}
           />
         </div>
+
+        {errorMessage && (
+          <div className="mx-6 mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+            <Icon name="AlertTriangle" size={20} color="#dc2626" />
+            <span className="text-sm font-medium text-red-800">
+              {errorMessage}
+            </span>
+          </div>
+        )}
 
         {successMessage && (
           <div className="mx-6 mt-4 px-4 py-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">

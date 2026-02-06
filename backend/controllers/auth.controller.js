@@ -5,27 +5,50 @@ import { db } from '../services/database.postgresql.js';
 import { ApiError } from '../middleware/errorHandler.js';
 
 const getBackendBaseUrl = (req) => {
-  if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
   const forwardedProto = req.get('x-forwarded-proto');
   const forwardedHost = req.get('x-forwarded-host');
-  const protocol = forwardedProto ? forwardedProto.split(',')[0].trim() : req.protocol;
-  const host = forwardedHost ? forwardedHost.split(',')[0].trim() : req.get('host');
-  return `${protocol}://${host}`;
+  if (forwardedProto || forwardedHost) {
+    const protocol = forwardedProto ? forwardedProto.split(',')[0].trim() : req.protocol;
+    const host = forwardedHost ? forwardedHost.split(',')[0].trim() : req.get('host');
+    return `${protocol}://${host}`;
+  }
+  if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
+  return `${req.protocol}://${req.get('host')}`;
 };
 
-const getFrontendBaseUrl = () =>
-  process.env.FRONTEND_URL || 'http://localhost:5173';
+const getFrontendUrlCandidates = () => {
+  const values = [];
+  if (process.env.FRONTEND_URL) values.push(process.env.FRONTEND_URL);
+  if (process.env.FRONTEND_URLS) {
+    process.env.FRONTEND_URLS
+      .split(',')
+      .map(value => value.trim())
+      .filter(Boolean)
+      .forEach(value => values.push(value));
+  }
+  return [...new Set(values)];
+};
+
+const getFrontendBaseUrl = () => {
+  const candidates = getFrontendUrlCandidates();
+  if (candidates.length > 0) return candidates[0];
+  return 'http://localhost:4028';
+};
 
 const isAbsoluteUrl = (value) => /^https?:\/\//i.test(String(value || ''));
 
 const isAllowedRedirect = (urlString) => {
   try {
     const url = new URL(urlString);
-    const allowedBase = process.env.FRONTEND_URL;
-    if (allowedBase) {
-      return new URL(allowedBase).host === url.host;
+    const allowedBases = getFrontendUrlCandidates();
+    if (allowedBases.length > 0) {
+      return allowedBases.some(base => new URL(base).host === url.host);
     }
-    return url.host.endsWith('.netlify.app') || url.host === 'localhost:5173';
+    return (
+      url.host.endsWith('.netlify.app') ||
+      url.host === 'localhost:4028' ||
+      url.host === 'localhost:5173'
+    );
   } catch {
     return false;
   }

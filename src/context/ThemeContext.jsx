@@ -25,6 +25,10 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     // Apply theme to document root
     const root = document.documentElement
+
+    // Add transition class before changing theme
+    root.style.transition = 'background-color 0.5s ease, color 0.5s ease'
+
     root.classList.remove('light', 'dark')
     root.classList.add(theme)
 

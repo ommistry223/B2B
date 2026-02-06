@@ -1,13 +1,42 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Button from '../../components/ui/Button'
 import Icon from '../../components/AppIcon'
 import { useTheme } from '../../context/ThemeContext'
+import {
+  AnimatedSection,
+  AnimatedCard,
+  AnimatedText,
+  AnimatedGradientText,
+  AnimatedGrid,
+  FloatingElement,
+  PulsingElement,
+  LiquidBlob,
+  CountUpNumber,
+  ParallaxElement,
+} from '../../components/AnimatedComponents'
+import {
+  staggerContainer,
+  staggerItem,
+  fadeInUp,
+  cardHover,
+  buttonHover,
+} from '../../util/animations'
 
 const Entry = () => {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
+  const heroRef = useRef(null)
+  const { scrollYProgress } = useScroll()
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%'])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+
+  const splineSrc =
+    theme === 'dark'
+      ? 'https://my.spline.design/boxeshover-iECUyZuSROMD7emJZIaihA5b/'
+      : 'https://my.spline.design/boxeshover-pgo99qOZvuFdoYbDvCWD9FYM/'
 
   const features = [
     {
@@ -50,15 +79,15 @@ const Entry = () => {
       title: 'Advanced Analytics',
       description:
         'Detailed insights into payment trends and customer behavior patterns',
-      gradient: 'from-cyan-500 to-blue-600',
+      gradient: 'from-blue-500 to-cyan-600',
     },
   ]
 
   const stats = [
-    { value: '₹450Cr+', label: 'Credit Managed' },
-    { value: '5,000+', label: 'Active Users' },
-    { value: '87%', label: 'Collection Rate' },
-    { value: '24/7', label: 'Support' },
+    { value: 450, suffix: 'Cr+', label: 'Credit Managed', prefix: '₹' },
+    { value: 5000, suffix: '+', label: 'Active Users' },
+    { value: 87, suffix: '%', label: 'Collection Rate' },
+    { value: 24, suffix: '/7', label: 'Support' },
   ]
 
   const testimonials = [
@@ -93,208 +122,426 @@ const Entry = () => {
       <Helmet>
         <title>CreditFlow Pro - Smart B2B Credit Management</title>
       </Helmet>
-      <div className="page-shell overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-          <div
-            className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: '1s' }}
-          ></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-full blur-3xl"></div>
+      <div className="page-shell overflow-hidden bg-gradient-to-b from-background via-muted/5 to-background">
+        {/* Advanced Animated Background */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <LiquidBlob
+            className="absolute -top-40 -left-40"
+            size={600}
+            color="bg-gradient-to-br from-blue-500/15 to-purple-600/15"
+          />
+          <LiquidBlob
+            className="absolute -bottom-40 -right-40"
+            size={700}
+            color="bg-gradient-to-br from-purple-500/15 to-pink-600/15"
+          />
+          <FloatingElement
+            yOffset={30}
+            duration={6}
+            className="absolute top-20 left-1/4"
+          >
+            <div className="w-4 h-4 rounded-full bg-primary/20 blur-sm" />
+          </FloatingElement>
+          <FloatingElement
+            yOffset={40}
+            duration={5}
+            delay={1}
+            className="absolute top-1/3 right-1/4"
+          >
+            <div className="w-6 h-6 rounded-full bg-secondary/20 blur-sm" />
+          </FloatingElement>
+          <FloatingElement
+            yOffset={35}
+            duration={7}
+            delay={2}
+            className="absolute bottom-1/4 left-1/3"
+          >
+            <div className="w-5 h-5 rounded-full bg-accent/20 blur-sm" />
+          </FloatingElement>
         </div>
 
         {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-lg border-b border-border shadow-lg">
+        <motion.nav
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.43, 0.13, 0.23, 0.96] }}
+          className="fixed top-0 left-0 right-0 z-[1000] bg-card/70 backdrop-blur-xl border-b border-border/50 shadow-lg"
+        >
           <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16 md:h-20">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+              <motion.div
+                className="flex items-center gap-3"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
                   <Icon name="TrendingUp" size={24} color="#FFFFFF" />
-                </div>
+                </motion.div>
                 <span className="text-xl font-bold text-foreground">
                   CreditFlow Pro
                 </span>
-              </div>
+              </motion.div>
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  iconName={theme === 'dark' ? 'Sun' : 'Moon'}
-                  iconSize={20}
-                  onClick={toggleTheme}
-                  className="hidden md:flex"
-                  aria-label={`Switch to ${
-                    theme === 'dark' ? 'light' : 'dark'
-                  } mode`}
-                />
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/login')}
-                  className="hidden md:flex"
+                <motion.div
+                  key={theme}
+                  initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                  animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                  whileHover={{ scale: 1.15, y: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 300,
+                    damping: 20,
+                  }}
                 >
-                  Sign In
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={() => navigate('/register')}
-                  iconName="ArrowRight"
-                  iconPosition="right"
-                >
-                  Get Started
-                </Button>
+                  <motion.div
+                    animate={{
+                      rotate: [0, 10, -10, 10, 0],
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      ease: 'easeInOut',
+                    }}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      iconName={theme === 'dark' ? 'Sun' : 'Moon'}
+                      iconSize={20}
+                      onClick={toggleTheme}
+                      className="hidden md:flex relative overflow-hidden"
+                      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                    />
+                  </motion.div>
+                </motion.div>
+                <motion.div {...buttonHover}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/login')}
+                    className="hidden md:flex"
+                  >
+                    Sign In
+                  </Button>
+                </motion.div>
+                <motion.div {...buttonHover}>
+                  <Button
+                    variant="default"
+                    onClick={() => navigate('/register')}
+                    iconName="ArrowRight"
+                    iconPosition="right"
+                    className="shadow-lg"
+                  >
+                    Get Started
+                  </Button>
+                </motion.div>
               </div>
             </div>
           </div>
-        </nav>
+        </motion.nav>
 
         {/* Hero Section */}
-        <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 md:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-block mb-6 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm animate-fade-in">
-                <span className="text-sm font-medium text-primary flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                  New: AI-Powered Risk Prediction 2.0
-                </span>
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-                Transform Your B2B Credit Management with{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-500 to-secondary">
-                  Smart Analytics
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground mb-10 leading-relaxed max-w-3xl mx-auto">
-                Predict payment delays, automate reminders, and optimize cash
-                flow with India's most advanced credit management platform for
-                businesses.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                <Button
-                  variant="default"
-                  size="xl"
-                  onClick={() => navigate('/register')}
-                  iconName="Rocket"
-                  iconPosition="left"
-                  className="shadow-2xl shadow-primary/50 hover:shadow-primary/70 hover:scale-105 transition-all duration-300 bg-gradient-to-r from-primary to-blue-600"
+        <section
+          ref={heroRef}
+          className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 md:px-6 lg:px-8 min-h-screen flex items-center"
+        >
+          <div className="max-w-7xl mx-auto relative z-10 w-full">
+            <motion.div
+              initial="initial"
+              animate="animate"
+              variants={staggerContainer}
+              className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center"
+            >
+              <div className="text-center lg:text-left">
+                <motion.div
+                  variants={staggerItem}
+                  whileHover={{ scale: 1.05 }}
+                  className="inline-block mb-6 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 backdrop-blur-sm cursor-pointer group"
                 >
-                  Start Free Trial
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xl"
-                  iconName="Play"
-                  iconPosition="left"
-                  className="hover:bg-primary/10 hover:border-primary hover:scale-105 transition-all duration-300"
-                >
-                  Watch Demo
-                </Button>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Icon name="Check" size={16} className="text-green-500" />
-                  <span>No credit card required</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Icon name="Check" size={16} className="text-green-500" />
-                  <span>14-day free trial</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Icon name="Check" size={16} className="text-green-500" />
-                  <span>Cancel anytime</span>
-                </div>
-              </div>
-            </div>
+                  <span className="text-sm font-semibold text-primary flex items-center gap-2">
+                    <motion.span
+                      className="w-2 h-2 rounded-full bg-primary"
+                      animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    <span className="group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary transition-all">
+                      New: AI-Powered Risk Prediction 2.0
+                    </span>
+                    <motion.div
+                      initial={{ x: 0 }}
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Icon name="Sparkles" size={14} />
+                    </motion.div>
+                  </span>
+                </motion.div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-20">
-              {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="text-center p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+                <motion.h1
+                  variants={staggerItem}
+                  className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground mb-6 leading-[1.1]"
                 >
-                  <div className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary mb-2 group-hover:scale-110 transition-transform duration-300">
-                    {stat.value}
+                  Transform Your B2B <br className="hidden md:block" />
+                  Credit Management with{' '}
+                  <AnimatedGradientText className="inline-block">
+                    Smart Analytics
+                  </AnimatedGradientText>
+                </motion.h1>
+
+                <AnimatedText
+                  as="p"
+                  variant="fadeInUp"
+                  delay={0.3}
+                  className="text-lg md:text-xl lg:text-2xl text-muted-foreground mb-10 leading-relaxed max-w-2xl mx-auto lg:mx-0"
+                >
+                  Predict payment delays, automate reminders, and optimize cash
+                  flow with India's most advanced credit management platform.
+                </AnimatedText>
+
+                <motion.div
+                  variants={staggerItem}
+                  className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4 mb-10"
+                >
+                  <motion.div {...buttonHover}>
+                    <Button
+                      variant="default"
+                      size="xl"
+                      onClick={() => navigate('/register')}
+                      iconName="Rocket"
+                      iconPosition="left"
+                      className="shadow-2xl shadow-primary/30 bg-gradient-to-r from-primary to-blue-600 border-0"
+                    >
+                      Start Free Trial
+                    </Button>
+                  </motion.div>
+                  <motion.div {...buttonHover}>
+                    <Button
+                      variant="outline"
+                      size="xl"
+                      iconName="Play"
+                      iconPosition="left"
+                      className="border-2 hover:bg-primary/10 hover:border-primary"
+                    >
+                      Watch Demo
+                    </Button>
+                  </motion.div>
+                </motion.div>
+
+                <motion.div
+                  variants={staggerItem}
+                  className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm"
+                >
+                  {[
+                    'No credit card required',
+                    '14-day free trial',
+                    'Cancel anytime',
+                  ].map((text, i) => (
+                    <motion.div
+                      key={i}
+                      className="flex items-center gap-2 text-muted-foreground"
+                      whileHover={{ scale: 1.05, x: 5 }}
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: i * 0.2,
+                        }}
+                      >
+                        <Icon
+                          name="Check"
+                          size={16}
+                          className="text-green-500"
+                        />
+                      </motion.div>
+                      <span className="font-medium">{text}</span>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+
+              <motion.div variants={staggerItem} className="relative">
+                <motion.div
+                  className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-border/50"
+                  whileHover={{ scale: 1.02, rotate: 1 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 opacity-50" />
+                  <div className="relative w-full h-[350px] sm:h-[450px] lg:h-[550px]">
+                    <iframe
+                      key={splineSrc}
+                      src={splineSrc}
+                      title="CreditFlow 3D Showcase"
+                      allow="autoplay; fullscreen"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
                   </div>
-                  <div className="text-sm text-muted-foreground font-medium">
-                    {stat.label}
+                </motion.div>
+                <motion.p
+                  className="mt-4 text-xs text-muted-foreground text-center"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                >
+                  ✨ Hover and explore the interactive 3D experience
+                </motion.p>
+              </motion.div>
+            </motion.div>
+
+            {/* Stats with CountUp Animation */}
+            <motion.div
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true, margin: '-100px' }}
+              variants={staggerContainer}
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-24"
+            >
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  variants={staggerItem}
+                  whileHover={{ y: -8, scale: 1.03 }}
+                  className="relative text-center p-6 md:p-8 rounded-2xl bg-card/60 backdrop-blur-md border border-border/50 hover:border-primary/50 hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden"
+                >
+                  <motion.div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative z-10">
+                    <div className="text-3xl md:text-5xl font-black mb-2">
+                      <AnimatedGradientText>
+                        {stat.prefix}
+                        <CountUpNumber
+                          from={0}
+                          to={stat.value}
+                          duration={2.5}
+                        />
+                        {stat.suffix}
+                      </AnimatedGradientText>
+                    </div>
+                    <div className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      {stat.label}
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </section>
 
         {/* Features Section */}
-        <section className="relative py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-background via-muted/20 to-background">
+        <AnimatedSection className="py-20 md:py-32 px-4 md:px-6 lg:px-8 relative">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-block mb-4 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                <span className="flex items-center gap-2">
-                  <Icon name="Zap" size={16} />
-                  Powerful Features
-                </span>
-              </div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-                Everything You Need to Manage Credit
-              </h2>
-              <p className="text-lg text-muted-foreground">
+              <motion.div
+                {...fadeInUp}
+                className="inline-flex items-center gap-2 mb-4 px-5 py-2.5 rounded-full bg-primary/10 text-primary text-sm font-semibold border border-primary/20"
+              >
+                <Icon name="Zap" size={18} />
+                <span>Powerful Features</span>
+              </motion.div>
+              <AnimatedText
+                as="h2"
+                variant="fadeInUp"
+                delay={0.1}
+                className="text-3xl md:text-4xl lg:text-6xl font-black text-foreground mb-6 leading-tight"
+              >
+                Everything You Need to{' '}
+                <AnimatedGradientText>Manage Credit</AnimatedGradientText>
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                variant="fadeInUp"
+                delay={0.2}
+                className="text-lg md:text-xl text-muted-foreground leading-relaxed"
+              >
                 Powerful features designed to help you reduce bad debt, improve
                 cash flow, and make smarter credit decisions.
-              </p>
+              </AnimatedText>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <AnimatedGrid
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+              staggerDelay={0.08}
+            >
               {features.map((feature, index) => (
-                <div
+                <motion.div
                   key={index}
-                  className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group overflow-hidden"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  whileHover={{ y: -12, scale: 1.03, rotateZ: 1 }}
+                  transition={{ duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }}
+                  className="relative bg-card/60 backdrop-blur-md rounded-3xl p-8 border border-border/50 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 group overflow-hidden cursor-pointer"
                 >
-                  {/* Hover gradient effect */}
-                  <div
-                    className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500"
+                  {/* Animated gradient overlay */}
+                  <motion.div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{
-                      background: `linear-gradient(135deg, var(--color-primary), var(--color-secondary))`,
+                      background: `linear-gradient(135deg, rgba(var(--rgb-primary), 0.05), rgba(var(--rgb-secondary), 0.05))`,
                     }}
-                  ></div>
+                  />
+
+                  {/* Decorative corner glow */}
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="relative z-10">
-                    <div
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg`}
+                    <motion.div
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-xl group-hover:shadow-2xl`}
+                      whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
                     >
                       <Icon name={feature.icon} size={32} color="#FFFFFF" />
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
+                    </motion.div>
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors duration-300">
                       {feature.title}
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed text-base">
                       {feature.description}
                     </p>
                   </div>
 
-                  {/* Decorative corner elements */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-secondary/5 to-transparent rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                </div>
+                  {/* Bottom accent line */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                </motion.div>
               ))}
-            </div>
+            </AnimatedGrid>
           </div>
-        </section>
+        </AnimatedSection>
 
         {/* How It Works */}
-        <section className="py-20 md:py-32 px-4 md:px-6 lg:px-8">
+        <AnimatedSection className="py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-muted/10 via-background to-muted/10">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-                How It Works
-              </h2>
-              <p className="text-lg text-muted-foreground">
+            <div className="text-center max-w-3xl mx-auto mb-20">
+              <AnimatedText
+                as="h2"
+                variant="fadeInUp"
+                className="text-3xl md:text-4xl lg:text-6xl font-black text-foreground mb-6"
+              >
+                How It <AnimatedGradientText>Works</AnimatedGradientText>
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                variant="fadeInUp"
+                delay={0.1}
+                className="text-lg md:text-xl text-muted-foreground"
+              >
                 Get started in minutes with our simple three-step process
-              </p>
+              </AnimatedText>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <motion.div
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true, margin: '-100px' }}
+              variants={staggerContainer}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 relative"
+            >
+              {/* Connection line */}
+              <div
+                className="hidden md:block absolute top-12 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 via-secondary/40 to-primary/20"
+                style={{ top: '3rem' }}
+              />
+
               {[
                 {
                   step: '01',
@@ -318,90 +565,171 @@ const Entry = () => {
                     'Create invoices, track payments, and let AI predict risks automatically',
                 },
               ].map((item, index) => (
-                <div key={index} className="relative text-center">
-                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground text-2xl font-bold mb-6">
-                    {item.step}
-                  </div>
-                  <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <motion.div
+                  key={index}
+                  variants={staggerItem}
+                  className="relative text-center group"
+                >
+                  <FloatingElement
+                    yOffset={15}
+                    duration={3}
+                    delay={index * 0.3}
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                      className="relative inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-secondary text-white text-3xl font-black mb-6 shadow-2xl mx-auto"
+                    >
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary to-secondary blur opacity-60 group-hover:opacity-100 transition-opacity" />
+                      <span className="relative z-10">{item.step}</span>
+                    </motion.div>
+                  </FloatingElement>
+
+                  <motion.div
+                    whileHover={{ scale: 1.15, rotate: -5 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border-2 border-primary/20 flex items-center justify-center mx-auto mb-6"
+                  >
                     <Icon
                       name={item.icon}
-                      size={32}
+                      size={36}
                       color="var(--color-primary)"
                     />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                  </motion.div>
+
+                  <h3 className="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">
                     {item.title}
                   </h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                  {index < 2 && (
-                    <div className="hidden md:block absolute top-10 left-full w-full">
-                      <Icon
-                        name="ArrowRight"
-                        size={24}
-                        color="var(--color-muted-foreground)"
-                        className="mx-auto"
-                      />
-                    </div>
-                  )}
-                </div>
+                  <p className="text-muted-foreground leading-relaxed text-base">
+                    {item.description}
+                  </p>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </AnimatedSection>
 
         {/* Testimonials */}
-        <section className="py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-background via-muted/20 to-background">
+        <AnimatedSection className="py-20 md:py-32 px-4 md:px-6 lg:px-8 bg-gradient-to-b from-background via-muted/20 to-background">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <div className="inline-block mb-4 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <div className="text-center max-w-3xl mx-auto mb-20">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                className="inline-block mb-6 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium"
+              >
                 <span className="flex items-center gap-2">
-                  <Icon name="Users" size={16} />
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
+                  >
+                    <Icon name="Users" size={16} />
+                  </motion.div>
                   Customer Success Stories
                 </span>
-              </div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-                Trusted by Leading Businesses
-              </h2>
-              <p className="text-lg text-muted-foreground">
+              </motion.div>
+              <AnimatedText
+                as="h2"
+                variant="fadeInUp"
+                className="text-3xl md:text-4xl lg:text-6xl font-black text-foreground mb-6"
+              >
+                Trusted by{' '}
+                <AnimatedGradientText>Leading Businesses</AnimatedGradientText>
+              </AnimatedText>
+              <AnimatedText
+                as="p"
+                variant="fadeInUp"
+                delay={0.1}
+                className="text-lg md:text-xl text-muted-foreground"
+              >
                 See what our customers say about CreditFlow Pro
-              </p>
+              </AnimatedText>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <AnimatedGrid columns={3} gap={8} stagger={0.1}>
               {testimonials.map((testimonial, index) => (
-                <div
+                <motion.div
                   key={index}
+                  whileHover={{ y: -12, scale: 1.02 }}
+                  transition={{ duration: 0.4 }}
                   className="relative bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group overflow-hidden"
                 >
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
                   {/* Quote icon background */}
-                  <div className="absolute top-0 right-0 text-primary/5 text-9xl font-serif leading-none pointer-events-none">
+                  <motion.div
+                    initial={{ opacity: 0.05 }}
+                    whileInView={{ opacity: 0.1 }}
+                    transition={{ duration: 0.6 }}
+                    className="absolute top-0 right-0 text-primary text-9xl font-serif leading-none pointer-events-none"
+                  >
                     "
-                  </div>
+                  </motion.div>
+
+                  {/* Corner glow */}
+                  <div className="absolute top-0 left-0 w-20 h-20 bg-primary/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
                   <div className="relative z-10">
-                    <div className="flex gap-1 mb-6">
+                    <motion.div
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true }}
+                      variants={staggerContainer}
+                      className="flex gap-1 mb-6"
+                    >
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Icon
+                        <motion.div
                           key={i}
-                          name="Star"
-                          size={20}
-                          color="var(--color-warning)"
-                          className="fill-current"
-                        />
+                          variants={{
+                            initial: { scale: 0, rotate: -180 },
+                            animate: { scale: 1, rotate: 0 },
+                          }}
+                          transition={{
+                            delay: i * 0.1,
+                            duration: 0.5,
+                            type: 'spring',
+                          }}
+                        >
+                          <Icon
+                            name="Star"
+                            size={20}
+                            color="var(--color-warning)"
+                            className="fill-current"
+                          />
+                        </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
+
                     <p className="text-foreground mb-8 leading-relaxed text-lg">
-                      "{testimonial.quote}"
+                      <span className="text-primary font-serif text-2xl">
+                        "
+                      </span>
+                      {testimonial.quote}
+                      <span className="text-primary font-serif text-2xl">
+                        "
+                      </span>
                     </p>
+
                     <div className="flex items-center gap-4 pt-6 border-t border-border/50">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg">
+                      <motion.div
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-lg"
+                      >
                         {testimonial.name
                           .split(' ')
                           .map(n => n[0])
                           .join('')}
-                      </div>
+                      </motion.div>
                       <div>
-                        <p className="font-bold text-foreground text-lg">
+                        <p className="font-bold text-foreground text-lg group-hover:text-primary transition-colors">
                           {testimonial.name}
                         </p>
                         <p className="text-sm text-muted-foreground font-medium">
@@ -410,125 +738,240 @@ const Entry = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </AnimatedGrid>
           </div>
-        </section>
+        </AnimatedSection>
 
         {/* CTA Section */}
-        <section className="relative py-20 md:py-32 px-4 md:px-6 lg:px-8">
+        <AnimatedSection className="relative py-20 md:py-32 px-4 md:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto">
-            <div className="relative bg-gradient-to-br from-primary via-blue-600 to-secondary rounded-3xl p-8 md:p-12 lg:p-20 text-center text-white overflow-hidden shadow-2xl">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              whileInView={{ scale: 1, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="relative bg-gradient-to-br from-primary via-blue-600 to-secondary rounded-3xl p-8 md:p-12 lg:p-20 text-center text-white overflow-hidden shadow-2xl"
+            >
               {/* Animated background patterns */}
               <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent"></div>
-                <div className="absolute top-10 right-10 w-32 h-32 border-4 border-white/20 rounded-full"></div>
-                <div className="absolute bottom-10 left-10 w-48 h-48 border-4 border-white/20 rounded-full"></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 50,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                  className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent"
+                />
+                <FloatingElement yOffset={20} duration={4} delay={0}>
+                  <div className="absolute top-10 right-10 w-32 h-32 border-4 border-white/20 rounded-full" />
+                </FloatingElement>
+                <FloatingElement yOffset={30} duration={5} delay={0.5}>
+                  <div className="absolute bottom-10 left-10 w-48 h-48 border-4 border-white/20 rounded-full" />
+                </FloatingElement>
+                <PulsingElement>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
+                </PulsingElement>
               </div>
 
               <div className="relative z-10">
-                <div className="inline-block mb-6 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                  className="inline-block mb-6 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30"
+                >
                   <span className="text-sm font-medium flex items-center gap-2">
-                    <Icon name="Sparkles" size={16} />
+                    <motion.div
+                      animate={{
+                        rotate: [0, 15, -15, 0],
+                        scale: [1, 1.2, 1.2, 1],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <Icon name="Sparkles" size={16} />
+                    </motion.div>
                     Limited Time Offer
                   </span>
-                </div>
-                <h2 className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 leading-tight">
+                </motion.div>
+
+                <AnimatedText
+                  as="h2"
+                  variant="fadeInUp"
+                  delay={0.3}
+                  className="text-3xl md:text-4xl lg:text-6xl font-bold mb-6 leading-tight"
+                >
                   Ready to Transform Your Credit Management?
-                </h2>
-                <p className="text-lg md:text-xl lg:text-2xl mb-10 opacity-95 max-w-3xl mx-auto leading-relaxed">
+                </AnimatedText>
+
+                <AnimatedText
+                  as="p"
+                  variant="fadeInUp"
+                  delay={0.4}
+                  className="text-lg md:text-xl lg:text-2xl mb-10 opacity-95 max-w-3xl mx-auto leading-relaxed"
+                >
                   Join 5,000+ businesses already using CreditFlow Pro to reduce
                   bad debt and improve cash flow.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <Button
-                    variant="secondary"
-                    size="xl"
-                    onClick={() => navigate('/register')}
-                    iconName="Rocket"
-                    iconPosition="left"
-                    className="bg-white text-primary hover:bg-white/90 shadow-2xl hover:shadow-white/20 hover:scale-105 transition-all duration-300"
+                </AnimatedText>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.5 }}
+                  className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    Start Free Trial
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="xl"
-                    className="border-2 border-white text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                    onClick={() => navigate('/login')}
+                    <Button
+                      variant="secondary"
+                      size="xl"
+                      onClick={() => navigate('/register')}
+                      iconName="Rocket"
+                      iconPosition="left"
+                      className="bg-white text-primary hover:bg-white/90 shadow-2xl hover:shadow-white/20 transition-all duration-300"
+                    >
+                      Start Free Trial
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    Sign In
-                  </Button>
-                </div>
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm">
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Icon name="Check" size={16} />
-                    <span>5,000+ Happy Customers</span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Icon name="Check" size={16} />
-                    <span>₹450Cr+ Credit Managed</span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-90">
-                    <Icon name="Check" size={16} />
-                    <span>87% Collection Rate</span>
-                  </div>
-                </div>
+                    <Button
+                      variant="outline"
+                      size="xl"
+                      className="border-2 border-white text-white hover:bg-white/20 transition-all duration-300"
+                      onClick={() => navigate('/login')}
+                    >
+                      Sign In
+                    </Button>
+                  </motion.div>
+                </motion.div>
+
+                <motion.div
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  variants={staggerContainer}
+                  className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm"
+                >
+                  {[
+                    { icon: 'Check', text: '5,000+ Happy Customers' },
+                    { icon: 'Check', text: '₹450Cr+ Credit Managed' },
+                    { icon: 'Check', text: '87% Collection Rate' },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      variants={staggerItem}
+                      className="flex items-center gap-2 opacity-90"
+                    >
+                      <motion.div
+                        whileHover={{ scale: 1.3, rotate: 360 }}
+                        transition={{ duration: 0.4 }}
+                      >
+                        <Icon name={item.icon} size={16} />
+                      </motion.div>
+                      <span>{item.text}</span>
+                    </motion.div>
+                  ))}
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </AnimatedSection>
 
         {/* Footer */}
-        <footer className="border-t border-border py-12 px-4 md:px-6 lg:px-8">
+        <motion.footer
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="border-t border-border py-12 px-4 md:px-6 lg:px-8"
+        >
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-              <div>
-                <h4 className="font-semibold text-foreground mb-4">Product</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>Features</li>
-                  <li>Pricing</li>
-                  <li>Demo</li>
-                  <li>API</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-4">Company</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>About Us</li>
-                  <li>Careers</li>
-                  <li>Contact</li>
-                  <li>Blog</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-4">
-                  Resources
-                </h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>Documentation</li>
-                  <li>Help Center</li>
-                  <li>Community</li>
-                  <li>Partners</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-4">Legal</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>Privacy Policy</li>
-                  <li>Terms of Service</li>
-                  <li>Cookie Policy</li>
-                  <li>GDPR</li>
-                </ul>
-              </div>
-            </div>
-            <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+            <motion.div
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              variants={staggerContainer}
+              className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8"
+            >
+              {[
+                {
+                  title: 'Product',
+                  links: ['Features', 'Pricing', 'Demo', 'API'],
+                },
+                {
+                  title: 'Company',
+                  links: ['About Us', 'Careers', 'Contact', 'Blog'],
+                },
+                {
+                  title: 'Resources',
+                  links: [
+                    'Documentation',
+                    'Help Center',
+                    'Community',
+                    'Partners',
+                  ],
+                },
+                {
+                  title: 'Legal',
+                  links: [
+                    'Privacy Policy',
+                    'Terms of Service',
+                    'Cookie Policy',
+                    'GDPR',
+                  ],
+                },
+              ].map((section, index) => (
+                <motion.div key={index} variants={staggerItem}>
+                  <h4 className="font-semibold text-foreground mb-4">
+                    {section.title}
+                  </h4>
+                  <motion.ul
+                    initial="initial"
+                    whileInView="animate"
+                    viewport={{ once: true }}
+                    variants={staggerContainer}
+                    className="space-y-2 text-sm text-muted-foreground"
+                  >
+                    {section.links.map((link, linkIndex) => (
+                      <motion.li
+                        key={linkIndex}
+                        variants={staggerItem}
+                        whileHover={{ x: 4, color: 'var(--color-primary)' }}
+                        transition={{ duration: 0.2 }}
+                        className="cursor-pointer"
+                      >
+                        {link}
+                      </motion.li>
+                    ))}
+                  </motion.ul>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                <motion.div
+                  whileHover={{ scale: 1.1, rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                  className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg"
+                >
                   <Icon name="TrendingUp" size={18} color="#FFFFFF" />
-                </div>
+                </motion.div>
                 <span className="font-semibold text-foreground">
                   CreditFlow Pro
                 </span>
@@ -537,25 +980,23 @@ const Entry = () => {
                 © 2026 CreditFlow Pro. All rights reserved.
               </p>
               <div className="flex items-center gap-4">
-                <Icon
-                  name="Twitter"
-                  size={20}
-                  className="text-muted-foreground hover:text-foreground cursor-pointer transition-smooth"
-                />
-                <Icon
-                  name="Linkedin"
-                  size={20}
-                  className="text-muted-foreground hover:text-foreground cursor-pointer transition-smooth"
-                />
-                <Icon
-                  name="Github"
-                  size={20}
-                  className="text-muted-foreground hover:text-foreground cursor-pointer transition-smooth"
-                />
+                {['Twitter', 'Linkedin', 'Github'].map((social, index) => (
+                  <motion.div
+                    key={index}
+                    whileHover={{ scale: 1.3, y: -4, rotate: 5 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Icon
+                      name={social}
+                      size={20}
+                      className="text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                    />
+                  </motion.div>
+                ))}
               </div>
-            </div>
+            </motion.div>
           </div>
-        </footer>
+        </motion.footer>
       </div>
     </>
   )
