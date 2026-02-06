@@ -35,6 +35,7 @@ After deployment:
 Choose your preferred hosting platform (Render, Vercel, etc.) for your Node.js backend:
 
 **For Render:**
+
 1. Go to https://render.com
 2. Click **"New +"** → **"Web Service"**
 3. Connect your GitHub repo: **ommistry223/B2B**
@@ -46,6 +47,7 @@ Choose your preferred hosting platform (Render, Vercel, etc.) for your Node.js b
 6. Click **"Create Web Service"**
 
 **For Vercel:**
+
 1. Go to https://vercel.com
 2. Import your GitHub repo
 3. Configure root directory: `backend`
@@ -129,12 +131,10 @@ Your app is now live:
 ## 💡 Tips
 
 - **Free Limits:**
-
   - Netlify: 100GB bandwidth/month
   - Railway: $5 credit/month
 
 - **Custom Domain:**
-
   - In Netlify: Domain settings → Add custom domain
   - Update DNS with your provider
 

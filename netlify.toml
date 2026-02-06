@@ -6,7 +6,12 @@
   publish = "build"
 
 [build.environment]
-  # Replace with your actual backend URL
+  # ⚠️ IMPORTANT: Replace with your actual deployed backend URL
+  # Options:
+  # - Render: https://your-app-name.onrender.com/api
+  # - Railway: https://your-app.railway.app/api
+  # - Vercel: https://your-app.vercel.app/api
+  # See RENDER_BACKEND_SETUP.md for deployment instructions
   VITE_API_URL = "https://your-backend-domain.com/api"
   NODE_VERSION = "20"
 

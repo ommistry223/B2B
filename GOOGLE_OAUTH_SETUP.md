@@ -57,6 +57,7 @@ This means the backend environment variables `GOOGLE_CLIENT_ID` and `GOOGLE_CLIE
    ```
    https://your-backend-domain.com
    ```
+
    > Replace with your actual backend URL (e.g., Render, Vercel, your own server)
 
    **Authorized redirect URIs:**
@@ -64,8 +65,8 @@ This means the backend environment variables `GOOGLE_CLIENT_ID` and `GOOGLE_CLIE
    ```
    https://your-backend-domain.com/api/auth/google/callback
    ```
-   > Replace with your actual backend URL + `/api/auth/google/callback`
 
+   > Replace with your actual backend URL + `/api/auth/google/callback`
    - Click "Create"
 
 6. **Copy Your Credentials**
@@ -79,9 +80,9 @@ This means the backend environment variables `GOOGLE_CLIENT_ID` and `GOOGLE_CLIE
 ### Step 2: Add Credentials to Your Backend
 
 1. **Add Environment Variables to Your Backend**
-   
+
    Depending on where your backend is hosted:
-   
+
    **If using Render/Vercel/Other hosting:**
    - Go to your project dashboard
    - Find "Environment Variables" or "Settings"
@@ -91,7 +92,7 @@ This means the backend environment variables `GOOGLE_CLIENT_ID` and `GOOGLE_CLIE
    GOOGLE_CLIENT_ID=your-client-id-here.apps.googleusercontent.com
    GOOGLE_CLIENT_SECRET=your-client-secret-here
    ```
-   
+
    **If running locally:**
    - Create/edit `.env` file in `backend/` folder
    - Add the same variables above
@@ -99,6 +100,7 @@ This means the backend environment variables `GOOGLE_CLIENT_ID` and `GOOGLE_CLIE
 2. **Configure Database (Neon)**
    - Your backend uses Neon PostgreSQL
    - Make sure these environment variables are also set:
+
    ```
    DATABASE_URL=your-neon-connection-string
    DB_HOST=your-neon-host.neon.tech
@@ -136,6 +138,7 @@ This means the backend environment variables `GOOGLE_CLIENT_ID` and `GOOGLE_CLIE
 ```
 https://your-backend-domain.com/api/auth/google/callback
 ```
+
 > Replace `your-backend-domain.com` with your actual backend URL
 
 ### Error: "Access blocked: This app's request is invalid"

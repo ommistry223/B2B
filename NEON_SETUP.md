@@ -3,6 +3,7 @@
 ## What is Neon?
 
 Neon is a serverless PostgreSQL database platform that offers:
+
 - ✅ Serverless architecture (auto-scaling)
 - ✅ Free tier with generous limits
 - ✅ Instant database creation
@@ -39,6 +40,7 @@ postgresql://username:password@ep-xxxxx.region.aws.neon.tech/neondb?sslmode=requ
 ```
 
 You can also find individual connection details:
+
 - **Host**: `ep-xxxxx.region.aws.neon.tech`
 - **Database**: `neondb`
 - **Username**: `username`
@@ -76,6 +78,7 @@ node setup-database.js
 ```
 
 This will create:
+
 - `users` table
 - `customers` table
 - `invoices` table
@@ -117,29 +120,30 @@ Look for "Environment Variables" or "Settings" section and add the `DATABASE_URL
 Create a test file `test-db.js` in backend folder:
 
 ```javascript
-import pg from 'pg';
-const { Pool } = pg;
+import pg from 'pg'
+const { Pool } = pg
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+  ssl: { rejectUnauthorized: false },
+})
 
 async function testConnection() {
   try {
-    const result = await pool.query('SELECT NOW()');
-    console.log('✅ Database connected:', result.rows[0]);
-    process.exit(0);
+    const result = await pool.query('SELECT NOW()')
+    console.log('✅ Database connected:', result.rows[0])
+    process.exit(0)
   } catch (error) {
-    console.error('❌ Connection failed:', error.message);
-    process.exit(1);
+    console.error('❌ Connection failed:', error.message)
+    process.exit(1)
   }
 }
 
-testConnection();
+testConnection()
 ```
 
 Run it:
+
 ```bash
 node test-db.js
 ```
@@ -149,6 +153,7 @@ node test-db.js
 ## Neon Dashboard Features
 
 ### Monitor Usage
+
 - Go to **Dashboard** → **Usage**
 - View:
   - Storage used
@@ -156,11 +161,13 @@ node test-db.js
   - Connection count
 
 ### Backups
+
 - Neon automatically backs up your data
 - Point-in-time recovery available
 - No manual setup needed
 
 ### Branching (Development)
+
 - Create database branches for testing
 - Each branch is an isolated copy
 - Perfect for testing migrations
@@ -173,8 +180,8 @@ For production, use connection pooling:
 
 ```javascript
 // In your database.postgresql.js
-import pg from 'pg';
-const { Pool } = pg;
+import pg from 'pg'
+const { Pool } = pg
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -182,9 +189,9 @@ const pool = new Pool({
   max: 20, // Maximum connections
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-});
+})
 
-export { pool };
+export { pool }
 ```
 
 ---
@@ -192,23 +199,31 @@ export { pool };
 ## Troubleshooting
 
 ### Error: "connection refused"
-**Solution:** 
+
+**Solution:**
+
 - Verify connection string is correct
 - Check if `sslmode=require` is in connection string
 - Ensure Neon project is not suspended (free tier inactivity)
 
 ### Error: "password authentication failed"
+
 **Solution:**
+
 - Copy fresh connection string from Neon dashboard
 - Password might have special characters that need URL encoding
 
 ### Error: "database does not exist"
+
 **Solution:**
+
 - Run `setup-database.js` to create tables
 - Verify database name in connection string matches
 
 ### Slow Queries
+
 **Solution:**
+
 - Neon free tier has cold starts (wait ~1-2 seconds)
 - Upgrade to paid tier for instant connections
 - Use connection pooling
@@ -218,12 +233,14 @@ export { pool };
 ## Upgrading to Paid Tier
 
 Free tier limits:
+
 - 1 project
 - 0.5 GB storage
 - 1 branch
 - Cold starts after inactivity
 
 Paid tier benefits:
+
 - Multiple projects
 - More storage
 - Always-on (no cold starts)

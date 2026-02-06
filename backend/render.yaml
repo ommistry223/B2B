@@ -10,33 +10,12 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 5000
+        value: 10000
       - key: JWT_SECRET
         generateValue: true
-      - key: DB_HOST
-        fromDatabase:
-          name: creditflow-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: creditflow-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: creditflow-db
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: creditflow-db
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: creditflow-db
-          property: password
-
-databases:
-  - name: creditflow-db
-    databaseName: b2b_creditflow
-    user: creditflow_user
-    plan: free
-    region: oregon
+      # You need to manually add these in Render dashboard:
+      # - FRONTEND_URL (your Netlify URL)
+      # - FRONTEND_URLS (your Netlify URL)
+      # - GOOGLE_CLIENT_ID (from Google Cloud Console)
+      # - GOOGLE_CLIENT_SECRET (from Google Cloud Console)
+      # - DATABASE_URL (from Neon - format: postgresql://user:pass@host/db)
