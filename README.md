@@ -1,7 +1,6 @@
 ﻿#  CreditFlow Pro - B2B Invoice Management System
 
 [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://bto-b.netlify.app)
-[![Backend API](https://img.shields.io/badge/API-live-blue)](https://b2b-production-febe.up.railway.app)
 [![Deploy Status](https://api.netlify.com/api/v1/badges/6961531f-7fd8-8200-0807-9e6f/deploy-status)](https://app.netlify.com/sites/bto-b/deploys)
 
 >  **Live Application**: [https://bto-b.netlify.app](https://bto-b.netlify.app)
@@ -71,16 +70,15 @@ A modern, full-stack B2B invoice and credit management application with AI-power
 
 **Deployment & Infrastructure:**
 -  **Netlify** - Frontend hosting with CDN
--  **Railway** - Backend hosting and database
+-  **Neon** - PostgreSQL serverless database
+-  **Your Backend Host** - Node.js API (Render, Vercel, etc.)
 -  **GitHub Actions** - CI/CD pipeline (optional)
 
 ##  Live Demo
 
 ** Application**: [https://bto-b.netlify.app](https://bto-b.netlify.app)
 
-** API Backend**: [https://b2b-production-febe.up.railway.app](https://b2b-production-febe.up.railway.app)
-
-**Test the application features:**
+**Test the application features:****
 1. Register a new account
 2. Create customers with credit limits
 3. Generate invoices
@@ -252,13 +250,20 @@ B2B/
 ###  Netlify (Frontend)
 - Build command: `npm install --legacy-peer-deps && npm run build`
 - Publish directory: `build`
-- Environment Variables: `VITE_API_URL=https://your-backend.railway.app/api`
+- Environment Variables: `VITE_API_URL=https://your-backend-domain.com/api`
 
-###  Railway (Backend + Database)
+###  Backend Hosting (Render, Vercel, etc.)
 - Root Directory: `/backend`
 - Start Command: `node server.js`
-- Add PostgreSQL database service
-- Run: `node setup-railway.js` to initialize tables
+- Add environment variables for Neon database connection
+
+###  Neon Database
+- Create a project at https://neon.tech
+- Copy the connection string
+- Add to backend environment variables:
+  - `DATABASE_URL=your-neon-connection-string`
+  - Or individual: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
+- Run: `node setup-database.js` to initialize tables
 
 ##  Available Scripts
 
@@ -271,8 +276,7 @@ npm run build        # Build for production
 ### Backend
 ```bash
 node server.js              # Start API server (port 5000)
-node setup-database.js      # Initialize local database
-node setup-railway.js       # Setup Railway production database
+node setup-database.js      # Initialize database tables
 ```
 
 ##  Troubleshooting
@@ -307,7 +311,7 @@ MIT License - see LICENSE file for details.
 
 - Built with [React](https://react.dev) and [Vite](https://vitejs.dev)
 - Styled with [Tailwind CSS](https://tailwindcss.com)
-- Deployed on [Netlify](https://netlify.com) and [Railway](https://railway.app)
+- Deployed on [Netlify](https://netlify.com)
 
 ---
 

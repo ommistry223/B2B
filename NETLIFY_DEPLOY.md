@@ -30,21 +30,40 @@ After deployment:
    ```
 3. We'll update this after deploying the backend
 
-### Step 4: Deploy Backend to Railway
+### Step 4: Deploy Your Backend
 
-1. **Go to Railway**: https://railway.app
-2. Click **"New Project"**
-3. Choose **"Deploy from GitHub repo"**
-4. Select **ommistry223/B2B**
-5. Railway will detect Node.js
-6. Click **"Add variables"** and add:
-   ```
-   ROOT_PATH = backend
-   ```
-7. Add **PostgreSQL database**: Click **"New"** → **"Database"** → **"PostgreSQL"**
-8. Click **"Deploy"**
+Choose your preferred hosting platform (Render, Vercel, etc.) for your Node.js backend:
 
-### Step 5: Get Your URLs
+**For Render:**
+1. Go to https://render.com
+2. Click **"New +"** → **"Web Service"**
+3. Connect your GitHub repo: **ommistry223/B2B**
+4. Configure:
+   - Root Directory: `backend`
+   - Build Command: `npm install`
+   - Start Command: `node server.js`
+5. Add environment variables (see backend/.env.example)
+6. Click **"Create Web Service"**
+
+**For Vercel:**
+1. Go to https://vercel.com
+2. Import your GitHub repo
+3. Configure root directory: `backend`
+4. Add environment variables
+5. Deploy
+
+### Step 5: Setup Neon Database
+
+1. **Go to Neon**: https://neon.tech
+2. Create a new project
+3. Copy the connection string
+4. Add to your backend environment variables:
+   ```
+   DATABASE_URL=your-neon-connection-string
+   ```
+5. Initialize database tables (see backend/setup-database.js)
+
+### Step 6: Get Your URLs
 
 **Frontend URL** (from Netlify):
 
@@ -52,19 +71,21 @@ After deployment:
 https://your-site-name.netlify.app
 ```
 
-**Backend URL** (from Railway):
+**Backend URL** (from your hosting provider):
 
 ```
-https://your-app.railway.app
+https://your-backend.onrender.com/api
+# or
+https://your-backend.vercel.app/api
 ```
 
-### Step 6: Update Frontend Environment Variable
+### Step 7: Update Frontend Environment Variable
 
 1. Go back to Netlify
 2. **Site settings** → **Environment variables**
-3. Update `VITE_API_URL` to your Railway URL:
+3. Update `VITE_API_URL` to your backend URL:
    ```
-   VITE_API_URL = https://your-app.railway.app/api
+   VITE_API_URL = https://your-backend.onrender.com/api
    ```
 4. Click **"Save"**
 5. Trigger a redeploy: **Deploys** → **Trigger deploy**

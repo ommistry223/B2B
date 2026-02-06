@@ -6,7 +6,8 @@
   publish = "build"
 
 [build.environment]
-  VITE_API_URL = "https://b2b-production-febe.up.railway.app/api"
+  # Replace with your actual backend URL
+  VITE_API_URL = "https://your-backend-domain.com/api"
   NODE_VERSION = "20"
 
 [[redirects]]
