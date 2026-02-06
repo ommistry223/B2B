@@ -6,10 +6,8 @@
   publish = "build"
 
 [build.environment]
-  # Backend URL - Update this after deploying to Render
-  # Get your URL from: https://dashboard.render.com -> Your Service -> Copy URL
-  # Format: https://your-service-name.onrender.com/api
-  VITE_API_URL = "https://your-backend-url.onrender.com/api"
+  # Backend URL - Render deployment
+  VITE_API_URL = "https://b2b-backend-qht2.onrender.com/api"
   NODE_VERSION = "20"
 
 [[redirects]]
