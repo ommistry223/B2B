@@ -24,11 +24,30 @@ npm install
 Create a `.env` file in the backend directory:
 
 ```env
+# Server Configuration
 PORT=5000
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:4028
+FRONTEND_URLS=http://localhost:4028,http://localhost:5173
+BACKEND_URL=http://localhost:5000
+
+# JWT Secret - Generate a strong random string
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+
+# PostgreSQL Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=b2b_creditflow
+DB_USER=postgres
+DB_PASSWORD=your-postgres-password-here
+
+# Google OAuth (Required for Google login)
+# See GOOGLE_OAUTH_SETUP.md for setup instructions
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
+
+> **Note:** For Google OAuth setup instructions, see [GOOGLE_OAUTH_SETUP.md](../GOOGLE_OAUTH_SETUP.md)
 
 ## Running the Server
 
