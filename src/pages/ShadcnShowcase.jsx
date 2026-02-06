@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import AnimatedSection, {
   AnimatedGroup,
-} from '../../components/ui/AnimatedSection'
-import AnimatedGradientText from '../../components/ui/AnimatedGradientText'
-import { Button } from '../../components/ui/shadcn-button'
+} from '../components/ui/AnimatedSection'
+import AnimatedGradientText from '../components/ui/AnimatedGradientText'
+import { Button } from '../components/ui/shadcn-button'
 import {
   Card,
   CardHeader,
@@ -12,12 +12,12 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from '../../components/ui/shadcn-card'
-import { Input } from '../../components/ui/shadcn-input'
-import { Textarea } from '../../components/ui/shadcn-textarea'
-import { Checkbox } from '../../components/ui/shadcn-checkbox'
-import { Switch } from '../../components/ui/shadcn-switch'
-import { Badge } from '../../components/ui/shadcn-badge'
+} from '../components/ui/shadcn-card'
+import { Input } from '../components/ui/shadcn-input'
+import { Textarea } from '../components/ui/shadcn-textarea'
+import { Checkbox } from '../components/ui/shadcn-checkbox'
+import { Switch } from '../components/ui/shadcn-switch'
+import { Badge } from '../components/ui/shadcn-badge'
 import {
   Dialog,
   DialogContent,
@@ -26,37 +26,37 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from '../../components/ui/shadcn-dialog'
+} from '../components/ui/shadcn-dialog'
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from '../../components/ui/shadcn-alert'
+} from '../components/ui/shadcn-alert'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../../components/ui/shadcn-tooltip'
+} from '../components/ui/shadcn-tooltip'
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '../../components/ui/shadcn-tabs'
+} from '../components/ui/shadcn-tabs'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '../../components/ui/shadcn-accordion'
+} from '../components/ui/shadcn-accordion'
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from '../../components/ui/shadcn-avatar'
-import { Separator } from '../../components/ui/shadcn-separator'
-import { Skeleton } from '../../components/ui/shadcn-skeleton'
+} from '../components/ui/shadcn-avatar'
+import { Separator } from '../components/ui/shadcn-separator'
+import { Skeleton } from '../components/ui/shadcn-skeleton'
 import {
   Sparkles,
   Zap,

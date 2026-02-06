@@ -13,15 +13,15 @@ import {
   PulsingElement,
   ScaleOnView,
   SlideUpReveal,
-} from '../../components/AnimatedComponents'
-import EnhancedButton from '../../components/ui/EnhancedButton'
+} from '../components/AnimatedComponents'
+import EnhancedButton from '../components/ui/EnhancedButton'
 import {
   staggerContainer,
   staggerItem,
   fadeInUp,
   cardHover,
   buttonHover,
-} from '../../util/animations'
+} from '../util/animations'
 
 const AnimationShowcase = () => {
   const navigate = useNavigate()
