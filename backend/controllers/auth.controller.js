@@ -105,6 +105,8 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    console.log('Login attempt for:', email);
+
     // Validation
     if (!email || !password) {
       throw new ApiError('Email and password are required', 400);
@@ -113,13 +115,21 @@ export const login = async (req, res, next) => {
     // Find user
     const user = await db.findUserByEmail(email);
     if (!user) {
+      console.log('User not found:', email);
       throw new ApiError('Invalid credentials', 401);
     }
 
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.log('Invalid password for:', email);
       throw new ApiError('Invalid credentials', 401);
+    }
+
+    // Check JWT_SECRET
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ JWT_SECRET is not configured!');
+      throw new ApiError('Server configuration error', 500);
     }
 
     // Generate token
@@ -128,6 +138,8 @@ export const login = async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
+
+    console.log('Login successful for:', email);
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;
@@ -138,6 +150,7 @@ export const login = async (req, res, next) => {
       token
     });
   } catch (error) {
+    console.error('Login error:', error.message);
     next(error);
   }
 };

@@ -26,6 +26,7 @@ const corsOptions = {
     // Allow Netlify domains and localhost
     const allowedOrigins = [
       'https://bto-b.netlify.app',
+      'https://b2b.netlify.app',
       'http://localhost:5173',
       'http://localhost:4028',
       'http://localhost:3000'
@@ -94,9 +95,35 @@ app.use((req, res) => {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
+// Database connection test
+const testDatabaseConnection = async () => {
+  try {
+    await db.pool.query('SELECT NOW()');
+    console.log('✅ Database connection successful');
+    return true;
+  } catch (error) {
+    console.error('❌ Database connection failed:', error.message);
+    return false;
+  }
+};
+
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+const startServer = async () => {
+  // Test database connection
+  const dbConnected = await testDatabaseConnection();
+  if (!dbConnected) {
+    console.error('⚠️ Warning: Server starting without database connection');
+  }
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+    console.log(`🔑 JWT Secret: ${process.env.JWT_SECRET ? '✓ Configured' : '⚠️ MISSING!'}`);
+  });
+};
+
+startServer().catch(err => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });
