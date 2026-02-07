@@ -1,7 +1,7 @@
 // Service Worker for CreditFlow Pro
 // Provides offline support and caching strategies
 
-const CACHE_NAME = 'creditflow-pro-v1';
+const CACHE_NAME = 'creditflow-pro-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -44,6 +44,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Never cache OAuth callbacks - let them pass through
+  if (event.request.url.includes('/auth/google/callback') ||
+      event.request.url.includes('/auth/callback')) {
     return;
   }
 
