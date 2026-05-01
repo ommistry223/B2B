@@ -34,7 +34,7 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
     // Simple linear regression for forecasting
     const dates = Object.keys(dailyRevenue).sort();
     const values = dates.map(date => dailyRevenue[date]);
-    
+
     if (values.length < 2) return [];
 
     // Calculate trend
@@ -43,19 +43,19 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
     const sumY = values.reduce((sum, val) => sum + val, 0);
     const sumXY = values.reduce((sum, val, i) => sum + val * i, 0);
     const sumXX = values.reduce((sum, _, i) => sum + i * i, 0);
-    
+
     const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
     const intercept = (sumY - slope * sumX) / n;
 
     // Generate forecast
     const forecast = [];
     const forecastDays = parseInt(forecastPeriod) || 30;
-    
+
     for (let i = 0; i < Math.min(dates.length + forecastDays, 365); i++) {
       const date = new Date(dates[0]);
       date.setDate(date.getDate() + i);
       const dateString = date.toISOString().split('T')[0];
-      
+
       if (i < dates.length) {
         forecast.push({
           date: dateString,
@@ -83,7 +83,7 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
     for (let i = 0; i < 30; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
-      
+
       const expectedInvoices = filteredData.invoices.filter(inv => {
         const dueDate = new Date(inv.dueDate);
         return dueDate.toDateString() === date.toDateString();
@@ -111,25 +111,25 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
   // Customer Risk Distribution
   const riskDistribution = useMemo(() => {
     const riskLevels = { Excellent: 0, Good: 0, Fair: 0, Poor: 0, Critical: 0 };
-    
+
     filteredData.customers.forEach(customer => {
       const customerInvoices = filteredData.invoices.filter(inv => inv.customerId === customer.id);
-      const customerPayments = filteredData.payments.filter(p => 
+      const customerPayments = filteredData.payments.filter(p =>
         customerInvoices.some(inv => inv.id === p.invoiceId)
       );
-      
+
       // Simplified risk calculation
       const paidInvoices = customerInvoices.filter(inv => inv.status === 'paid').length;
       const totalInvoices = customerInvoices.length;
       const paymentRate = totalInvoices > 0 ? (paidInvoices / totalInvoices) * 100 : 0;
-      
+
       let riskLabel;
       if (paymentRate >= 90) riskLabel = 'Excellent';
       else if (paymentRate >= 80) riskLabel = 'Good';
       else if (paymentRate >= 60) riskLabel = 'Fair';
       else if (paymentRate >= 40) riskLabel = 'Poor';
       else riskLabel = 'Critical';
-      
+
       riskLevels[riskLabel]++;
     });
 
@@ -147,7 +147,7 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
     for (let i = 30; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(today.getDate() - i);
-      
+
       const dayInvoices = filteredData.invoices.filter(inv => {
         const invDate = new Date(inv.createdAt || inv.date);
         return invDate.toDateString() === date.toDateString();
@@ -173,7 +173,7 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
     const totalInvoices = filteredData.invoices.length;
     const paidInvoices = filteredData.invoices.filter(inv => inv.status === 'paid').length;
     const overdueInvoices = filteredData.invoices.filter(inv => inv.status === 'overdue').length;
-    
+
     const paymentRate = totalInvoices > 0 ? (paidInvoices / totalInvoices) * 100 : 0;
     const avgInvoiceValue = totalInvoices > 0 ? totalRevenue / totalInvoices : 0;
 
@@ -185,7 +185,8 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
         icon: TrendingUp,
         trend: 'up',
         trendValue: '+15%',
-        color: 'text-green-500'
+        color: 'text-success',
+        iconBg: 'bg-success/10'
       },
       {
         title: 'Collection Rate',
@@ -194,7 +195,8 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
         icon: Target,
         trend: paymentRate > 80 ? 'up' : 'down',
         trendValue: paymentRate > 80 ? 'Healthy' : 'Needs attention',
-        color: paymentRate > 80 ? 'text-green-500' : 'text-red-500'
+        color: paymentRate > 80 ? 'text-success' : 'text-error',
+        iconBg: paymentRate > 80 ? 'bg-success/10' : 'bg-error/10'
       },
       {
         title: 'Risk Concentration',
@@ -203,7 +205,8 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
         icon: AlertTriangle,
         trend: 'down',
         trendValue: 'Decreasing',
-        color: 'text-yellow-500'
+        color: 'text-warning',
+        iconBg: 'bg-warning/10'
       },
       {
         title: 'Cash Velocity',
@@ -212,7 +215,8 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
         icon: Zap,
         trend: 'up',
         trendValue: '+8%',
-        color: 'text-blue-500'
+        color: 'text-primary',
+        iconBg: 'bg-primary/10'
       }
     ];
   }, [filteredData.payments, filteredData.invoices]);
@@ -227,9 +231,9 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
             AI-powered forecasting and risk intelligence
           </p>
         </div>
-        
+
         <div className="flex gap-3">
-          <select 
+          <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
             className="px-4 py-2 border border-border rounded-lg bg-card text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -238,8 +242,8 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
             <option value="90days">Last 90 Days</option>
             <option value="1year">Last Year</option>
           </select>
-          
-          <select 
+
+          <select
             value={forecastPeriod}
             onChange={(e) => setForecastPeriod(e.target.value)}
             className="px-4 py-2 border border-border rounded-lg bg-card text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -267,16 +271,16 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
                 <p className="text-2xl font-bold text-foreground mt-1">{metric.value}</p>
                 <p className="text-sm text-muted-foreground mt-2">{metric.subtitle}</p>
               </div>
-              <div className={`p-3 rounded-lg bg-${metric.color.replace('text-', '')} bg-opacity-10`}>
+              <div className={`p-3 rounded-lg ${metric.iconBg}`}>
                 <metric.icon className={`w-6 h-6 ${metric.color}`} />
               </div>
             </div>
-            
+
             <div className="flex items-center mt-4">
               {metric.trend === 'up' ? (
-                <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                <TrendingUp className="w-4 h-4 text-success mr-1" />
               ) : (
-                <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
+                <TrendingDown className="w-4 h-4 text-error mr-1" />
               )}
               <span className={`text-sm font-medium ${metric.color}`}>
                 {metric.trendValue}
@@ -298,35 +302,36 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={revenueForecast}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#9CA3AF"
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis
+                  dataKey="date"
+                  stroke="var(--color-muted-foreground)"
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis 
-                  stroke="#9CA3AF"
+                <YAxis
+                  stroke="var(--color-muted-foreground)"
                   tick={{ fontSize: 12 }}
                   tickFormatter={(value) => `₹${(value/1000).toFixed(0)}K`}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [`₹${parseFloat(value).toLocaleString('en-IN')}`, 'Amount']}
-                  labelStyle={{ color: '#1F2937' }}
-                  contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151' }}
+                  contentStyle={{ backgroundColor: 'var(--color-popover)', border: '1px solid var(--color-border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--color-foreground)', fontWeight: 500 }}
+                  itemStyle={{ color: 'var(--color-muted-foreground)' }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="actual" 
-                  stroke="#3B82F6" 
+                <Line
+                  type="monotone"
+                  dataKey="actual"
+                  stroke="#3B82F6"
                   strokeWidth={2}
                   dot={{ r: 4 }}
                   name="Actual Revenue"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="forecast" 
-                  stroke="#10B981" 
+                <Line
+                  type="monotone"
+                  dataKey="forecast"
+                  stroke="#10B981"
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   dot={{ r: 0 }}
@@ -347,21 +352,22 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={cashFlowPrediction.slice(0, 15)}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#9CA3AF"
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis
+                  dataKey="date"
+                  stroke="var(--color-muted-foreground)"
                   tick={{ fontSize: 10 }}
                 />
-                <YAxis 
-                  stroke="#9CA3AF"
+                <YAxis
+                  stroke="var(--color-muted-foreground)"
                   tick={{ fontSize: 12 }}
                   tickFormatter={(value) => `₹${(value/1000).toFixed(0)}K`}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value) => [`₹${parseFloat(value).toLocaleString('en-IN')}`, 'Amount']}
-                  labelStyle={{ color: '#1F2937' }}
-                  contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151' }}
+                  contentStyle={{ backgroundColor: 'var(--color-popover)', border: '1px solid var(--color-border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--color-foreground)', fontWeight: 500 }}
+                  itemStyle={{ color: 'var(--color-muted-foreground)' }}
                 />
                 <Legend />
                 <Bar dataKey="revenue" fill="#10B981" name="Expected Revenue" />
@@ -375,7 +381,7 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-xl p-6 border border-border"
+          className="bg-card rounded-xl p-6 border border-border shadow-sm"
         >
           <h3 className="text-lg font-semibold text-foreground mb-4">Customer Risk Distribution</h3>
           <div className="h-80">
@@ -395,7 +401,11 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{ backgroundColor: 'var(--color-popover)', border: '1px solid var(--color-border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--color-foreground)', fontWeight: 500 }}
+                  itemStyle={{ color: 'var(--color-muted-foreground)' }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -413,26 +423,27 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={overdueTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#9CA3AF"
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis
+                  dataKey="date"
+                  stroke="var(--color-muted-foreground)"
                   tick={{ fontSize: 10 }}
                 />
-                <YAxis 
-                  stroke="#9CA3AF"
+                <YAxis
+                  stroke="var(--color-muted-foreground)"
                   tick={{ fontSize: 12 }}
                 />
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name) => [value, name === 'percentage' ? `${value}%` : value]}
-                  labelStyle={{ color: '#1F2937' }}
-                  contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151' }}
+                  contentStyle={{ backgroundColor: 'var(--color-popover)', border: '1px solid var(--color-border)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'var(--color-foreground)', fontWeight: 500 }}
+                  itemStyle={{ color: 'var(--color-muted-foreground)' }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="percentage" 
-                  stroke="#EF4444" 
+                <Line
+                  type="monotone"
+                  dataKey="percentage"
+                  stroke="#EF4444"
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   name="Overdue %"
@@ -448,25 +459,25 @@ const PredictiveAnalyticsDashboard = ({ invoices, customers, payments }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white"
+        className="bg-card rounded-xl p-6 border border-border shadow-sm"
       >
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-white bg-opacity-20 rounded-lg">
-            <Zap className="w-6 h-6" />
+          <div className="p-3 bg-primary/10 rounded-lg">
+            <Zap className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <h3 className="text-xl font-bold mb-2">AI Insights & Recommendations</h3>
-            <ul className="space-y-2 text-blue-100">
-              <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+            <h3 className="text-lg font-semibold text-foreground mb-3">AI Insights & Recommendations</h3>
+            <ul className="space-y-2">
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-success rounded-full flex-shrink-0"></div>
                 Revenue forecast shows 15% growth over the next 30 days
               </li>
-              <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-warning rounded-full flex-shrink-0"></div>
                 Monitor customers in the "Fair" risk category for potential issues
               </li>
-              <li className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
                 Cash flow prediction indicates strong liquidity position
               </li>
             </ul>

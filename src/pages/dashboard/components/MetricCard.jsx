@@ -1,6 +1,6 @@
-import React from 'react'
-import { motion } from 'framer-motion'
-import Icon from '../../../components/AppIcon'
+import React from "react";
+import { motion } from "framer-motion";
+import Icon from "../../../components/AppIcon";
 
 const MetricCard = ({
   title,
@@ -13,20 +13,20 @@ const MetricCard = ({
 }) => {
   const getRiskColor = () => {
     switch (riskLevel) {
-      case 'low':
-        return 'text-success'
-      case 'medium':
-        return 'text-warning'
-      case 'high':
-        return 'text-error'
+      case "low":
+        return "text-success";
+      case "medium":
+        return "text-warning";
+      case "high":
+        return "text-error";
       default:
-        return 'text-foreground'
+        return "text-foreground";
     }
-  }
+  };
 
   const getTrendColor = () => {
-    return trend === 'up' ? 'text-success' : 'text-error'
-  }
+    return trend === "up" ? "text-success" : "text-error";
+  };
 
   return (
     <div className="bg-card rounded-xl p-4 md:p-6 shadow-elevation-sm hover:shadow-elevation-md transition-all duration-200 border border-border hover:border-primary/30 group cursor-pointer overflow-hidden relative">
@@ -45,7 +45,7 @@ const MetricCard = ({
               {title}
             </motion.p>
             <motion.h3
-              className={`text-xl md:text-2xl lg:text-3xl font-bold ${getRiskColor()} group-hover:scale-105 transition-transform duration-300`}
+              className={`text-xl md:text-2xl lg:text-3xl font-bold ${getRiskColor()}`}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.1 }}
@@ -65,8 +65,8 @@ const MetricCard = ({
           </div>
           <motion.div
             className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 rounded-lg metric-icon-bg flex items-center justify-center"
-            whileHover={{ rotate: 360, scale: 1.1 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
           >
             <Icon
               name={icon}
@@ -83,24 +83,13 @@ const MetricCard = ({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.4 }}
           >
-            <motion.div
-              animate={{
-                y: trend === 'up' ? [-2, 0] : [0, 2],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }}
-            >
-              <Icon
-                name={trend === 'up' ? 'TrendingUp' : 'TrendingDown'}
-                size={16}
-                color={
-                  trend === 'up' ? 'var(--color-success)' : 'var(--color-error)'
-                }
-              />
-            </motion.div>
+            <Icon
+              name={trend === "up" ? "TrendingUp" : "TrendingDown"}
+              size={16}
+              color={
+                trend === "up" ? "var(--color-success)" : "var(--color-error)"
+              }
+            />
             <span
               className={`text-xs md:text-sm font-medium ${getTrendColor()}`}
             >
@@ -113,7 +102,7 @@ const MetricCard = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MetricCard
+export default MetricCard;

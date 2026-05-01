@@ -1,85 +1,85 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import Icon from '../AppIcon'
-import Button from '../ui/Button'
-import ThemeToggle from '../ui/ThemeToggle'
-import MobileNavigation from './MobileNavigation'
-import NotificationCenter from './NotificationCenter'
-import { useUser } from '../../context/UserContext'
-import { useTheme } from '../../context/ThemeContext'
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Icon from "../AppIcon";
+import Button from "../ui/Button";
+import ThemeToggle from "../ui/ThemeToggle";
+import MobileNavigation from "./MobileNavigation";
+import NotificationCenter from "./NotificationCenter";
+import { useUser } from "../../context/UserContext";
+import { useTheme } from "../../context/ThemeContext";
 
 const Header = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { user, logout } = useUser()
-  const { theme, toggleTheme } = useTheme()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
-  const profileDropdownRef = useRef(null)
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useUser();
+  const { theme, toggleTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
 
   // Get user initials
   const getInitials = () => {
-    if (!user?.fullName) return 'U'
+    if (!user?.fullName) return "U";
     return user.fullName
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-  }
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
 
   const navigationItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' },
-    { label: 'Invoices', path: '/invoice-management', icon: 'FileText' },
-    { label: 'Customers', path: '/customer-management', icon: 'Users' },
-    { label: 'Analytics', path: '/risk-analytics', icon: 'TrendingUp' },
-  ]
+    { label: "Dashboard", path: "/dashboard", icon: "LayoutDashboard" },
+    { label: "Invoices", path: "/invoice-management", icon: "FileText" },
+    { label: "Customers", path: "/customer-management", icon: "Users" },
+    { label: "Analytics", path: "/risk-analytics", icon: "TrendingUp" },
+  ];
 
-  const isActivePath = path => {
-    if (path === '/invoice-management') {
+  const isActivePath = (path) => {
+    if (path === "/invoice-management") {
       return (
         location?.pathname === path ||
-        location?.pathname === '/create-invoice' ||
-        location?.pathname === '/payment-recording'
-      )
+        location?.pathname === "/create-invoice" ||
+        location?.pathname === "/payment-recording"
+      );
     }
-    return location?.pathname === path
-  }
+    return location?.pathname === path;
+  };
 
   const handleMobileMenuToggle = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen)
-  }
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+    logout();
+    navigate("/login");
+  };
 
   useEffect(() => {
-    const handleClickOutside = event => {
+    const handleClickOutside = (event) => {
       if (
         profileDropdownRef?.current &&
         !profileDropdownRef?.current?.contains(event?.target)
       ) {
-        setIsProfileDropdownOpen(false)
+        setIsProfileDropdownOpen(false);
       }
-    }
+    };
 
-    const handleEscape = event => {
-      if (event?.key === 'Escape') {
-        setIsProfileDropdownOpen(false)
+    const handleEscape = (event) => {
+      if (event?.key === "Escape") {
+        setIsProfileDropdownOpen(false);
       }
-    }
+    };
 
     if (isProfileDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleEscape)
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleEscape)
-    }
-  }, [isProfileDropdownOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isProfileDropdownOpen]);
 
   return (
     <>
@@ -96,12 +96,12 @@ const Header = () => {
           </Link>
 
           <nav className="header-nav-menu">
-            {navigationItems?.map(item => (
+            {navigationItems?.map((item) => (
               <Link
                 key={item?.path}
                 to={item?.path}
                 className={`header-nav-item ${
-                  isActivePath(item?.path) ? 'active' : ''
+                  isActivePath(item?.path) ? "active" : ""
                 }`}
               >
                 {item?.label}
@@ -129,7 +129,7 @@ const Header = () => {
             <div className="relative hidden lg:block" ref={profileDropdownRef}>
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground text-sm font-medium hover:opacity-90 transition-smooth"
+                className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-smooth"
               >
                 {getInitials()}
               </button>
@@ -138,10 +138,10 @@ const Header = () => {
                 <div className="absolute right-0 top-full mt-2 w-64 bg-popover rounded-lg shadow-elevation-xl border border-border z-[1050]">
                   <div className="p-4 border-b border-border">
                     <p className="text-sm font-medium text-foreground">
-                      {user?.fullName || 'User'}
+                      {user?.fullName || "User"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {user?.email || 'user@example.com'}
+                      {user?.email || "user@example.com"}
                     </p>
                   </div>
                   <div className="py-2">
@@ -179,7 +179,7 @@ const Header = () => {
             className="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors mobile-menu-btn text-foreground"
             aria-label="Toggle mobile menu"
           >
-            <Icon name={isMobileMenuOpen ? 'X' : 'Menu'} size={24} />
+            <Icon name={isMobileMenuOpen ? "X" : "Menu"} size={24} />
           </button>
         </div>
       </header>
@@ -190,7 +190,7 @@ const Header = () => {
         isActivePath={isActivePath}
       />
     </>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

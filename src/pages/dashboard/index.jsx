@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import Header from '../../components/navigation/Header'
-import QuickActionToolbar from '../../components/navigation/QuickActionToolbar'
-import MetricCard from './components/MetricCard'
-import CashFlowChart from './components/CashFlowChart'
-import RiskDistributionChart from './components/RiskDistributionChart'
-import PaymentTrendChart from './components/PaymentTrendChart'
-import RecentActivityFeed from './components/RecentActivityFeed'
-import QuickActionCard from './components/QuickActionCard'
-import UpcomingPayments from './components/UpcomingPayments'
-import FilterControls from './components/FilterControls'
-import PredictiveAnalyticsDashboard from './components/PredictiveAnalyticsDashboard'
-import AnimatedCard from '../../components/ui/AnimatedCard'
-import GlowingButton from '../../components/ui/GlowingButton'
-import { useData } from '../../context/DataContext'
-import { enrichInvoice } from '../../util/invoiceUtils'
-import { calculateRiskScore, getRiskLevel } from '../../util/openaiService'
+import React, { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
+import Header from "../../components/navigation/Header";
+import QuickActionToolbar from "../../components/navigation/QuickActionToolbar";
+import MetricCard from "./components/MetricCard";
+import CashFlowChart from "./components/CashFlowChart";
+import RiskDistributionChart from "./components/RiskDistributionChart";
+import PaymentTrendChart from "./components/PaymentTrendChart";
+import RecentActivityFeed from "./components/RecentActivityFeed";
+import QuickActionCard from "./components/QuickActionCard";
+import UpcomingPayments from "./components/UpcomingPayments";
+import FilterControls from "./components/FilterControls";
+import PredictiveAnalyticsDashboard from "./components/PredictiveAnalyticsDashboard";
+import AnimatedCard from "../../components/ui/AnimatedCard";
+import GlowingButton from "../../components/ui/GlowingButton";
+import { useData } from "../../context/DataContext";
+import { enrichInvoice } from "../../util/invoiceUtils";
+import { calculateRiskScore, getRiskLevel } from "../../util/openaiService";
 import {
   staggerContainer,
   staggerFastContainer,
@@ -23,7 +23,7 @@ import {
   fadeInUp,
   fadeInLeft,
   fadeInRight,
-} from '../../util/animations'
+} from "../../util/animations";
 
 const Dashboard = () => {
   const {
@@ -33,166 +33,174 @@ const Dashboard = () => {
     getTotalOutstanding,
     getOverdueInvoices,
     getTotalPaid,
-  } = useData()
+  } = useData();
 
   const [filters, setFilters] = useState({
-    dateRange: '30days',
-    customerSegment: 'all',
-  })
-  
-  const [showPredictiveAnalytics, setShowPredictiveAnalytics] = useState(false)
+    dateRange: "30days",
+    customerSegment: "all",
+  });
+
+  const [showPredictiveAnalytics, setShowPredictiveAnalytics] = useState(false);
 
   useEffect(() => {
-    document.title = 'Dashboard - CreditFlow Pro'
-  }, [])
+    document.title = "Dashboard - CreditFlow Pro";
+  }, []);
 
-  const handleFilterChange = newFilters => {
-    setFilters(newFilters)
-  }
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
 
   // Enrich invoices with proper status calculations
   const enrichedInvoices = useMemo(() => {
-    return invoices.map(inv => enrichInvoice(inv, payments))
-  }, [invoices, payments])
+    return invoices.map((inv) => enrichInvoice(inv, payments));
+  }, [invoices, payments]);
 
   // Calculate customer risk data
   const customersWithRisk = useMemo(() => {
-    return customers.map(customer => {
-      const riskScore = calculateRiskScore(customer, enrichedInvoices, payments)
-      const riskLevel = getRiskLevel(riskScore)
-      return { ...customer, riskScore, riskLevel }
-    })
-  }, [customers, enrichedInvoices, payments])
+    return customers.map((customer) => {
+      const riskScore = calculateRiskScore(
+        customer,
+        enrichedInvoices,
+        payments,
+      );
+      const riskLevel = getRiskLevel(riskScore);
+      return { ...customer, riskScore, riskLevel };
+    });
+  }, [customers, enrichedInvoices, payments]);
 
   // Calculate real metrics from data
-  const totalOutstanding = getTotalOutstanding()
-  const overdueInvoices = getOverdueInvoices()
-  const totalPaid = getTotalPaid()
+  const totalOutstanding = getTotalOutstanding();
+  const overdueInvoices = getOverdueInvoices();
+  const totalPaid = getTotalPaid();
 
   // Calculate average payment delay from actual payments
   const avgPaymentDelay = useMemo(() => {
-    const paidInvoices = enrichedInvoices.filter(inv => inv.status === 'paid')
-    if (paidInvoices.length === 0) return 0
+    const paidInvoices = enrichedInvoices.filter(
+      (inv) => inv.status === "paid",
+    );
+    if (paidInvoices.length === 0) return 0;
 
-    let totalDelay = 0
-    let countedInvoices = 0
+    let totalDelay = 0;
+    let countedInvoices = 0;
 
-    paidInvoices.forEach(invoice => {
-      const invoicePayments = payments.filter(p => p.invoiceId === invoice.id)
+    paidInvoices.forEach((invoice) => {
+      const invoicePayments = payments.filter(
+        (p) => p.invoiceId === invoice.id,
+      );
       if (invoicePayments.length > 0) {
         const lastPayment = invoicePayments.sort(
           (a, b) =>
             new Date(b.paymentDate || b.date) -
-            new Date(a.paymentDate || a.date)
-        )[0]
+            new Date(a.paymentDate || a.date),
+        )[0];
 
-        const dueDate = new Date(invoice.dueDate)
-        dueDate.setHours(0, 0, 0, 0)
-        const paidDate = new Date(lastPayment.paymentDate || lastPayment.date)
-        paidDate.setHours(0, 0, 0, 0)
+        const dueDate = new Date(invoice.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+        const paidDate = new Date(lastPayment.paymentDate || lastPayment.date);
+        paidDate.setHours(0, 0, 0, 0);
         const daysDiff = Math.floor(
-          (paidDate - dueDate) / (1000 * 60 * 60 * 24)
-        )
+          (paidDate - dueDate) / (1000 * 60 * 60 * 24),
+        );
 
         // Count both positive delays (late) and on-time (0) payments
-        totalDelay += Math.max(0, daysDiff)
-        countedInvoices++
+        totalDelay += Math.max(0, daysDiff);
+        countedInvoices++;
       }
-    })
+    });
 
-    return countedInvoices > 0 ? Math.round(totalDelay / countedInvoices) : 0
-  }, [enrichedInvoices, payments])
+    return countedInvoices > 0 ? Math.round(totalDelay / countedInvoices) : 0;
+  }, [enrichedInvoices, payments]);
 
   const metricsData = [
     {
-      title: 'Total Outstanding',
+      title: "Total Outstanding",
       value: `₹${(totalOutstanding / 100000).toFixed(2)}L`,
       subtitle: `Across ${
         enrichedInvoices.filter(
-          i => i.status !== 'paid' && (Number(i.outstanding) || 0) > 0
+          (i) => i.status !== "paid" && (Number(i.outstanding) || 0) > 0,
         ).length
       } invoices`,
-      icon: 'Wallet',
-      trend: totalOutstanding > 500000 ? 'up' : 'down',
+      icon: "Wallet",
+      trend: totalOutstanding > 500000 ? "up" : "down",
       trendValue:
         totalOutstanding > 0
           ? `${(
               (overdueInvoices.reduce(
                 (sum, i) =>
                   sum + (Number(i.outstanding) || Number(i.amount) || 0),
-                0
+                0,
               ) /
                 totalOutstanding) *
               100
             ).toFixed(1)}% overdue`
-          : '0%',
+          : "0%",
       riskLevel:
         overdueInvoices.length > 5
-          ? 'high'
+          ? "high"
           : overdueInvoices.length > 2
-            ? 'medium'
-            : 'low',
+            ? "medium"
+            : "low",
     },
     {
-      title: 'Overdue Invoices',
+      title: "Overdue Invoices",
       value: overdueInvoices.length.toString(),
       subtitle: `₹${(
         overdueInvoices.reduce(
           (sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0),
-          0
+          0,
         ) / 100000
       ).toFixed(2)}L pending`,
-      icon: 'AlertCircle',
-      trend: 'down',
+      icon: "AlertCircle",
+      trend: "down",
       trendValue:
         overdueInvoices.length > 0
           ? `${Math.round(
               overdueInvoices.reduce(
                 (sum, i) => sum + (Number(i.daysOverdue) || 0),
-                0
-              ) / overdueInvoices.length
+                0,
+              ) / overdueInvoices.length,
             )} days avg`
-          : 'None',
-      riskLevel: 'high',
+          : "None",
+      riskLevel: "high",
     },
     {
-      title: 'Safe Cash Available',
+      title: "Safe Cash Available",
       value: `₹${(
         (totalOutstanding -
           overdueInvoices.reduce(
             (sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0),
-            0
+            0,
           )) /
         100000
       ).toFixed(2)}L`,
-      subtitle: 'After risk adjustment',
-      icon: 'Shield',
-      trend: 'up',
+      subtitle: "After risk adjustment",
+      icon: "Shield",
+      trend: "up",
       trendValue: `${(
         (1 -
           overdueInvoices.reduce(
             (sum, i) => sum + (Number(i.outstanding) || Number(i.amount) || 0),
-            0
+            0,
           ) /
             totalOutstanding) *
           100 || 0
       ).toFixed(1)}% safe`,
-      riskLevel: 'low',
+      riskLevel: "low",
     },
     {
-      title: 'Avg Payment Delay',
-      value: avgPaymentDelay > 0 ? `${avgPaymentDelay} Days` : 'On Time',
-      subtitle: 'Industry avg: 18 days',
-      icon: 'Clock',
-      trend: avgPaymentDelay < 18 ? 'down' : 'up',
+      title: "Avg Payment Delay",
+      value: avgPaymentDelay > 0 ? `${avgPaymentDelay} Days` : "On Time",
+      subtitle: "Industry avg: 18 days",
+      icon: "Clock",
+      trend: avgPaymentDelay < 18 ? "down" : "up",
       trendValue:
         avgPaymentDelay < 18
           ? `${18 - avgPaymentDelay} days better`
           : `${avgPaymentDelay - 18} days worse`,
       riskLevel:
-        avgPaymentDelay < 10 ? 'low' : avgPaymentDelay < 20 ? 'medium' : 'high',
+        avgPaymentDelay < 10 ? "low" : avgPaymentDelay < 20 ? "medium" : "high",
     },
-  ]
+  ];
 
   return (
     <div className="page-shell">
@@ -219,9 +227,13 @@ const Dashboard = () => {
               >
                 <GlowingButton
                   variant={showPredictiveAnalytics ? "accent" : "primary"}
-                  onClick={() => setShowPredictiveAnalytics(!showPredictiveAnalytics)}
+                  onClick={() =>
+                    setShowPredictiveAnalytics(!showPredictiveAnalytics)
+                  }
                 >
-                  {showPredictiveAnalytics ? "Hide Predictive Analytics" : "Show AI Insights"}
+                  {showPredictiveAnalytics
+                    ? "Hide Predictive Analytics"
+                    : "Show AI Insights"}
                 </GlowingButton>
               </motion.div>
               <motion.div
@@ -241,13 +253,13 @@ const Dashboard = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            Last updated:{' '}
-            {new Date()?.toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
+            Last updated:{" "}
+            {new Date()?.toLocaleString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
             })}
           </motion.div>
         </motion.div>
@@ -289,19 +301,10 @@ const Dashboard = () => {
           variants={staggerContainer}
           className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8"
         >
-          <motion.div
-            className="lg:col-span-2"
-            variants={staggerItem}
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div className="lg:col-span-2" variants={staggerItem}>
             <CashFlowChart invoices={enrichedInvoices} payments={payments} />
           </motion.div>
-          <motion.div
-            variants={staggerItem}
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div variants={staggerItem}>
             <RiskDistributionChart customers={customersWithRisk} />
           </motion.div>
         </motion.div>
@@ -313,21 +316,13 @@ const Dashboard = () => {
           variants={staggerContainer}
           className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8"
         >
-          <motion.div
-            variants={staggerItem}
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div variants={staggerItem}>
             <PaymentTrendChart
               invoices={enrichedInvoices}
               payments={payments}
             />
           </motion.div>
-          <motion.div
-            variants={staggerItem}
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div variants={staggerItem}>
             <UpcomingPayments
               invoices={enrichedInvoices}
               customers={customers}
@@ -354,16 +349,16 @@ const Dashboard = () => {
         {showPredictiveAnalytics && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.5 }}
             className="mt-8"
           >
             <AnimatedCard glow borderGlow>
-              <PredictiveAnalyticsDashboard 
-                invoices={enrichedInvoices} 
-                customers={customers} 
-                payments={payments} 
+              <PredictiveAnalyticsDashboard
+                invoices={enrichedInvoices}
+                customers={customers}
+                payments={payments}
               />
             </AnimatedCard>
           </motion.div>
@@ -373,7 +368,7 @@ const Dashboard = () => {
         <QuickActionToolbar />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

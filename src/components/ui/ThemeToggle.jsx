@@ -40,7 +40,7 @@ const ThemeToggle = ({ className = '' }) => {
     >
       <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           rotate: theme === 'dark' ? 0 : 180,
           scale: theme === 'dark' ? 1 : 1.1
         }}
@@ -52,7 +52,7 @@ const ThemeToggle = ({ className = '' }) => {
           <Sun className="w-5 h-5 text-yellow-500" />
         )}
       </motion.div>
-      
+
       {/* Glow effect */}
       <div className={`
         absolute inset-0 rounded-lg blur-md
