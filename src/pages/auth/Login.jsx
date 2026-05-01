@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -8,7 +8,6 @@ import Icon from '../../components/AppIcon'
 import { useUser } from '../../context/UserContext'
 
 const Login = () => {
-  const navigate = useNavigate()
   const { login } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -55,7 +54,7 @@ const Login = () => {
       const result = await login(formData.email, formData.password)
 
       if (result.success) {
-        navigate('/dashboard')
+        window.location.replace('/dashboard')
       } else {
         setErrors({
           email: result.error || 'Login failed. Please check your credentials.',
@@ -77,9 +76,7 @@ const Login = () => {
     window.location.href = authUrl
   }
 
-  const handleMicrosoftLogin = () => {
-    console.log('Microsoft login initiated')
-  }
+  const handleMicrosoftLogin = () => {}
 
   return (
     <>
@@ -90,10 +87,10 @@ const Login = () => {
         <div className="page-content w-full max-w-md">
           {/* Logo and Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-secondary mb-4">
-              <Icon name="TrendingUp" size={32} color="#FFFFFF" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary mb-4">
+              <Icon name="TrendingUp" size={28} color="#FFFFFF" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               Welcome Back
             </h1>
             <p className="text-muted-foreground">
@@ -102,7 +99,7 @@ const Login = () => {
           </div>
 
           {/* Login Card */}
-          <div className="bg-card rounded-lg p-6 md:p-8 shadow-elevation-lg border border-border">
+          <div className="bg-card rounded-xl p-6 md:p-8 shadow-elevation-lg border border-border">
             <form onSubmit={handleSubmit} className="space-y-5">
               <Input
                 type="email"
@@ -148,6 +145,7 @@ const Login = () => {
                 size="lg"
                 loading={isLoading}
                 disabled={isLoading}
+                className="shadow-sm"
               >
                 Sign In
               </Button>
@@ -171,6 +169,7 @@ const Login = () => {
                 variant="outline"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
+                className="rounded-xl"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
@@ -196,6 +195,7 @@ const Login = () => {
                 variant="outline"
                 onClick={handleMicrosoftLogin}
                 disabled={isLoading}
+                className="rounded-xl"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 23 23">
                   <path fill="#f3f3f3" d="M0 0h23v23H0z" />

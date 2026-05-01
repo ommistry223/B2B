@@ -1,7 +1,8 @@
 gradio
 vllm[triton]
 Pillow
-pytesseract
+easyocr
 requests
 aiohttp
 PyMuPDF
+numpy

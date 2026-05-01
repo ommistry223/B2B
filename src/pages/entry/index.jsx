@@ -44,42 +44,42 @@ const Entry = () => {
       title: 'AI-Powered Risk Analysis',
       description:
         'Predict payment delays with 85%+ accuracy using advanced machine learning algorithms',
-      gradient: 'from-blue-500 to-purple-600',
+      gradient: 'from-indigo-500 to-violet-600',
     },
     {
       icon: 'FileText',
       title: 'GST-Compliant Invoicing',
       description:
         'Generate professional invoices with automated GST calculations and compliance',
-      gradient: 'from-green-500 to-emerald-600',
+      gradient: 'from-violet-500 to-purple-600',
     },
     {
       icon: 'DollarSign',
       title: 'Smart Cash Flow Tracking',
       description:
         'Real-time visibility into your receivables and safe cash calculations',
-      gradient: 'from-amber-500 to-orange-600',
+      gradient: 'from-purple-500 to-fuchsia-600',
     },
     {
       icon: 'Bell',
       title: 'Automated Reminders',
       description:
         'Multi-channel payment reminders via WhatsApp, SMS, and Email',
-      gradient: 'from-pink-500 to-rose-600',
+      gradient: 'from-fuchsia-500 to-rose-600',
     },
     {
       icon: 'Shield',
       title: 'Credit Risk Management',
       description:
         'Comprehensive risk scoring and credit limit recommendations',
-      gradient: 'from-violet-500 to-purple-600',
+      gradient: 'from-rose-500 to-pink-600',
     },
     {
       icon: 'BarChart3',
       title: 'Advanced Analytics',
       description:
         'Detailed insights into payment trends and customer behavior patterns',
-      gradient: 'from-blue-500 to-cyan-600',
+      gradient: 'from-blue-500 to-indigo-600',
     },
   ]
 
@@ -312,7 +312,7 @@ const Entry = () => {
                       onClick={() => navigate('/register')}
                       iconName="Rocket"
                       iconPosition="left"
-                      className="shadow-2xl shadow-primary/30 bg-gradient-to-r from-primary to-blue-600 border-0"
+                      className="shadow-md bg-primary border-0"
                     >
                       Start Free Trial
                     </Button>
@@ -752,7 +752,7 @@ const Entry = () => {
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative bg-gradient-to-br from-primary via-blue-600 to-secondary rounded-3xl p-8 md:p-12 lg:p-20 text-center text-white overflow-hidden shadow-2xl"
+              className="relative bg-primary rounded-2xl p-8 md:p-12 lg:p-20 text-center text-white overflow-hidden shadow-xl"
             >
               {/* Animated background patterns */}
               <div className="absolute inset-0 opacity-10">

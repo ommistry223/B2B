@@ -7,10 +7,6 @@
 // API Base URL - loaded from environment variable
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-if (import.meta.env.DEV) {
-  console.log('🔗 API URL:', API_URL);
-}
-
 // Request timeout in milliseconds
 const REQUEST_TIMEOUT = 30000;
 
@@ -49,6 +45,7 @@ const createAbortController = (timeoutMs = REQUEST_TIMEOUT) => {
 // Helper function to make authenticated requests with timeout and error handling
 const fetchWithAuth = async (url, options = {}) => {
   const token = getAuthToken();
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,

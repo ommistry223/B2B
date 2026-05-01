@@ -335,13 +335,13 @@ export const googleAuthCallback = async (req, res, next) => {
     );
 
     const frontendBase = getFrontendBaseUrl();
+
     const decodedState = state
       ? Buffer.from(String(state), 'base64').toString('utf8')
       : '';
-    const redirectTarget = decodedState || '/auth/google/callback';
-    const redirectUrl = isAbsoluteUrl(redirectTarget) && isAllowedRedirect(redirectTarget)
-      ? new URL(redirectTarget)
-      : new URL(redirectTarget, frontendBase);
+
+    const callbackPath = '/auth/google/callback';
+    const redirectUrl = new URL(callbackPath, frontendBase);
     redirectUrl.searchParams.set('token', token);
 
     res.redirect(redirectUrl.toString());

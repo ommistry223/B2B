@@ -4,21 +4,21 @@ import { motion } from 'framer-motion'
 import { cn } from '@/util/cn'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
         default:
-          'border-transparent bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/20 hover:shadow-primary/40',
+          'bg-primary text-primary-foreground',
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+          'bg-muted text-foreground',
         destructive:
-          'border-transparent bg-destructive text-destructive-foreground shadow-lg hover:bg-destructive/80',
-        outline: 'text-foreground border-primary',
+          'bg-destructive text-destructive-foreground',
+        outline: 'border border-border text-foreground',
         success:
-          'border-transparent bg-gradient-to-r from-success to-success/80 text-success-foreground shadow-lg shadow-success/20',
+          'bg-success text-success-foreground',
         warning:
-          'border-transparent bg-warning text-warning-foreground shadow-md',
+          'bg-warning text-warning-foreground',
       },
     },
     defaultVariants: {

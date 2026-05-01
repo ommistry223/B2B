@@ -117,24 +117,41 @@ const CreateInvoice = () => {
 
           if (Number.isFinite(amount)) {
             const netAmount = amount / gstMultiplier
+            
+            // Check if amount appears to be a gross amount (with GST)
+            // by comparing with expected = quantity * rate
+            // If mismatch is ~18%, it's likely a gross amount
+            let detectedAsGross = false
+            if (quantity && rate) {
+              const expectedNet = quantity * rate
+              const ratio = amount / (expectedNet || 1)
+              // If ratio is close to 1.18 (18% GST), it's gross
+              if (Math.abs(ratio - 1.18) < 0.02) {
+                detectedAsGross = true
+              }
+            }
+            
+            // Use net amount if detected as gross (GST included)
+            const workingAmount = detectedAsGross ? netAmount : amount
+            
             if ((!quantity || quantity > 50) && rate) {
-              const inferredQty = netAmount / rate
+              const inferredQty = workingAmount / rate
               if (Number.isFinite(inferredQty) && inferredQty > 0 && inferredQty <= 50) {
                 quantity = inferredQty
               }
             }
             if ((!rate || rate > 100000) && quantity) {
-              const inferredRate = netAmount / quantity
+              const inferredRate = workingAmount / quantity
               if (Number.isFinite(inferredRate) && inferredRate > 0) {
                 rate = inferredRate
               }
             }
             if (quantity && rate) {
-              const expected = quantity * rate * gstMultiplier
+              const expected = quantity * rate * (detectedAsGross ? 1 : gstMultiplier)
               const mismatch = Math.abs(expected - amount) / (amount || 1)
               if (mismatch > 0.08) {
-                const inferredRate = netAmount / quantity
-                const inferredQty = rate ? netAmount / rate : null
+                const inferredRate = workingAmount / quantity
+                const inferredQty = rate ? workingAmount / rate : null
                 const qtyIsInteger = Number.isInteger(quantity)
                 const inferredQtyNice = Number.isFinite(inferredQty) && inferredQty > 0 && inferredQty <= 50
                   ? snapQuantity(inferredQty)

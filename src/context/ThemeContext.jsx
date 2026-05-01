@@ -22,22 +22,38 @@ export const ThemeProvider = ({ children }) => {
     }
   })
 
+  // Set initial theme on mount
+  useEffect(() => {
+    const root = document.documentElement
+    const initialTheme = theme
+    root.classList.remove('light', 'dark')
+    root.classList.add(initialTheme)
+  }, [])
+
   useEffect(() => {
     // Apply theme to document root
     const root = document.documentElement
 
     // Add transition class before changing theme
-    root.style.transition = 'background-color 0.5s ease, color 0.5s ease'
+    root.style.transition = 'background-color 0.3s ease, color 0.3s ease'
 
-    root.classList.remove('light', 'dark')
-    root.classList.add(theme)
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+      root.classList.remove('light', 'dark')
+      root.classList.add(theme)
 
-    // Save to localStorage
-    try {
-      window.localStorage.setItem('theme', theme)
-    } catch (error) {
-      // Ignore storage errors in restricted environments
-    }
+      // Save to localStorage
+      try {
+        window.localStorage.setItem('theme', theme)
+      } catch (error) {
+        // Ignore storage errors in restricted environments
+      }
+
+      // Remove transition after a short delay
+      setTimeout(() => {
+        root.style.transition = ''
+      }, 300)
+    }, 10)
   }, [theme])
 
   const toggleTheme = () => {

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Icon from '../AppIcon'
 import Button from '../ui/Button'
+import ThemeToggle from '../ui/ThemeToggle'
 import MobileNavigation from './MobileNavigation'
 import NotificationCenter from './NotificationCenter'
 import { useUser } from '../../context/UserContext'
@@ -112,17 +113,7 @@ const Header = () => {
             <NotificationCenter />
 
             {/* Theme Toggle Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              iconName={theme === 'dark' ? 'Sun' : 'Moon'}
-              iconSize={20}
-              onClick={toggleTheme}
-              className="hidden lg:flex"
-              aria-label={`Switch to ${
-                theme === 'dark' ? 'light' : 'dark'
-              } mode`}
-            />
+            <ThemeToggle className="hidden lg:flex" />
 
             <Link to="/settings">
               <Button

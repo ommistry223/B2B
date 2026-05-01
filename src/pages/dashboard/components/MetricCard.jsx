@@ -29,15 +29,15 @@ const MetricCard = ({
   }
 
   return (
-    <div className="bg-card rounded-lg p-4 md:p-6 shadow-elevation-sm hover:shadow-elevation-md transition-all duration-300 border border-border hover:border-primary/30 group cursor-pointer overflow-hidden relative">
-      {/* Animated background gradient on hover */}
-      <motion.div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="bg-card rounded-xl p-4 md:p-6 shadow-elevation-sm hover:shadow-elevation-md transition-all duration-200 border border-border hover:border-primary/30 group cursor-pointer overflow-hidden relative">
+      {/* Subtle hover highlight */}
+      <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3 md:mb-4">
           <div className="flex-1 min-w-0">
             <motion.p
-              className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2"
+              className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2 font-medium"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}

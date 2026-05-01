@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -8,7 +8,6 @@ import Icon from '../../components/AppIcon'
 import { useUser } from '../../context/UserContext'
 
 const Register = () => {
-  const navigate = useNavigate()
   const { register } = useUser()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -104,7 +103,7 @@ const Register = () => {
       const result = await register(userData)
 
       if (result.success) {
-        navigate('/dashboard')
+        window.location.replace('/dashboard')
       } else {
         setErrors({
           email: result.error || 'Registration failed. Please try again.',
@@ -128,10 +127,10 @@ const Register = () => {
         <div className="page-content w-full max-w-2xl">
           {/* Logo and Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-primary to-secondary mb-4">
-              <Icon name="TrendingUp" size={32} color="#FFFFFF" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary mb-4">
+              <Icon name="TrendingUp" size={28} color="#FFFFFF" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl font-bold text-foreground mb-2">
               Create Your Account
             </h1>
             <p className="text-muted-foreground">
@@ -140,7 +139,7 @@ const Register = () => {
           </div>
 
           {/* Registration Card */}
-          <div className="bg-card rounded-lg p-6 md:p-8 shadow-elevation-lg border border-border">
+          <div className="bg-card rounded-xl p-6 md:p-8 shadow-elevation-lg border border-border">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Company Information */}
               <div className="space-y-4">

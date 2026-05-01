@@ -5,35 +5,35 @@ import { cn } from '../../util/cn'
 import Icon from '../AppIcon'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] relative overflow-hidden',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         default:
-          'bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
+          'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive:
-          'bg-gradient-to-r from-destructive to-red-600 text-destructive-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline:
-          'border border-input bg-card text-foreground hover:bg-muted hover:border-primary/60 hover:-translate-y-0.5',
+          'border border-border bg-card text-foreground hover:bg-muted hover:border-primary/50',
         secondary:
-          'bg-gradient-to-r from-secondary to-primary text-secondary-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
+          'bg-muted text-foreground hover:bg-muted/80',
         ghost:
-          'text-foreground hover:bg-muted hover:-translate-y-0.5',
-        link: 'text-primary underline-offset-4 hover:underline hover:text-primary/80',
+          'text-foreground hover:bg-muted',
+        link: 'text-primary underline-offset-4 hover:underline',
         success:
-          'bg-gradient-to-r from-success to-emerald-600 text-success-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
+          'bg-success text-success-foreground hover:bg-success/90',
         warning:
-          'bg-gradient-to-r from-warning to-amber-600 text-warning-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
+          'bg-warning text-warning-foreground hover:bg-warning/90',
         danger:
-          'bg-gradient-to-r from-error to-red-600 text-error-foreground shadow-elevation-md hover:shadow-elevation-lg hover:-translate-y-0.5',
+          'bg-error text-error-foreground hover:bg-error/90',
       },
       size: {
-        default: 'h-10 px-5 py-2',
-        sm: 'h-9 rounded-lg px-4 text-sm',
-        lg: 'h-12 rounded-xl px-8 text-base',
-        icon: 'h-10 w-10',
-        xs: 'h-8 rounded-lg px-3 text-xs',
-        xl: 'h-14 rounded-xl px-12 text-lg font-bold',
+        default: 'h-9 px-4 py-2',
+        sm: 'h-8 rounded-md px-3 text-xs',
+        lg: 'h-10 rounded-lg px-6 text-sm',
+        icon: 'h-9 w-9',
+        xs: 'h-7 rounded-md px-2 text-xs',
+        xl: 'h-12 rounded-lg px-8 text-base font-semibold',
       },
     },
     defaultVariants: {

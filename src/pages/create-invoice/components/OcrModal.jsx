@@ -6,6 +6,7 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
   const activeUrl = useMemo(() => ocrUrl || 'http://localhost:7860', [ocrUrl])
   const [successMessage, setSuccessMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [ocrConfidence, setOcrConfidence] = useState(null)
 
   // Listen for messages from the OCR iframe
   useEffect(() => {
@@ -21,6 +22,11 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
       if (event.data?.type === 'OCR_EXTRACT_DATA' && event.data?.data) {
         const extractedData = event.data.data
         const meta = event.data.meta || {}
+
+        // Get confidence from meta
+        if (meta.ocr_confidence) {
+          setOcrConfidence(meta.ocr_confidence)
+        }
 
         const hasUsefulData = Object.values(extractedData || {}).some(value => {
           if (value === null || value === undefined) return false
@@ -44,6 +50,7 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
         }
 
         console.log('📄 Received OCR data:', extractedData)
+        console.log('🎯 OCR Confidence:', meta.ocr_confidence)
         if (onExtractData) {
           onExtractData(extractedData)
         }
@@ -106,6 +113,26 @@ const OcrModal = ({ ocrUrl, onClose, onExtractData }) => {
             <span className="text-sm font-medium text-green-800">
               {successMessage}
             </span>
+          </div>
+        )}
+
+        {ocrConfidence && (
+          <div className="mx-6 mt-4 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3">
+            <Icon name="Scan" size={18} color="#2563eb" />
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-blue-800">
+                OCR Confidence:
+              </span>
+              <div className="w-24 h-2 bg-blue-200 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full ${ocrConfidence >= 80 ? 'bg-green-500' : ocrConfidence >= 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                  style={{ width: `${ocrConfidence}%` }}
+                />
+              </div>
+              <span className="text-sm font-bold text-blue-900">
+                {ocrConfidence}%
+              </span>
+            </div>
           </div>
         )}
 

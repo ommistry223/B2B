@@ -310,18 +310,19 @@ const NotificationCenter = () => {
         iconName="Bell"
         iconSize={20}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative"
+        className="relative hover:bg-muted rounded-lg transition-colors duration-200"
+        aria-label="Notifications"
       >
         {unreadCount > 0 && (
-          <span className="notification-badge">
+          <span className="notification-badge animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </Button>
       {isOpen && (
-        <div className="notification-dropdown">
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <h3 className="text-base font-semibold text-foreground">
+        <div className="notification-dropdown animate-fade-in">
+          <div className="flex items-center justify-between p-4 border-b border-border bg-card rounded-t-lg">
+            <h3 className="text-lg font-semibold text-foreground">
               Notifications {unreadCount > 0 && `(${unreadCount})`}
             </h3>
             <div className="flex gap-2">
@@ -330,7 +331,7 @@ const NotificationCenter = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleMarkAllAsRead}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground hover:text-primary hover:bg-muted px-2 py-1 rounded"
                 >
                   Mark all read
                 </Button>
@@ -340,7 +341,7 @@ const NotificationCenter = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleClearAll}
-                  className="text-xs"
+                  className="text-xs text-muted-foreground hover:text-error hover:bg-muted px-2 py-1 rounded"
                 >
                   Clear all
                 </Button>
@@ -348,18 +349,18 @@ const NotificationCenter = () => {
             </div>
           </div>
 
-          <div className="overflow-y-auto" style={{ maxHeight: '400px' }}>
+          <div className="overflow-y-auto max-h-96 bg-popover rounded-b-lg">
             {notifications?.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
                 <Icon
                   name="CheckCircle2"
                   size={48}
-                  color="var(--color-success)"
+                  className="text-success mb-4"
                 />
-                <p className="mt-4 text-sm font-medium text-foreground">
+                <p className="text-base font-semibold text-foreground mb-1">
                   All caught up!
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   No payment risks or pending notifications
                 </p>
               </div>
@@ -367,31 +368,45 @@ const NotificationCenter = () => {
               notifications?.map(notification => (
                 <div
                   key={notification?.id}
-                  className={`p-4 border-b border-border cursor-pointer transition-smooth ${getNotificationBgColor(
-                    notification?.type
-                  )} ${
-                    !notification?.read ? 'border-l-4 border-l-primary' : ''
+                  className={`p-4 border-b border-border cursor-pointer transition-all duration-200 hover:bg-muted ${
+                    !notification?.read 
+                      ? 'border-l-4 border-l-primary bg-primary/5' 
+                      : 'hover:bg-muted/50'
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-1">
-                      <Icon
-                        name={getNotificationIcon(notification?.type)}
-                        size={20}
-                        color={getNotificationColor(notification?.type)}
-                      />
+                      <div className={`p-2 rounded-full ${
+                        notification?.type === 'overdue' || notification?.type === 'risk' 
+                          ? 'bg-error/10' 
+                          : notification?.type === 'payment' 
+                            ? 'bg-success/10' 
+                            : 'bg-warning/10'
+                      }`}>
+                        <Icon
+                          name={getNotificationIcon(notification?.type)}
+                          size={18}
+                          className={
+                            notification?.type === 'overdue' || notification?.type === 'risk' 
+                              ? 'text-error' 
+                              : notification?.type === 'payment' 
+                                ? 'text-success' 
+                                : 'text-warning'
+                          }
+                        />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-sm font-semibold text-foreground">
+                        <h4 className="font-semibold text-foreground leading-tight">
                           {notification?.title}
                         </h4>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0">
                           {notification?.timestamp}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
                         {notification?.message}
                       </p>
                     </div>

@@ -6,7 +6,25 @@ import re
 import io
 import os
 import shutil
+import numpy as np
 from pathlib import Path
+
+try:
+    import easyocr
+    EASYOCR_AVAILABLE = True
+    # Initialize EasyOCR reader (will be lazy-loaded)
+    _easyocr_reader = None
+    def get_easyocr_reader():
+        global _easyocr_reader
+        if _easyocr_reader is None:
+            print("Loading EasyOCR model (this may take a minute)...")
+            _easyocr_reader = easyocr.Reader(['en'], gpu=False, verbose=False)
+            print("EasyOCR model loaded!")
+        return _easyocr_reader
+except ImportError:
+    EASYOCR_AVAILABLE = False
+    def get_easyocr_reader():
+        return None
 
 try:
     import fitz  # PyMuPDF
@@ -19,13 +37,6 @@ try:
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
-
-try:
-    import pytesseract
-    from pytesseract import Output
-    TESSERACT_AVAILABLE = True
-except ImportError:
-    TESSERACT_AVAILABLE = False
 
 
 def resolve_tesseract_cmd():
@@ -56,167 +67,291 @@ if TESSERACT_AVAILABLE and TESSERACT_CMD:
 else:
     TESSERACT_AVAILABLE = False
 
-TESSERACT_CONFIG = os.environ.get("TESSERACT_CONFIG", "--oem 1 --psm 6")
+TESSERACT_CONFIG = os.environ.get("TESSERACT_CONFIG", "--oem 3 --psm 6 -c tessedit_char_whitelist=0123456789.,₹RsINROabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
 def preprocess_image(image: "Image.Image") -> "Image.Image":
+    """Advanced image preprocessing for better OCR accuracy"""
     if not PIL_AVAILABLE:
         return image
 
+    # Convert to grayscale
     img = image.convert("L")
+    
+    # Apply autocontrast to improve text visibility
     img = ImageOps.autocontrast(img)
-    # Upscale small images to improve OCR accuracy
+    
+    # Upscale small images significantly to improve OCR accuracy (min 2000px)
     max_side = max(img.size)
-    if max_side < 1800:
-        scale = 1800 / max_side
+    if max_side < 2000:
+        scale = 2000 / max_side
         new_size = (int(img.size[0] * scale), int(img.size[1] * scale))
         img = img.resize(new_size, Image.Resampling.LANCZOS)
-    img = img.filter(ImageFilter.SHARPEN)
+    
+    # Apply multiple passes of sharpening for better text clarity
+    for _ in range(2):
+        img = img.filter(ImageFilter.SHARPEN)
+    
+    # Apply denoising for better clarity
+    img = img.filter(ImageFilter.MedianFilter(size=3))
+    
+    # Increase contrast more aggressively for numbers
+    from PIL import ImageEnhance
+    enhancer = ImageEnhance.Contrast(img)
+    img = enhancer.enhance(1.4)
+    
     return img
 
 
-def extract_items_from_image(image: "Image.Image", preprocessed: bool = False):
-    if not (TESSERACT_AVAILABLE and PIL_AVAILABLE):
-        return []
+def extract_text_with_easyocr(image: "Image.Image") -> tuple:
+    """
+    Extract text with confidence scores using EasyOCR
+    Returns: (full_text, words_list, avg_confidence)
+    """
+    if not EASYOCR_AVAILABLE:
+        return "", [], 0
+    
+    try:
+        reader = get_easyocr_reader()
+        if reader is None:
+            return "", [], 0
+        
+        # Convert PIL image to numpy array for EasyOCR
+        img_array = np.array(image)
+        
+        # Run EasyOCR
+        results = reader.readtext(img_array)
+        
+        # Build full text and word-level data
+        full_text = ""
+        words_data = []
+        
+        for (bbox, text, confidence) in results:
+            full_text += text + " "
+            # Each word gets its position and confidence
+            words_data.append({
+                'text': text,
+                'confidence': confidence,
+                'bbox': bbox
+            })
+        
+        avg_confidence = sum(w['confidence'] for w in words_data) / len(words_data) if words_data else 0
+        
+        return full_text.strip(), words_data, avg_confidence
+        
+    except Exception as e:
+        print(f"EasyOCR Error: {e}")
+        return "", [], 0
 
-    def normalize_token(text: str):
-        return re.sub(r'[^a-z]', '', text.lower())
 
-    def parse_number(text: str):
-        match = re.findall(r'[0-9]{1,3}(?:[, ]?[0-9]{3})*(?:\.\d{1,2})?', text)
-        if not match:
-            return None
-        value = match[-1].replace(',', '').replace(' ', '')
-        try:
-            return float(value)
-        except ValueError:
-            return None
-
-    def parse_quantity(text: str):
-        match = re.findall(r'[0-9]+(?:\.\d+)?', text)
-        if not match:
-            return None
-        try:
-            return float(match[0])
-        except ValueError:
-            return None
-
-    img = image if preprocessed else preprocess_image(image)
-    data = pytesseract.image_to_data(img, output_type=Output.DICT, config=TESSERACT_CONFIG)
-
-    lines_map = {}
-    for i in range(len(data["text"])):
-        text = data["text"][i].strip()
-        if not text:
-            continue
-        key = (data["block_num"][i], data["par_num"][i], data["line_num"][i])
-        lines_map.setdefault(key, []).append({
-            "text": text,
-            "left": data["left"][i],
-            "top": data["top"][i],
-            "width": data["width"][i],
-            "height": data["height"][i],
-        })
-
-    lines = sorted(lines_map.values(), key=lambda words: min(w["top"] for w in words))
-    if not lines:
-        return []
-
-    header_index = None
-    columns = {}
-    for idx, words in enumerate(lines):
-        line_text = " ".join(w["text"] for w in sorted(words, key=lambda w: w["left"]))
-        lower = line_text.lower()
-        if "item" in lower and "amount" in lower:
-            header_index = idx
-            for word in words:
-                token = normalize_token(word["text"])
-                if token in {"item", "items", "name", "itemname"}:
-                    columns["item"] = min(columns.get("item", word["left"]), word["left"])
-                elif token in {"qty", "quantity"}:
-                    columns["quantity"] = word["left"]
-                elif token in {"unit"}:
-                    columns["unit"] = word["left"]
-                elif token in {"price", "rate"}:
-                    columns["price"] = word["left"]
-                elif token in {"gst", "tax"}:
-                    columns["gst"] = word["left"]
-                elif token in {"amount", "amt"}:
-                    columns["amount"] = word["left"]
-            if "item" not in columns:
-                columns["item"] = min(w["left"] for w in words)
-            if "amount" in columns:
-                break
-
-    if header_index is None or "amount" not in columns:
-        return []
-
-    column_order = sorted(columns.items(), key=lambda entry: entry[1])
-    col_names = [name for name, _ in column_order]
-    col_positions = [pos for _, pos in column_order]
-
-    def assign_column(word):
-        x_center = word["left"] + word["width"] / 2
-        assigned = col_names[0]
-        for name, pos in column_order:
-            if x_center >= pos:
-                assigned = name
+def parse_number(text: str):
+    """Parse number from text with OCR error correction"""
+    if not text:
+        return None
+    
+    cleaned = text.strip()
+    
+    # Handle common OCR misreads
+    if cleaned:
+        result = []
+        for i, char in enumerate(cleaned):
+            if char.upper() == 'O':
+                prev_is_digit = i > 0 and cleaned[i-1].isdigit()
+                next_is_digit = i < len(cleaned) - 1 and cleaned[i+1].isdigit()
+                if prev_is_digit or next_is_digit:
+                    result.append('0')
+                else:
+                    result.append(char)
             else:
+                result.append(char)
+        cleaned = ''.join(result)
+    
+    # Extract number
+    match = re.findall(r'[0-9]{1,3}(?:[, ]?[0-9]{3})*(?:\.\d{1,2})?', cleaned)
+    if not match:
+        return None
+    value = match[-1].replace(',', '').replace(' ', '')
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def parse_quantity(text: str):
+    """Parse quantity from text"""
+    if not text:
+        return None
+    
+    cleaned = text.strip()
+    
+    # Clean OCR artifacts
+    if cleaned:
+        result = []
+        for i, char in enumerate(cleaned):
+            if char.upper() == 'O' and i == 0:
+                result.append('0')
+            elif char.upper() == 'L' and i == 0:
+                result.append('1')
+            else:
+                result.append(char)
+        cleaned = ''.join(result)
+    
+    match = re.findall(r'[0-9]+(?:\.\d+)?', cleaned)
+    if not match:
+        return None
+    try:
+        return float(match[0])
+    except ValueError:
+        return None
+
+
+def extract_items_from_image(image: "Image.Image", preprocessed: bool = False):
+    """Extract line items using EasyOCR with intelligent layout detection"""
+    if not (EASYOCR_AVAILABLE and PIL_AVAILABLE):
+        return []
+
+    try:
+        reader = get_easyocr_reader()
+        if reader is None:
+            return []
+        
+        # Preprocess image
+        img = image if preprocessed else preprocess_image(image)
+        img_array = np.array(img)
+        
+        # Get detailed OCR results with bounding boxes
+        results = reader.readtext(img_array, detail=1)
+        
+        if not results:
+            return []
+        
+        # Organize OCR results by position (lines)
+        lines_map = {}
+        for bbox, text, confidence in results:
+            if not text.strip():
+                continue
+            
+            # Calculate vertical position (top of bounding box)
+            top = min(point[1] for point in bbox)
+            
+            # Group into lines (similar y-position)
+            line_key = int(top / 20)  # Group within 20px
+            
+            if line_key not in lines_map:
+                lines_map[line_key] = {'texts': [], 'confidences': [], 'tops': []}
+            
+            lines_map[line_key]['texts'].append((text, confidence))
+            lines_map[line_key]['confidences'].append(confidence)
+            lines_map[line_key]['tops'].append(top)
+        
+        # Sort lines by position
+        sorted_lines = sorted(lines_map.items(), key=lambda x: x[0])
+        
+        # Find header row (look for "item", "amount", "qty", etc.)
+        header_line_idx = None
+        columns = {}
+        
+        for idx, (line_key, data) in enumerate(sorted_lines):
+            line_text = " ".join(t[0] for t in data['texts']).lower()
+            
+            if "item" in line_text and "amount" in line_text:
+                header_line_idx = idx
+                
+                # Map column positions
+                for text, conf in data['texts']:
+                    text_lower = text.lower()
+                    if text_lower in ["item", "items", "name", "description"]:
+                        columns["item"] = data['tops'][data['texts'].index((text, conf))]
+                    elif text_lower in ["qty", "quantity"]:
+                        columns["quantity"] = data['tops'][data['texts'].index((text, conf))]
+                    elif text_lower in ["price", "rate", "unit"]:
+                        columns["price"] = data['tops'][data['texts'].index((text, conf))]
+                    elif text_lower in ["amount", "amt", "total"]:
+                        columns["amount"] = data['tops'][data['texts'].index((text, conf))]
                 break
-        return assigned
-
-    items = []
-    for words in lines[header_index + 1:]:
-        line_text = " ".join(w["text"] for w in sorted(words, key=lambda w: w["left"]))
-        if not line_text.strip():
-            continue
-        if "total" in line_text.lower():
-            break
-
-        buckets = {name: [] for name in col_names}
-        for word in sorted(words, key=lambda w: w["left"]):
-            col = assign_column(word)
-            buckets[col].append(word["text"])
-
-        row = {name: " ".join(tokens).strip() for name, tokens in buckets.items() if tokens}
-
-        item_text = row.get("item", "")
-        tokens = item_text.split()
-        index = None
-        if tokens and tokens[0].isdigit():
-            index = tokens[0]
-            tokens = tokens[1:]
-        description = " ".join(tokens).strip()
-
-        quantity = parse_quantity(row.get("quantity", ""))
-        unit = row.get("unit", "").split()[0] if row.get("unit") else None
-        rate = parse_number(row.get("price", ""))
-        amount = parse_number(row.get("amount", ""))
-        gst_value = parse_number(row.get("gst", ""))
-
-        if not description and row.get("item"):
-            description = row.get("item")
-
-        if amount is None and rate is None:
-            continue
-
-        if quantity is None:
-            quantity = 1
-
-        if rate is None and amount is not None and quantity:
-            rate = amount / quantity
-
-        items.append({
-            "index": index or str(len(items) + 1),
-            "description": description,
-            "quantity": quantity,
-            "unit": unit,
-            "rate": rate,
-            "amount": amount,
-            "gst": gst_value
-        })
-
-    return items
+        
+        if header_line_idx is None:
+            return []
+        
+        # Extract items from subsequent lines
+        items = []
+        sorted_columns = sorted(columns.items(), key=lambda x: x[1])
+        
+        for line_key, data in sorted_lines[header_line_idx + 1:]:
+            line_text = " ".join(t[0] for t in data['texts'])
+            
+            if not line_text.strip() or "total" in line_text.lower():
+                continue
+            
+            # Assign each text to a column based on position
+            col_buckets = {name: [] for name, _ in sorted_columns}
+            
+            for text, conf in data['texts']:
+                text_top = data['tops'][data['texts'].index((text, conf))]
+                
+                # Find closest column
+                closest_col = sorted_columns[0][0]
+                for col_name, col_top in sorted_columns:
+                    if abs(text_top - col_top) < abs(text_top - columns.get(closest_col, 9999)):
+                        closest_col = col_name
+                
+                col_buckets[closest_col].append(text)
+            
+            # Parse the row data
+            item_text = " ".join(col_buckets.get("item", []))
+            qty_text = " ".join(col_buckets.get("quantity", []))
+            price_text = " ".join(col_buckets.get("price", []))
+            amount_text = " ".join(col_buckets.get("amount", []))
+            
+            # Extract numbers
+            quantity = parse_quantity(qty_text)
+            rate = parse_number(price_text)
+            amount = parse_number(amount_text)
+            
+            # Clean description
+            tokens = item_text.split()
+            if tokens and tokens[0].isdigit():
+                tokens = tokens[1:]
+            description = " ".join(tokens).strip()
+            
+            if not description:
+                description = item_text
+            
+            # Apply same logic as before for calculations
+            if quantity is None:
+                quantity = 1
+            
+            if amount is not None and quantity is not None:
+                gst_multiplier = 1.18
+                net_amount = amount / gst_multiplier
+                calculated_rate = net_amount / quantity
+                
+                if rate is not None and calculated_rate > 0:
+                    ratio = rate / calculated_rate
+                    if ratio < 0.5 or ratio > 2:
+                        rate = calculated_rate
+                elif rate is None:
+                    rate = calculated_rate
+            
+            if rate is None and amount is not None and quantity:
+                rate = amount / quantity
+            
+            if amount is None and rate is not None and quantity:
+                amount = rate * quantity * 1.18
+            
+            items.append({
+                "index": str(len(items) + 1),
+                "description": description,
+                "quantity": quantity,
+                "rate": rate,
+                "amount": amount
+            })
+        
+        return items
+        
+    except Exception as e:
+        print(f"Error extracting items with EasyOCR: {e}")
+        return []
 
 app = FastAPI()
 
@@ -550,7 +685,7 @@ async def root():
 async def upload_file(file: UploadFile = File(...)):
     """
     Extract invoice data from uploaded file.
-    Uses basic text extraction when vLLM backend is not configured.
+    Uses EasyOCR for advanced deep learning-based text extraction.
     """
     try:
         # Read file content
@@ -564,6 +699,7 @@ async def upload_file(file: UploadFile = File(...)):
         else:
             is_image = lower_name.endswith(('.png', '.jpg', '.jpeg', '.webp', '.bmp', '.tif', '.tiff'))
         items_from_image = []
+        ocr_confidence = 0
 
         # Extract text from PDF if PyMuPDF is available
         if is_pdf and PYMUPDF_AVAILABLE:
@@ -576,33 +712,45 @@ async def upload_file(file: UploadFile = File(...)):
             except Exception as e:
                 print(f"Error extracting PDF text: {e}")
 
-        # OCR fallback for PDFs with no embedded text
-        if is_pdf and PYMUPDF_AVAILABLE and PIL_AVAILABLE and TESSERACT_AVAILABLE:
+        # OCR for PDFs with no embedded text using EasyOCR
+        if is_pdf and PYMUPDF_AVAILABLE and PIL_AVAILABLE and EASYOCR_AVAILABLE:
             try:
                 pdf_document = fitz.open(stream=content, filetype="pdf")
                 ocr_text_needed = not extracted_text.strip() or len(extracted_text.strip()) < 50
+                
                 for page_num in range(len(pdf_document)):
                     page = pdf_document[page_num]
                     pix = page.get_pixmap(dpi=300)
                     img = Image.open(io.BytesIO(pix.tobytes("png")))
                     img = preprocess_image(img)
+                    
                     if ocr_text_needed:
-                        extracted_text += pytesseract.image_to_string(img, config=TESSERACT_CONFIG)
+                        text, words, conf = extract_text_with_easyocr(img)
+                        extracted_text += text
+                        if conf > 0:
+                            ocr_confidence = max(ocr_confidence, conf)
+                    
+                    # Extract items from first page
                     if page_num == 0 and not items_from_image:
                         items_from_image = extract_items_from_image(img, preprocessed=True)
+                        
                 pdf_document.close()
             except Exception as e:
-                print(f"Error OCRing PDF: {e}")
+                print(f"Error OCRing PDF with EasyOCR: {e}")
 
-        # OCR for images
-        if is_image and PIL_AVAILABLE and TESSERACT_AVAILABLE:
+        # OCR for images using EasyOCR
+        if is_image and PIL_AVAILABLE and EASYOCR_AVAILABLE:
             try:
                 img = Image.open(io.BytesIO(content))
                 img = preprocess_image(img)
-                extracted_text = pytesseract.image_to_string(img, config=TESSERACT_CONFIG)
+                
+                # Extract text with EasyOCR
+                extracted_text, words_data, ocr_confidence = extract_text_with_easyocr(img)
+                
+                # Extract line items
                 items_from_image = extract_items_from_image(img, preprocessed=True)
             except Exception as e:
-                print(f"Error OCRing image: {e}")
+                print(f"Error OCRing image with EasyOCR: {e}")
 
         # Parse invoice data from extracted text
         invoice_data = parse_invoice_text(extracted_text, filename)
@@ -619,11 +767,9 @@ async def upload_file(file: UploadFile = File(...)):
             return False
 
         if not extracted_text.strip():
-            note = "Install and configure Tesseract OCR for images/scanned PDFs."
+            note = "EasyOCR is not available. Please install easyocr: pip install easyocr"
             if not PYMUPDF_AVAILABLE and is_pdf:
                 note = "PyMuPDF is not installed, so PDF text could not be extracted."
-            elif TESSERACT_AVAILABLE:
-                note = "OCR is enabled, but no readable text was detected."
             return JSONResponse({
                 "status": "error",
                 "message": "No text could be extracted from the file.",
@@ -639,9 +785,10 @@ async def upload_file(file: UploadFile = File(...)):
             "status": status,
             "message": message,
             "filename": filename,
-            "note": "For better accuracy, configure vLLM backend with NuMarkdown-8B-Thinking model",
+            "note": "Powered by EasyOCR (Deep Learning)",
             "extracted_data": invoice_data,
-            "parser_version": "v6-gst-rate"
+            "parser_version": "v7-easyocr",
+            "ocr_confidence": round(ocr_confidence * 100, 1) if ocr_confidence > 0 else None
         }
         if os.environ.get("OCR_DEBUG") == "1":
             response_payload["debug_text"] = extracted_text[:4000]
@@ -760,9 +907,16 @@ def parse_invoice_text(text: str, filename: str):
     }
 
     def parse_item_line(line: str):
+        # Clean the line first - remove common OCR artifacts
         cleaned = re.sub(r'\(\s*\d+(\.\d+)?\s*%\s*\)', '', line)
         cleaned = cleaned.replace('₹', ' ').replace('Rs.', ' ').replace('INR', ' ')
+        
+        # Remove common OCR noise characters
+        cleaned = re.sub(r'[|\\/{}[\]<>]', '', cleaned)
+        
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        
+        # Item must start with a number (index)
         if not re.match(r'^\d+\s+', cleaned):
             return None
 
@@ -770,6 +924,7 @@ def parse_invoice_text(text: str, filename: str):
         item_index = tokens[0]
         tokens = tokens[1:]
 
+        # Find unit token
         unit_index = None
         for idx, token in enumerate(tokens):
             if token.lower() in unit_tokens:
@@ -803,6 +958,7 @@ def parse_invoice_text(text: str, filename: str):
         if gst_match:
             gst_value = parse_amount(gst_match.group(1))
 
+        # Determine where item name ends (before numbers start)
         item_name_end = None
         if unit_index is not None:
             item_name_end = max(unit_index - 1, 0)
@@ -816,15 +972,34 @@ def parse_invoice_text(text: str, filename: str):
             item_name_end = len(tokens)
 
         name_tokens = tokens[:item_name_end]
+        # Remove common OCR noise tokens
         name_tokens = [t for t in name_tokens if not re.fullmatch(r'[A-Z0-9]{4,}', t)]
+        
+        # Clean up item description - remove extra punctuation
         item_name = " ".join(name_tokens).strip()
+        item_name = re.sub(r'[^a-zA-Z0-9\s\-_]', '', item_name)  # Keep only alphanumeric, spaces, hyphens, underscores
+        item_name = re.sub(r'\s+', ' ', item_name).strip()
+        # Remove leading dashes, bullets, or special characters
+        item_name = re.sub(r'^[\-•·]+', '', item_name).strip()
+        # Remove leading single characters that are likely OCR errors
+        item_name = re.sub(r'^[a-zA-Z]\s+', '', item_name).strip()
+        
         if not item_name:
             item_name = f"Item {item_index}"
 
+        # Validate and correct qty - ensure positive and reasonable
         if qty is None and numeric_tokens:
             qty = numeric_tokens[0]
-        if qty is None:
+        if qty is None or qty <= 0:
             qty = 1
+
+        # Validate amount - should be reasonable (not too large for invoice items)
+        if amount is not None and amount > 1000000:
+            amount = None  # Likely OCR error
+        
+        # Validate rate
+        if rate is not None and rate > 100000:
+            rate = None  # Likely OCR error
 
         if gst_value is not None:
             gross_from_gst = gst_value * (1.18 / 0.18)

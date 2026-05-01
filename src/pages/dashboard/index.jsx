@@ -10,6 +10,9 @@ import RecentActivityFeed from './components/RecentActivityFeed'
 import QuickActionCard from './components/QuickActionCard'
 import UpcomingPayments from './components/UpcomingPayments'
 import FilterControls from './components/FilterControls'
+import PredictiveAnalyticsDashboard from './components/PredictiveAnalyticsDashboard'
+import AnimatedCard from '../../components/ui/AnimatedCard'
+import GlowingButton from '../../components/ui/GlowingButton'
 import { useData } from '../../context/DataContext'
 import { enrichInvoice } from '../../util/invoiceUtils'
 import { calculateRiskScore, getRiskLevel } from '../../util/openaiService'
@@ -36,6 +39,8 @@ const Dashboard = () => {
     dateRange: '30days',
     customerSegment: 'all',
   })
+  
+  const [showPredictiveAnalytics, setShowPredictiveAnalytics] = useState(false)
 
   useEffect(() => {
     document.title = 'Dashboard - CreditFlow Pro'
@@ -206,14 +211,28 @@ const Dashboard = () => {
                 Real-time credit risk management and cash flow insights
               </p>
             </motion.div>
-            <motion.div
-              className="hidden lg:block"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <QuickActionToolbar />
-            </motion.div>
+            <div className="flex items-center gap-3">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <GlowingButton
+                  variant={showPredictiveAnalytics ? "accent" : "primary"}
+                  onClick={() => setShowPredictiveAnalytics(!showPredictiveAnalytics)}
+                >
+                  {showPredictiveAnalytics ? "Hide Predictive Analytics" : "Show AI Insights"}
+                </GlowingButton>
+              </motion.div>
+              <motion.div
+                className="hidden lg:block"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <QuickActionToolbar />
+              </motion.div>
+            </div>
           </div>
 
           <motion.div
@@ -330,6 +349,25 @@ const Dashboard = () => {
             <QuickActionCard />
           </motion.div>
         </motion.div>
+
+        {/* Predictive Analytics Section */}
+        {showPredictiveAnalytics && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8"
+          >
+            <AnimatedCard glow borderGlow>
+              <PredictiveAnalyticsDashboard 
+                invoices={enrichedInvoices} 
+                customers={customers} 
+                payments={payments} 
+              />
+            </AnimatedCard>
+          </motion.div>
+        )}
       </main>
       <div className="lg:hidden">
         <QuickActionToolbar />

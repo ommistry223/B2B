@@ -59,13 +59,13 @@ const FilterControls = ({ onFilterChange }) => {
           placeholder="Select customer segment"
         />
       </div>
-      <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
+      <div className="flex flex-col sm:flex-row gap-3 mt-6">
         <Button
           variant="default"
           iconName="Filter"
           iconPosition="left"
           onClick={handleApplyFilters}
-          className="flex-1 sm:flex-none"
+          className="filter-apply-btn flex-1 sm:flex-none"
         >
           Apply Filters
         </Button>
@@ -74,9 +74,9 @@ const FilterControls = ({ onFilterChange }) => {
           iconName="RotateCcw"
           iconPosition="left"
           onClick={handleResetFilters}
-          className="flex-1 sm:flex-none"
+          className="filter-reset-btn flex-1 sm:flex-none"
         >
-          Reset
+          Reset Filters
         </Button>
       </div>
     </div>
